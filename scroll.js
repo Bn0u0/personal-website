@@ -6,7 +6,7 @@ if (progressRoot && progressBar) {
 
   const setProgress = (progress) => {
     const clamped = Math.min(1, Math.max(0, progress || 0));
-    progressBar.style.transform = `scaleY(${clamped})`;
+    progressBar.style.transform = `scaleX(${clamped})`;
     progressRoot.classList.add('is-scrolling');
 
     window.clearTimeout(scrollIdleTimer);
