@@ -23,6 +23,22 @@ html {
   background: rgba(18, 18, 18, 0.42);
 }
 
+/*
+ * The main stylesheet gives .project-row a native pointer cursor.
+ * Because a class selector outranks the generic button/a cursor rule,
+ * the OS cursor could leak through while the custom VIEW cursor was active.
+ * Keep the native cursor fully suppressed anywhere the custom cursor owns input.
+ */
+@media (pointer: fine) {
+  .project-row,
+  [data-cursor],
+  .magnetic,
+  a,
+  button {
+    cursor: none !important;
+  }
+}
+
 .scroll-progress {
   position: fixed;
   top: 0;
