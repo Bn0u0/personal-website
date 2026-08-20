@@ -56,6 +56,35 @@
       transform:none!important;
     }
 
+    /* Project Detail is its own scroll container. Its first layout previously
+       used 100svh below a separate sticky top bar, making the lower copy/media
+       look clipped and allowing the page-level Lenis wheel handler to compete
+       with the modal. */
+    .project-detail{
+      height:100dvh!important;
+      max-height:100dvh!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      overscroll-behavior-y:contain!important;
+      -webkit-overflow-scrolling:touch;
+      touch-action:pan-y;
+      scroll-behavior:smooth;
+    }
+    .project-detail__top{
+      min-height:64px;
+      box-sizing:border-box;
+    }
+    .project-detail__hero{
+      min-height:calc(100dvh - 64px)!important;
+      height:auto!important;
+      padding-top:clamp(44px,6vh,72px)!important;
+      padding-bottom:clamp(44px,6vh,72px)!important;
+    }
+    .project-detail__copy,
+    .project-detail__media{
+      min-width:0;
+    }
+
     /* CJK glyph safety: the manifesto character animation already supplies
        its own transform/opacity motion, so clipping the line only cuts glyphs. */
     .manifesto__statement{
@@ -96,14 +125,35 @@
       .lang-fade-target.is-lang-out{clip-path:inset(0 100% 0 0)}
     }
 
+    /* Browser chrome can leave a surprisingly short CSS viewport even on a
+       1080p display. In that case favor readable flow over forcing both columns
+       to visually fill the first screen. */
+    @media(max-height:920px) and (min-width:1001px){
+      .project-detail__hero{
+        align-items:start!important;
+        padding-top:36px!important;
+        padding-bottom:52px!important;
+      }
+      .project-detail__copy{padding-top:12px!important}
+      .project-detail__title{font-size:clamp(54px,6.4vw,112px)!important}
+      .project-detail__media{min-height:clamp(360px,58dvh,620px)!important}
+    }
+
     @media(max-width:640px){
       .language-toggle{font-size:9px!important;gap:4px!important;margin-left:0!important}
       .hero__eyebrow{gap:9px!important}
       .manifesto__statement{line-height:1.02!important}
       .work-scroll-cue{bottom:30px;font-size:9px}
+      .project-detail__top{min-height:56px}
+      .project-detail__hero{
+        min-height:calc(100dvh - 56px)!important;
+        padding-top:34px!important;
+        padding-bottom:44px!important;
+      }
     }
     @media(prefers-reduced-motion:reduce){
       .lang-fade-target{transition:none!important;-webkit-mask-image:none!important;mask-image:none!important;clip-path:none!important}
+      .project-detail{scroll-behavior:auto}
     }
   `;
   document.head.appendChild(style);
@@ -179,13 +229,24 @@
   const detail=document.querySelector('.project-detail');
   const closeButton=document.querySelector('.project-detail__close');
 
+  if(detail){
+    detail.setAttribute('tabindex','-1');
+    /* Keep wheel/touch gestures inside the modal instead of allowing the
+       page-level Lenis listener to intercept them. */
+    detail.addEventListener('wheel',event=>event.stopPropagation(),{passive:true});
+    detail.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
+  }
+
   function ensureOpen(){
-    if(!detail||detail.classList.contains('is-open'))return;
+    if(!detail)return;
     detail.scrollTop=0;
-    detail.setAttribute('aria-hidden','false');
-    document.body.classList.add('is-detail-open');
-    requestAnimationFrame(()=>detail.classList.add('is-open'));
-    window.__lenis?.stop?.();
+    if(!detail.classList.contains('is-open')){
+      detail.setAttribute('aria-hidden','false');
+      document.body.classList.add('is-detail-open');
+      requestAnimationFrame(()=>detail.classList.add('is-open'));
+      window.__lenis?.stop?.();
+    }
+    requestAnimationFrame(()=>detail.focus?.({preventScroll:true}));
   }
 
   function ensureClosed(){
