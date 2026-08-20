@@ -34,6 +34,25 @@
     .hero__eyebrow{justify-content:flex-start!important;gap:12px!important}
     .hero__eyebrow span:last-child{display:inline!important}
 
+    /* Keep Selected Work in the normal document flow. The section no longer
+       depends on a pinned curtain/ScrollTrigger state to become usable. */
+    .work .section-heading.reveal,
+    .work .project-item.reveal{
+      opacity:1!important;
+      transform:none!important;
+    }
+
+    /* CJK glyph safety: the manifesto character animation already supplies
+       its own transform/opacity motion, so clipping the line only cuts glyphs. */
+    .manifesto__statement{
+      line-height:1!important;
+      padding-bottom:.08em!important;
+    }
+    .manifesto__line{
+      overflow:visible!important;
+      padding-bottom:.08em!important;
+    }
+
     .lang-fade-target{
       --lang-wipe:110%;
       -webkit-mask-image:linear-gradient(90deg,
@@ -66,6 +85,7 @@
     @media(max-width:640px){
       .language-toggle{font-size:9px!important;gap:4px!important;margin-left:0!important}
       .hero__eyebrow{gap:9px!important}
+      .manifesto__statement{line-height:1.02!important}
     }
     @media(prefers-reduced-motion:reduce){
       .lang-fade-target{transition:none!important;-webkit-mask-image:none!important;mask-image:none!important;clip-path:none!important}
@@ -128,13 +148,36 @@
     },760);
   },true);
 
-  const curtainStyle=document.createElement('link');
-  curtainStyle.rel='stylesheet';
-  curtainStyle.href='./curtain.css';
-  document.head.appendChild(curtainStyle);
+  /* Defensive project-detail fallback. site.js remains the primary handler;
+     this only opens/closes the existing detail layer if that handler fails. */
+  const detail=document.querySelector('.project-detail');
+  const closeButton=document.querySelector('.project-detail__close');
 
-  const curtainScript=document.createElement('script');
-  curtainScript.src='./curtain.js';
-  curtainScript.async=false;
-  document.body.appendChild(curtainScript);
+  function ensureOpen(){
+    if(!detail||detail.classList.contains('is-open'))return;
+    detail.scrollTop=0;
+    detail.setAttribute('aria-hidden','false');
+    document.body.classList.add('is-detail-open');
+    requestAnimationFrame(()=>detail.classList.add('is-open'));
+    window.__lenis?.stop?.();
+  }
+
+  function ensureClosed(){
+    if(!detail)return;
+    detail.classList.remove('is-open');
+    detail.setAttribute('aria-hidden','true');
+    document.body.classList.remove('is-detail-open');
+    window.__lenis?.start?.();
+  }
+
+  document.addEventListener('click',event=>{
+    const row=event.target.closest?.('.project-row');
+    if(!row)return;
+    setTimeout(ensureOpen,0);
+  },true);
+
+  closeButton?.addEventListener('click',()=>setTimeout(ensureClosed,0),true);
+  addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&detail?.classList.contains('is-open'))ensureClosed();
+  });
 })();
