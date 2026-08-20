@@ -17,7 +17,7 @@
       display:inline-flex!important;align-items:center!important;gap:5px!important;overflow:visible!important;
       font-size:10px!important;line-height:1!important;letter-spacing:.06em!important;
       text-transform:none!important;color:inherit!important;opacity:.92;
-      transition:opacity 220ms ease!important
+      transition:opacity var(--motion-micro,200ms) ease!important
     }
     .language-toggle:hover{background:transparent!important;border:0!important;opacity:1}
     .language-toggle:active{transform:none!important}
@@ -25,7 +25,7 @@
     .language-toggle__thumb{display:none!important}
     .language-toggle__option{
       display:inline!important;height:auto!important;color:inherit!important;mix-blend-mode:normal!important;
-      opacity:.38;transition:opacity 240ms ease!important
+      opacity:.38;transition:opacity var(--motion-micro,200ms) ease!important
     }
     .language-toggle__sep{opacity:.28}
     .language-toggle:not(.is-zh) .language-toggle__en,
@@ -33,18 +33,6 @@
 
     .hero__eyebrow{justify-content:flex-start!important;gap:12px!important}
     .hero__eyebrow span:last-child{display:inline!important}
-
-    .work-scroll-cue{
-      position:absolute;
-      right:var(--pad);
-      bottom:44px;
-      z-index:3;
-      color:var(--muted);
-      font-size:11px;
-      line-height:1.25;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-    }
 
     .work .section-heading.reveal,
     .work .project-item.reveal{
@@ -73,9 +61,7 @@
       padding-bottom:clamp(44px,6vh,72px)!important;
     }
     .project-detail__copy,
-    .project-detail__media{
-      min-width:0;
-    }
+    .project-detail__media{min-width:0}
 
     .manifesto__statement{
       line-height:1!important;
@@ -100,7 +86,7 @@
         transparent calc(var(--lang-wipe) + 8%));
       -webkit-mask-repeat:no-repeat;
       mask-repeat:no-repeat;
-      transition:--lang-wipe 255ms cubic-bezier(.55,.05,.25,1)!important;
+      transition:--lang-wipe var(--motion-ui,340ms) cubic-bezier(.55,.05,.25,1)!important;
       transition-delay:var(--lang-delay,0ms)!important;
       will-change:mask-image,-webkit-mask-image;
     }
@@ -109,7 +95,7 @@
     @supports not (mask-image:linear-gradient(#000,transparent)){
       .lang-fade-target{
         clip-path:inset(0 0 0 0);
-        transition:clip-path 255ms cubic-bezier(.55,.05,.25,1)!important;
+        transition:clip-path var(--motion-ui,340ms) cubic-bezier(.55,.05,.25,1)!important;
         transition-delay:var(--lang-delay,0ms)!important
       }
       .lang-fade-target.is-lang-out{clip-path:inset(0 100% 0 0)}
@@ -130,7 +116,6 @@
       .language-toggle{font-size:9px!important;gap:4px!important;margin-left:0!important}
       .hero__eyebrow{gap:9px!important}
       .manifesto__statement{line-height:1.02!important}
-      .work-scroll-cue{bottom:30px;font-size:9px}
       .project-detail__top{min-height:56px}
       .project-detail__hero{
         min-height:calc(100dvh - 56px)!important;
@@ -151,12 +136,8 @@
     const lines=document.querySelectorAll('.hero__line>span');
     if(lines.length<2)return;
     const zh=document.documentElement.lang.toLowerCase().startsWith('zh');
-    const copy=zh
-      ? ['我只是想把','腦子裡的東西做出來']
-      : ['I just want to make','the things in my head'];
-    copy.forEach((value,index)=>{
-      if(lines[index].textContent!==value)lines[index].textContent=value;
-    });
+    const copy=zh?['我只是想把','腦子裡的東西做出來']:['I just want to make','the things in my head'];
+    copy.forEach((value,index)=>{if(lines[index].textContent!==value)lines[index].textContent=value});
   }
 
   function syncWorkCue(){
@@ -183,9 +164,7 @@
     '.project-detail__tags','.detail-image-slot','.project-detail__below-label','.detail-below-copy'
   ].join(',');
 
-  function targets(){
-    return [...document.querySelectorAll(selector)].filter((el,i,arr)=>arr.indexOf(el)===i);
-  }
+  function targets(){return [...document.querySelectorAll(selector)].filter((el,i,arr)=>arr.indexOf(el)===i)}
 
   toggle.addEventListener('click',()=>{
     if(reduced||toggle.disabled)return;
@@ -194,21 +173,18 @@
       el.classList.add('lang-fade-target');
       el.style.setProperty('--lang-delay',`${Math.min((i%12)*5,55)}ms`);
     });
-
     requestAnimationFrame(()=>els.forEach(el=>el.classList.add('is-lang-out')));
-
     setTimeout(()=>{
       syncHeroCopy();
       syncWorkCue();
       els.forEach(el=>el.classList.remove('is-lang-out'));
     },390);
-
     setTimeout(()=>{
       els.forEach(el=>{
         el.classList.remove('lang-fade-target');
         el.style.removeProperty('--lang-delay');
       });
-    },760);
+    },800);
   },true);
 
   const detail=document.querySelector('.project-detail');
@@ -218,13 +194,9 @@
     detail.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
   }
 
-  /* site.js owns project-detail open/close transitions. The older defensive
-     fallback is intentionally not registered when the organic reveal system
-     is present, otherwise it would terminate the reverse animation early. */
   if(detail&&detail.dataset.organicReveal!=='true'){
     const closeButton=document.querySelector('.project-detail__close');
     const ensureOpen=()=>{
-      if(!detail)return;
       detail.scrollTop=0;
       if(!detail.classList.contains('is-open')){
         detail.setAttribute('aria-hidden','false');
@@ -242,8 +214,7 @@
     };
     document.addEventListener('click',event=>{
       const row=event.target.closest?.('.project-row');
-      if(!row)return;
-      setTimeout(ensureOpen,0);
+      if(row)setTimeout(ensureOpen,0);
     },true);
     closeButton?.addEventListener('click',()=>setTimeout(ensureClosed,0),true);
     addEventListener('keydown',event=>{
