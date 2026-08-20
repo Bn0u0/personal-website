@@ -31,6 +31,9 @@
     .language-toggle:not(.is-zh) .language-toggle__en,
     .language-toggle.is-zh .language-toggle__zh{opacity:1}
 
+    .hero__eyebrow{justify-content:flex-start!important;gap:12px!important}
+    .hero__eyebrow span:last-child{display:inline!important}
+
     .lang-fade-target{
       --lang-wipe:110%;
       -webkit-mask-image:linear-gradient(90deg,
@@ -62,6 +65,7 @@
 
     @media(max-width:640px){
       .language-toggle{font-size:9px!important;gap:4px!important;margin-left:0!important}
+      .hero__eyebrow{gap:9px!important}
     }
     @media(prefers-reduced-motion:reduce){
       .lang-fade-target{transition:none!important;-webkit-mask-image:none!important;mask-image:none!important;clip-path:none!important}
