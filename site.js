@@ -48,27 +48,175 @@
   const dn=document.querySelector('.detail-number'),dy=document.querySelector('.detail-year'),dt=document.querySelector('.project-detail__title'),dh=document.querySelector('.project-detail__headline'),dd=document.querySelector('.project-detail__description'),dTags=document.querySelector('.project-detail__tags'),dmn=document.querySelector('.detail-media-number'),dmt=document.querySelector('.detail-media-title'),db=document.querySelector('.detail-below-copy');
   let lastTrigger=null;
 
+  if(detail){
+    detail.dataset.organicReveal='true';
+    const organicStyle=document.createElement('style');
+    organicStyle.textContent=`
+      .project-detail{
+        transform:none!important;
+        transition:visibility 0s linear 720ms!important;
+        will-change:clip-path;
+      }
+      .project-detail.is-open{
+        transform:none!important;
+        transition:none!important;
+      }
+      @media(prefers-reduced-motion:reduce){
+        .project-detail{clip-path:none!important;will-change:auto}
+      }
+    `;
+    document.head.appendChild(organicStyle);
+  }
+
+  let detailOrigin={x:innerWidth/2,y:innerHeight/2};
+  let detailShape=null;
+  let detailRadius=0;
+  let detailMaxRadius=0;
+  let detailFrame=0;
+
+  const TAU=Math.PI*2;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const easeOutQuint=t=>1-Math.pow(1-t,5);
+  const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+
   function detailReady(){return detail&&detailMedia&&dn&&dy&&dt&&dh&&dd&&dTags&&dmn&&dmt&&db}
-  function openProject(key,trigger){
+
+  function randomShape(){
+    return {
+      k1:2+Math.floor(Math.random()*2),
+      k2:4+Math.floor(Math.random()*2),
+      k3:6+Math.floor(Math.random()*2),
+      a1:.038+Math.random()*.026,
+      a2:.018+Math.random()*.018,
+      a3:.008+Math.random()*.010,
+      p1:Math.random()*TAU,
+      p2:Math.random()*TAU,
+      p3:Math.random()*TAU,
+      squashX:.985+Math.random()*.03,
+      squashY:.985+Math.random()*.03
+    };
+  }
+
+  function originFromEvent(event,trigger){
+    const r=trigger?.getBoundingClientRect?.();
+    const pointer=event&&event.detail!==0&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY);
+    return {
+      x:clamp(pointer?event.clientX:(r?r.left+r.width/2:innerWidth/2),0,innerWidth),
+      y:clamp(pointer?event.clientY:(r?r.top+r.height/2:innerHeight/2),0,innerHeight)
+    };
+  }
+
+  function coverageRadius(origin){
+    const corners=[
+      Math.hypot(origin.x,origin.y),
+      Math.hypot(innerWidth-origin.x,origin.y),
+      Math.hypot(origin.x,innerHeight-origin.y),
+      Math.hypot(innerWidth-origin.x,innerHeight-origin.y)
+    ];
+    return Math.max(...corners)*1.34+48;
+  }
+
+  function blobPolygon(origin,radius,shape){
+    const count=64;
+    const pts=[];
+    for(let i=0;i<count;i++){
+      const a=TAU*i/count;
+      const organic=1+
+        Math.sin(a*shape.k1+shape.p1)*shape.a1+
+        Math.sin(a*shape.k2+shape.p2)*shape.a2+
+        Math.sin(a*shape.k3+shape.p3)*shape.a3;
+      const rr=Math.max(2,radius*organic);
+      const x=origin.x+Math.cos(a)*rr*shape.squashX;
+      const y=origin.y+Math.sin(a)*rr*shape.squashY;
+      pts.push(`${x.toFixed(2)}px ${y.toFixed(2)}px`);
+    }
+    return `polygon(${pts.join(',')})`;
+  }
+
+  function animateDetail(opening,onDone){
+    if(!detail||reduced){onDone?.();return;}
+    cancelAnimationFrame(detailFrame);
+    if(opening)detailMaxRadius=coverageRadius(detailOrigin);
+    else if(!Number.isFinite(detailRadius)||detailRadius<=0)detailRadius=coverageRadius(detailOrigin);
+
+    const from=detailRadius;
+    const to=opening?detailMaxRadius:2;
+    const duration=opening?760:620;
+    const started=performance.now();
+
+    const frame=now=>{
+      const t=clamp((now-started)/duration,0,1);
+      const eased=opening?easeOutQuint(t):easeInOutCubic(t);
+      detailRadius=from+(to-from)*eased;
+      detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape);
+      detail.style.webkitClipPath=detail.style.clipPath;
+      if(t<1){detailFrame=requestAnimationFrame(frame);return;}
+      if(opening){
+        detailRadius=detailMaxRadius;
+        detail.style.clipPath='none';
+        detail.style.webkitClipPath='none';
+      }
+      onDone?.();
+    };
+    detailFrame=requestAnimationFrame(frame);
+  }
+
+  function openProject(key,trigger,event){
     const p=projects[key];
     if(!p||!detailReady())return;
     lastTrigger=trigger||null;
     dn.textContent=p.number;dy.textContent=p.year;dt.textContent=p.title;dh.textContent=p.headline;dd.textContent=p.description;dmn.textContent=p.number;dmt.textContent=p.mediaTitle;db.textContent=p.below;
     detailMedia.dataset.project=key;dTags.innerHTML=p.tags.map(t=>`<span>${t}</span>`).join('');detail.scrollTop=0;
-    detail.setAttribute('aria-hidden','false');document.body.classList.add('is-detail-open');
-    requestAnimationFrame(()=>detail.classList.add('is-open'));
+
+    detailOrigin=originFromEvent(event,trigger);
+    detailShape=randomShape();
+    detailMaxRadius=coverageRadius(detailOrigin);
+    detailRadius=reduced?detailMaxRadius:6;
+
+    if(!reduced){
+      detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape);
+      detail.style.webkitClipPath=detail.style.clipPath;
+    }else{
+      detail.style.clipPath='none';
+      detail.style.webkitClipPath='none';
+    }
+
+    detail.setAttribute('aria-hidden','false');
+    document.body.classList.add('is-detail-open');
     window.__lenis?.stop?.();
+    detail.classList.add('is-open');
+
+    if(reduced){requestAnimationFrame(()=>detail.focus?.({preventScroll:true}));return;}
+    requestAnimationFrame(()=>animateDetail(true,()=>detail.focus?.({preventScroll:true})));
   }
+
   function closeProject(){
-    if(!detail)return;
-    detail.classList.remove('is-open');detail.setAttribute('aria-hidden','true');document.body.classList.remove('is-detail-open');window.__lenis?.start?.();
-    setTimeout(()=>lastTrigger?.focus?.({preventScroll:true}),reduced?0:760)
+    if(!detail||!detail.classList.contains('is-open'))return;
+    window.__lenis?.stop?.();
+
+    const finish=()=>{
+      detail.classList.remove('is-open');
+      detail.setAttribute('aria-hidden','true');
+      document.body.classList.remove('is-detail-open');
+      detail.style.clipPath='none';
+      detail.style.webkitClipPath='none';
+      detailRadius=0;
+      window.__lenis?.start?.();
+      setTimeout(()=>lastTrigger?.focus?.({preventScroll:true}),0);
+    };
+
+    if(reduced){finish();return;}
+    detailMaxRadius=coverageRadius(detailOrigin);
+    detailRadius=detailMaxRadius;
+    detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape||randomShape());
+    detail.style.webkitClipPath=detail.style.clipPath;
+    animateDetail(false,finish);
   }
 
   document.querySelectorAll('.project-item').forEach(item=>{
     const row=item.querySelector('.project-row');
     if(!row)return;
-    row.addEventListener('click',()=>openProject(item.dataset.project,row));
+    row.addEventListener('click',event=>openProject(item.dataset.project,row,event));
   });
   detailClose?.addEventListener('click',closeProject);
   addEventListener('keydown',e=>{if(e.key==='Escape'&&detail?.classList.contains('is-open'))closeProject()});
