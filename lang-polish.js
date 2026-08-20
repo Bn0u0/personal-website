@@ -34,8 +34,6 @@
     .hero__eyebrow{justify-content:flex-start!important;gap:12px!important}
     .hero__eyebrow span:last-child{display:inline!important}
 
-    /* Selected Work → About cue. Same visual language as the Hero cue,
-       anchored to the lower-right edge of the section. */
     .work-scroll-cue{
       position:absolute;
       right:var(--pad);
@@ -48,18 +46,12 @@
       text-transform:uppercase;
     }
 
-    /* Keep Selected Work in the normal document flow. The section no longer
-       depends on a pinned curtain/ScrollTrigger state to become usable. */
     .work .section-heading.reveal,
     .work .project-item.reveal{
       opacity:1!important;
       transform:none!important;
     }
 
-    /* Project Detail is its own scroll container. Its first layout previously
-       used 100svh below a separate sticky top bar, making the lower copy/media
-       look clipped and allowing the page-level Lenis wheel handler to compete
-       with the modal. */
     .project-detail{
       height:100dvh!important;
       max-height:100dvh!important;
@@ -85,8 +77,6 @@
       min-width:0;
     }
 
-    /* CJK glyph safety: the manifesto character animation already supplies
-       its own transform/opacity motion, so clipping the line only cuts glyphs. */
     .manifesto__statement{
       line-height:1!important;
       padding-bottom:.08em!important;
@@ -125,9 +115,6 @@
       .lang-fade-target.is-lang-out{clip-path:inset(0 100% 0 0)}
     }
 
-    /* Browser chrome can leave a surprisingly short CSS viewport even on a
-       1080p display. In that case favor readable flow over forcing both columns
-       to visually fill the first screen. */
     @media(max-height:920px) and (min-width:1001px){
       .project-detail__hero{
         align-items:start!important;
@@ -224,47 +211,43 @@
     },760);
   },true);
 
-  /* Defensive project-detail fallback. site.js remains the primary handler;
-     this only opens/closes the existing detail layer if that handler fails. */
   const detail=document.querySelector('.project-detail');
-  const closeButton=document.querySelector('.project-detail__close');
-
   if(detail){
     detail.setAttribute('tabindex','-1');
-    /* Keep wheel/touch gestures inside the modal instead of allowing the
-       page-level Lenis listener to intercept them. */
     detail.addEventListener('wheel',event=>event.stopPropagation(),{passive:true});
     detail.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
   }
 
-  function ensureOpen(){
-    if(!detail)return;
-    detail.scrollTop=0;
-    if(!detail.classList.contains('is-open')){
-      detail.setAttribute('aria-hidden','false');
-      document.body.classList.add('is-detail-open');
-      requestAnimationFrame(()=>detail.classList.add('is-open'));
-      window.__lenis?.stop?.();
-    }
-    requestAnimationFrame(()=>detail.focus?.({preventScroll:true}));
+  /* site.js owns project-detail open/close transitions. The older defensive
+     fallback is intentionally not registered when the organic reveal system
+     is present, otherwise it would terminate the reverse animation early. */
+  if(detail&&detail.dataset.organicReveal!=='true'){
+    const closeButton=document.querySelector('.project-detail__close');
+    const ensureOpen=()=>{
+      if(!detail)return;
+      detail.scrollTop=0;
+      if(!detail.classList.contains('is-open')){
+        detail.setAttribute('aria-hidden','false');
+        document.body.classList.add('is-detail-open');
+        requestAnimationFrame(()=>detail.classList.add('is-open'));
+        window.__lenis?.stop?.();
+      }
+      requestAnimationFrame(()=>detail.focus?.({preventScroll:true}));
+    };
+    const ensureClosed=()=>{
+      detail.classList.remove('is-open');
+      detail.setAttribute('aria-hidden','true');
+      document.body.classList.remove('is-detail-open');
+      window.__lenis?.start?.();
+    };
+    document.addEventListener('click',event=>{
+      const row=event.target.closest?.('.project-row');
+      if(!row)return;
+      setTimeout(ensureOpen,0);
+    },true);
+    closeButton?.addEventListener('click',()=>setTimeout(ensureClosed,0),true);
+    addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&detail.classList.contains('is-open'))ensureClosed();
+    });
   }
-
-  function ensureClosed(){
-    if(!detail)return;
-    detail.classList.remove('is-open');
-    detail.setAttribute('aria-hidden','true');
-    document.body.classList.remove('is-detail-open');
-    window.__lenis?.start?.();
-  }
-
-  document.addEventListener('click',event=>{
-    const row=event.target.closest?.('.project-row');
-    if(!row)return;
-    setTimeout(ensureOpen,0);
-  },true);
-
-  closeButton?.addEventListener('click',()=>setTimeout(ensureClosed,0),true);
-  addEventListener('keydown',event=>{
-    if(event.key==='Escape'&&detail?.classList.contains('is-open'))ensureClosed();
-  });
 })();
