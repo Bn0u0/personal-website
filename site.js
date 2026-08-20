@@ -56,4 +56,6 @@
 
     document.querySelectorAll('.magnetic').forEach(el=>{if(!fine||reduced)return;el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;el.style.transform=`translate3d(${x*.16}px,${y*.2}px,0)`});el.addEventListener('mouseleave',()=>{el.style.transition='transform 420ms cubic-bezier(.2,.7,.2,1)';el.style.transform='translate3d(0,0,0)';setTimeout(()=>el.style.transition='',430)})});
     const pr=document.querySelector('.scroll-progress'),pb=document.querySelector('.scroll-progress__bar');let timer;function progress(v){v=Math.max(0,Math.min(1,v||0));pb.style.transform=`scaleX(${v})`;pr.classList.add('is-scrolling');clearTimeout(timer);timer=setTimeout(()=>pr.classList.remove('is-scrolling'),180)}function nativeP(){const s=document.documentElement.scrollHeight-innerHeight;return s>0?(scrollY||document.documentElement.scrollTop)/s:0}if(window.__lenis)window.__lenis.on('scroll',({progress:p})=>progress(p));else addEventListener('scroll',()=>progress(nativeP()),{passive:true});addEventListener('resize',()=>progress(nativeP()),{passive:true});progress(nativeP());setTimeout(()=>pr.classList.remove('is-scrolling'),220);
+
+    const languageScript=document.createElement('script');languageScript.src='./lang.js';languageScript.async=false;document.body.appendChild(languageScript);
   
