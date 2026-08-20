@@ -1,72 +1,48 @@
-.curtain-defs{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
-.curtain-ready .hero--curtain{
-  position:relative;
-  z-index:12;
-  isolation:isolate;
-  overflow:hidden;
-  background:
-    linear-gradient(90deg,rgba(255,255,255,.26),rgba(255,255,255,0) 16%,rgba(18,18,18,.018) 34%,rgba(255,255,255,.18) 52%,rgba(18,18,18,.022) 72%,rgba(255,255,255,.18)),
-    #f2f0eb;
-  will-change:clip-path;
-}
-.curtain-ready .hero--curtain:before{
-  content:"";
-  position:absolute;
+.cloth-canvas{
+  position:fixed;
   inset:0;
-  z-index:0;
+  z-index:12;
+  width:100vw;
+  height:100vh;
   pointer-events:none;
-  opacity:var(--curtain-fold-opacity,.08);
-  background:
-    repeating-linear-gradient(90deg,
-      rgba(18,18,18,.045) 0,
-      rgba(18,18,18,.012) 4.5%,
-      rgba(255,255,255,.16) 8%,
-      rgba(18,18,18,.018) 13%,
-      rgba(255,255,255,.10) 18%);
-  background-size:clamp(130px,13vw,240px) 100%;
-  transform:scaleX(var(--curtain-fold-scale,1));
-  transform-origin:left center;
-  transition:opacity .12s linear;
+  opacity:0;
+  visibility:hidden;
+  background:transparent;
+  filter:drop-shadow(16px 0 18px rgba(18,18,18,.14));
+  transition:opacity 180ms ease,visibility 0s linear 180ms;
+  will-change:opacity,filter;
 }
-.curtain-ready .hero--curtain>*{position:relative;z-index:1}
+.cloth-canvas.is-ready,
+.cloth-canvas.is-active{
+  opacity:1;
+  visibility:visible;
+  transition:opacity 180ms ease,visibility 0s;
+}
+.curtain-ready .hero--cloth-source{
+  position:relative;
+  z-index:11;
+  background:transparent!important;
+}
+.curtain-ready .hero--cloth-source>*{
+  visibility:hidden!important;
+}
 .curtain-ready .work--behind-curtain{
   position:relative;
   z-index:1;
   background:var(--bg);
 }
-.curtain-edge-layer{
-  position:fixed;
-  inset:0;
-  z-index:13;
-  pointer-events:none;
-  opacity:0;
-  visibility:hidden;
-  transition:opacity 120ms linear,visibility 0s linear 120ms;
+.curtain-ready .site-header,
+.curtain-ready .profile-card,
+.curtain-ready .noise,
+.curtain-ready .scroll-progress,
+.curtain-ready .cursor{
+  isolation:isolate;
 }
-.curtain-edge-layer.is-active{
-  opacity:1;
-  visibility:visible;
-  transition:opacity 120ms linear,visibility 0s;
-}
-.curtain-edge-layer svg{display:block;width:100%;height:100%;overflow:visible}
-.curtain-edge-shadow{
-  fill:none;
-  stroke:rgba(18,18,18,.16);
-  stroke-width:28;
-  vector-effect:non-scaling-stroke;
-  filter:drop-shadow(14px 0 18px rgba(18,18,18,.16));
-}
-.curtain-edge-highlight{
-  fill:none;
-  stroke:rgba(255,255,255,.36);
-  stroke-width:1;
-  vector-effect:non-scaling-stroke;
-}
+.curtain-static .cloth-canvas{display:none!important}
 @media(max-width:700px){
-  .curtain-edge-shadow{stroke-width:20;filter:drop-shadow(9px 0 14px rgba(18,18,18,.14))}
-  .curtain-ready .hero--curtain:before{background-size:120px 100%}
+  .cloth-canvas{filter:drop-shadow(10px 0 13px rgba(18,18,18,.12))}
 }
 @media(prefers-reduced-motion:reduce){
-  .curtain-edge-layer,.curtain-defs{display:none!important}
-  .hero{clip-path:none!important;-webkit-clip-path:none!important}
+  .cloth-canvas{display:none!important}
+  .hero>*{visibility:visible!important}
 }
