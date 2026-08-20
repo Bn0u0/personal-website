@@ -71,13 +71,20 @@
 
   toggle.innerHTML='<span class="language-toggle__option language-toggle__en">EN</span><span class="language-toggle__sep" aria-hidden="true">/</span><span class="language-toggle__option language-toggle__zh">中文</span>';
 
-  function stripHeroEndPunctuation(){
-    const line=document.querySelectorAll('.hero__line>span')[1];
-    if(line)line.textContent=line.textContent.replace(/[。.]+$/u,'');
+  function syncHeroCopy(){
+    const lines=document.querySelectorAll('.hero__line>span');
+    if(lines.length<2)return;
+    const zh=document.documentElement.lang.toLowerCase().startsWith('zh');
+    const copy=zh
+      ? ['我只是想把','腦子裡的東西做出來']
+      : ['I just want to make','the things in my head'];
+    copy.forEach((value,index)=>{
+      if(lines[index].textContent!==value)lines[index].textContent=value;
+    });
   }
-  stripHeroEndPunctuation();
-  const heroLine=document.querySelectorAll('.hero__line>span')[1];
-  if(heroLine)new MutationObserver(stripHeroEndPunctuation).observe(heroLine,{childList:true,characterData:true,subtree:true});
+  syncHeroCopy();
+  const heroTitle=document.querySelector('.hero__title');
+  if(heroTitle)new MutationObserver(syncHeroCopy).observe(heroTitle,{childList:true,characterData:true,subtree:true});
 
   const selector=[
     '.nav a',
@@ -106,6 +113,7 @@
 
     // lang.js replaces the copy at ~360ms. At this point every right→left wipe is fully hidden.
     setTimeout(()=>{
+      syncHeroCopy();
       els.forEach(el=>el.classList.remove('is-lang-out'));
     },390);
 
