@@ -1,0 +1,23 @@
+/* Cursor contrast: one source of truth.
+   Small pointer samples the rendered page through difference blending.
+   Expanded OPEN / CLOSE states are intentionally light-on-dark. */
+.cursor{
+  isolation:auto!important;
+}
+.cursor:not(.is-active) .cursor__dot{
+  background:#fff!important;
+  mix-blend-mode:difference!important;
+}
+.cursor.is-active .cursor__dot{
+  background:var(--bg)!important;
+  mix-blend-mode:normal!important;
+}
+.cursor.is-active .cursor__label{
+  color:var(--fg)!important;
+  mix-blend-mode:normal!important;
+}
+/* Retire the old DOM-class contrast path even if a stale class survives hot reload. */
+.cursor.is-on-dark:not(.is-active) .cursor__dot{
+  background:#fff!important;
+  mix-blend-mode:difference!important;
+}
