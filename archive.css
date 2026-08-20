@@ -1,29 +1,44 @@
 /* All Projects — compact project index */
 body.is-archive-open{overflow:hidden}
 
-/* Main Selected Work now has five deliberate hero projects. */
+/* Main Selected Work: five deliberate hero projects with a shared bottom control line. */
+.work{
+  position:relative;
+  grid-template-rows:auto 1fr!important;
+  padding-bottom:92px!important;
+}
 .work__stage{
-  align-self:center;
+  align-self:stretch;
   width:100%;
-}
-#work>.work__stage .project-row{
-  height:clamp(98px,10.7vh,116px);
-}
-.work-more{
-  appearance:none;
-  width:100%;
-  min-height:54px;
   display:flex;
   align-items:center;
-  justify-content:flex-end;
-  gap:clamp(18px,2vw,32px);
-  margin:18px 0 0;
-  padding:0;
+  padding:clamp(12px,2vh,26px) 0;
+}
+.work__stage .project-list{width:100%}
+#work>.work__stage .project-row{
+  height:clamp(108px,11.8vh,132px);
+}
+
+/* View all sits on the exact same baseline as Scroll to explore. */
+.work-more{
+  appearance:none;
+  position:absolute;
+  left:50%;
+  bottom:36px;
+  width:auto;
+  min-height:20px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin:0;
+  padding:5px 0;
   border:0;
-  border-top:.5px solid rgba(18,18,18,.18);
   background:transparent;
-  text-align:right;
-  opacity:.62;
+  text-align:center;
+  white-space:nowrap;
+  opacity:.56;
+  transform:translateX(-50%);
   transition:opacity var(--motion-micro,200ms) ease;
 }
 .work-more:hover,.work-more:focus-visible{opacity:1}
@@ -34,19 +49,29 @@ body.is-archive-open{overflow:hidden}
   text-transform:uppercase;
 }
 .work-more__meta{
-  min-width:72px;
+  min-width:0;
   color:var(--muted);
-  font-size:9px;
+  font-size:8px;
   line-height:1;
   letter-spacing:.08em;
   text-transform:uppercase;
 }
 .work-more__arrow{
   display:inline-block;
-  margin-left:5px;
+  margin-left:4px;
   transition:transform var(--motion-micro,200ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
 }
 .work-more:hover .work-more__arrow,.work-more:focus-visible .work-more__arrow{transform:translate3d(3px,-3px,0)}
+.work-scroll-cue{
+  position:absolute!important;
+  right:var(--pad)!important;
+  bottom:36px!important;
+  left:auto!important;
+  margin:0!important;
+  min-height:20px;
+  display:inline-flex!important;
+  align-items:center;
+}
 
 .project-archive{
   position:fixed;
@@ -216,10 +241,13 @@ body.is-archive-open{overflow:hidden}
 }
 
 @media(max-width:640px){
-  #work>.work__stage .project-row{height:96px}
-  .work-more{min-height:50px;margin-top:14px}
+  .work{padding-bottom:82px!important}
+  .work__stage{padding:8px 0 14px}
+  #work>.work__stage .project-row{height:104px}
+  .work-more{bottom:30px;gap:7px}
   .work-more__label{font-size:9px}
-  .work-more__meta{font-size:8px;min-width:62px}
+  .work-more__meta{font-size:7px}
+  .work-scroll-cue{bottom:30px!important}
   .project-archive__top{min-height:56px;padding-top:16px;padding-bottom:16px}
   .project-archive__content{min-height:calc(100dvh - 56px);padding-top:52px;padding-bottom:54px}
   .project-archive__heading{gap:18px;padding-bottom:18px}
@@ -230,6 +258,11 @@ body.is-archive-open{overflow:hidden}
   .project-archive .project-row__title{font-size:clamp(22px,7vw,30px)!important}
   .project-archive .project-row__number,.project-archive .project-row__year{font-size:8px!important}
   .project-archive__footer{margin-top:52px}
+}
+
+@media(max-height:820px) and (min-width:641px){
+  #work>.work__stage .project-row{height:106px}
+  .work__stage{padding:8px 0 12px}
 }
 
 @media(prefers-reduced-motion:reduce){
