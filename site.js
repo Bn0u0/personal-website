@@ -54,7 +54,7 @@
     organicStyle.textContent=`
       .project-detail{
         transform:none!important;
-        transition:visibility 0s linear 720ms!important;
+        transition:none!important;
         will-change:clip-path;
       }
       .project-detail.is-open{
