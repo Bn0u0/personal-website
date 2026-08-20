@@ -38,9 +38,22 @@
 .curtain-ready .cursor{
   isolation:isolate;
 }
+
+/* Manifesto glyphs animate with opacity/transform already. Keeping the line
+   clipped is unnecessary and cuts CJK glyph extents on some fonts/browsers. */
+.manifesto__statement{
+  line-height:1!important;
+  padding-bottom:.08em;
+}
+.manifesto__line{
+  overflow:visible!important;
+  padding-bottom:.08em;
+}
+
 .curtain-static .cloth-canvas{display:none!important}
 @media(max-width:700px){
   .cloth-canvas{filter:drop-shadow(10px 0 13px rgba(18,18,18,.12))}
+  .manifesto__statement{line-height:1.02!important}
 }
 @media(prefers-reduced-motion:reduce){
   .cloth-canvas{display:none!important}
