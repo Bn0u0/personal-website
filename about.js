@@ -71,16 +71,6 @@
     });
   }
 
-  const cursor=q('.cursor');
-  if(cursor&&matchMedia('(pointer:fine)').matches){
-    const darkSelector='.manifesto,.about-ai,.project-detail,.project-row';
-    addEventListener('mousemove',event=>{
-      const stack=document.elementsFromPoint(event.clientX,event.clientY);
-      const onDark=stack.some(el=>el.closest?.(darkSelector));
-      cursor.classList.toggle('is-on-dark',onDark);
-    },{passive:true});
-  }
-
   /* About / 002 joins the same directional language wipe as the rest of the site. */
   document.addEventListener('click',event=>{
     const toggle=event.target.closest?.('.language-toggle');
