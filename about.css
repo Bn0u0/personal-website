@@ -1,0 +1,258 @@
+/* About navigation, second-interface rhythm, About / 002, and cursor contrast */
+
+/* The Selected Work section now uses the same bottom-right cue geometry as Hero.
+   It remains naturally scrollable on shorter viewports instead of clipping rows. */
+.work{
+  min-height:100svh;
+  padding:110px var(--pad) 36px;
+  display:grid;
+  grid-template-rows:auto auto auto;
+  align-content:space-between;
+  row-gap:clamp(24px,3vh,42px);
+}
+.project-list{
+  align-self:center;
+}
+.project-row{
+  height:clamp(84px,9.6vh,108px);
+}
+.work-scroll-cue{
+  position:static!important;
+  right:auto!important;
+  bottom:auto!important;
+  justify-self:end;
+  align-self:end;
+  margin:0!important;
+  color:var(--muted);
+  font-size:11px!important;
+  line-height:1.25;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* About selector in the fixed navigation. It opens downward without becoming a card. */
+.nav-about{
+  position:relative;
+  display:inline-flex;
+  pointer-events:auto;
+}
+.nav-about__trigger{
+  position:relative;
+  z-index:2;
+}
+.nav-about__menu{
+  position:absolute;
+  top:100%;
+  right:0;
+  width:max-content;
+  min-width:178px;
+  padding-top:14px;
+  display:grid;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translate3d(0,-7px,0);
+  transition:opacity 220ms ease,transform 360ms var(--ease),visibility 0s linear 360ms;
+}
+.nav-about:hover .nav-about__menu,
+.nav-about:focus-within .nav-about__menu,
+.nav-about.is-open .nav-about__menu{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate3d(0,0,0);
+  transition:opacity 220ms ease,transform 360ms var(--ease),visibility 0s;
+}
+.nav-about__option{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:10px;
+  align-items:center;
+  padding:9px 0;
+  border-top:1px solid currentColor;
+  opacity:.56;
+  transition:opacity 220ms ease,transform 300ms var(--ease);
+  white-space:nowrap;
+}
+.nav-about__option:last-child{
+  border-bottom:1px solid currentColor;
+}
+.nav-about__option:hover,
+.nav-about__option:focus-visible{
+  opacity:1;
+  transform:translateX(-3px);
+}
+.nav-about__index{
+  font-size:9px;
+  opacity:.56;
+}
+.nav-about__label{
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* About / 002 — a quieter case study of the human + AI working relationship. */
+.about-ai{
+  min-height:100svh;
+  padding:132px var(--pad) 110px;
+  background:var(--fg);
+  color:var(--bg);
+  border-top:1px solid rgba(242,240,235,.16);
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  gap:clamp(60px,9vh,120px);
+}
+.about-ai__kicker{
+  margin:0;
+  color:rgba(242,240,235,.56);
+  font-size:11px;
+  line-height:1.2;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.about-ai__statement{
+  margin:0;
+  max-width:1300px;
+  align-self:center;
+  display:flex;
+  flex-direction:column;
+  font-size:clamp(44px,6.7vw,108px);
+  line-height:.98;
+  letter-spacing:-.06em;
+  font-weight:500;
+}
+.about-ai__statement span{
+  display:block;
+}
+.about-ai__grid{
+  display:grid;
+  grid-template-columns:minmax(260px,.72fr) minmax(0,1.28fr);
+  gap:clamp(54px,8vw,140px);
+  align-items:start;
+}
+.about-ai__intro{
+  margin:0;
+  max-width:590px;
+  font-size:clamp(19px,1.85vw,30px);
+  line-height:1.3;
+  letter-spacing:-.026em;
+}
+.about-ai__history{
+  border-top:1px solid rgba(242,240,235,.34);
+}
+.about-ai__row{
+  display:grid;
+  grid-template-columns:46px minmax(150px,.46fr) minmax(0,1fr);
+  gap:clamp(16px,2.2vw,34px);
+  padding:18px 0 20px;
+  border-bottom:1px solid rgba(242,240,235,.17);
+}
+.about-ai__row-index,
+.about-ai__row-title{
+  font-size:10px;
+  line-height:1.35;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.about-ai__row-index{
+  color:rgba(242,240,235,.38);
+}
+.about-ai__row-title{
+  color:rgba(242,240,235,.78);
+}
+.about-ai__row-copy{
+  margin:0;
+  max-width:760px;
+  color:rgba(242,240,235,.58);
+  font-size:13px;
+  line-height:1.72;
+}
+.about-ai__tags{
+  grid-column:2 / -1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:10px;
+}
+.about-ai__tags span{
+  padding:7px 9px;
+  border:1px solid rgba(242,240,235,.18);
+  border-radius:999px;
+  color:rgba(242,240,235,.58);
+  font-size:8px;
+  line-height:1;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+/* The custom pointer needs explicit contrast on every dark interaction surface. */
+.cursor.is-on-dark .cursor__dot{
+  background:var(--bg);
+}
+.cursor.is-on-dark .cursor__label{
+  color:var(--fg);
+}
+
+@media(max-width:1000px){
+  .work{
+    row-gap:28px;
+  }
+  .project-row{
+    height:clamp(84px,10vh,100px);
+  }
+  .about-ai__grid{
+    grid-template-columns:1fr;
+  }
+  .about-ai__history{
+    margin-top:4px;
+  }
+}
+
+@media(max-width:640px){
+  .work{
+    padding:92px var(--pad) 36px;
+    row-gap:24px;
+  }
+  .project-row{
+    height:92px;
+  }
+  .work-scroll-cue{
+    font-size:11px!important;
+  }
+  .nav-about__menu{
+    min-width:154px;
+    padding-top:12px;
+  }
+  .nav-about__option{
+    grid-template-columns:28px 1fr;
+    gap:8px;
+    padding:8px 0;
+  }
+  .nav-about__label{
+    font-size:9px;
+  }
+  .about-ai{
+    padding:108px var(--pad) 82px;
+    gap:58px;
+  }
+  .about-ai__statement{
+    font-size:clamp(42px,13.2vw,72px);
+    line-height:1.01;
+  }
+  .about-ai__row{
+    grid-template-columns:34px 1fr;
+    gap:10px 14px;
+  }
+  .about-ai__row-copy,
+  .about-ai__tags{
+    grid-column:2;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .nav-about__menu,
+  .nav-about__option{
+    transition:none;
+  }
+}
