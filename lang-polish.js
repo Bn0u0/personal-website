@@ -115,7 +115,6 @@
 
     requestAnimationFrame(()=>els.forEach(el=>el.classList.add('is-lang-out')));
 
-    // lang.js replaces the copy at ~360ms. At this point every right→left wipe is fully hidden.
     setTimeout(()=>{
       syncHeroCopy();
       els.forEach(el=>el.classList.remove('is-lang-out'));
@@ -128,4 +127,14 @@
       });
     },760);
   },true);
+
+  const curtainStyle=document.createElement('link');
+  curtainStyle.rel='stylesheet';
+  curtainStyle.href='./curtain.css';
+  document.head.appendChild(curtainStyle);
+
+  const curtainScript=document.createElement('script');
+  curtainScript.src='./curtain.js';
+  curtainScript.async=false;
+  document.body.appendChild(curtainScript);
 })();
