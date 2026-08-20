@@ -34,6 +34,20 @@
     .hero__eyebrow{justify-content:flex-start!important;gap:12px!important}
     .hero__eyebrow span:last-child{display:inline!important}
 
+    /* Selected Work → About cue. Same visual language as the Hero cue,
+       anchored to the lower-right edge of the section. */
+    .work-scroll-cue{
+      position:absolute;
+      right:var(--pad);
+      bottom:44px;
+      z-index:3;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.25;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
     /* Keep Selected Work in the normal document flow. The section no longer
        depends on a pinned curtain/ScrollTrigger state to become usable. */
     .work .section-heading.reveal,
@@ -86,6 +100,7 @@
       .language-toggle{font-size:9px!important;gap:4px!important;margin-left:0!important}
       .hero__eyebrow{gap:9px!important}
       .manifesto__statement{line-height:1.02!important}
+      .work-scroll-cue{bottom:30px;font-size:9px}
     }
     @media(prefers-reduced-motion:reduce){
       .lang-fade-target{transition:none!important;-webkit-mask-image:none!important;mask-image:none!important;clip-path:none!important}
@@ -106,9 +121,19 @@
       if(lines[index].textContent!==value)lines[index].textContent=value;
     });
   }
+
+  function syncWorkCue(){
+    const label=document.querySelector('.work-scroll-cue__label');
+    if(!label)return;
+    const zh=document.documentElement.lang.toLowerCase().startsWith('zh');
+    label.textContent=zh?'往下探索':'Scroll to explore';
+  }
+
   syncHeroCopy();
+  syncWorkCue();
   const heroTitle=document.querySelector('.hero__title');
   if(heroTitle)new MutationObserver(syncHeroCopy).observe(heroTitle,{childList:true,characterData:true,subtree:true});
+  new MutationObserver(syncWorkCue).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 
   const selector=[
     '.nav a',
@@ -137,6 +162,7 @@
 
     setTimeout(()=>{
       syncHeroCopy();
+      syncWorkCue();
       els.forEach(el=>el.classList.remove('is-lang-out'));
     },390);
 
