@@ -12,6 +12,29 @@
 .reveal{
   transition:opacity var(--motion-content) var(--ease-soft),transform var(--motion-content) var(--ease-soft)!important;
 }
+.brand-avatar{
+  transition:transform var(--motion-ui) var(--ease-soft)!important;
+}
+.brand-label{
+  transition:transform var(--motion-ui) var(--ease-soft),opacity var(--motion-micro) ease!important;
+}
+.profile-card{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s linear var(--motion-ui)!important;
+}
+.profile-card.is-visible{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s!important;
+}
+.hero__line>span{
+  animation-duration:var(--motion-content)!important;
+  animation-timing-function:var(--ease-soft)!important;
+}
+.hero__line:nth-child(2)>span{animation-delay:100ms!important}
+.scroll-cue span{
+  transition:transform var(--motion-micro) var(--ease-soft)!important;
+}
+.project-detail__media{
+  transition:transform var(--motion-content) var(--ease-soft) 120ms,opacity var(--motion-ui) ease 120ms!important;
+}
 .brand-avatar,
 .brand-label,
 .project-row,
@@ -24,9 +47,7 @@
 .cursor__label{
   transition-timing-function:var(--ease-soft)!important;
 }
-.lang-fade-target{
-  transition-duration:var(--motion-ui)!important;
-}
+.lang-fade-target{transition-duration:var(--motion-ui)!important}
 
 /* Selected Work: same bottom-right rhythm as Hero, but naturally grows if rows need room. */
 .work{
@@ -42,17 +63,13 @@
   height:clamp(84px,9.6vh,108px);
   transition:color var(--motion-ui) var(--ease-soft),padding var(--motion-ui) var(--ease-soft)!important;
 }
-.project-row:before{
-  transition:transform var(--motion-ui) var(--ease-soft)!important;
-}
+.project-row:before{transition:transform var(--motion-ui) var(--ease-soft)!important}
 .project-item:hover .project-row,
 .project-row:focus-visible{
   padding-left:5px!important;
   padding-right:5px!important;
 }
-.project-row__title{
-  transition:transform var(--motion-ui) var(--ease-soft)!important;
-}
+.project-row__title{transition:transform var(--motion-ui) var(--ease-soft)!important}
 .project-item:hover .project-row__title,
 .project-row:focus-visible .project-row__title{
   transform:translateY(-6px)!important;
@@ -304,9 +321,7 @@
   padding-top:2px;
   color:rgba(242,240,235,.30)!important;
 }
-.detail-below-copy{
-  gap:54px!important;
-}
+.detail-below-copy{gap:54px!important}
 .detail-overview{
   max-width:880px!important;
   color:rgba(242,240,235,.72)!important;
