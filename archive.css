@@ -12,11 +12,24 @@ body.is-archive-open{overflow:hidden}
   width:100%;
   display:flex;
   align-items:center;
-  padding:clamp(12px,2vh,26px) 0;
+  padding:clamp(6px,1.2vh,16px) 0;
 }
 .work__stage .project-list{width:100%}
 #work>.work__stage .project-row{
-  height:clamp(108px,11.8vh,132px);
+  height:clamp(124px,13.8vh,148px);
+}
+
+/* The hover copy now owns a real lower band instead of competing with the title. */
+#work>.work__stage .project-hover-info{
+  bottom:18px;
+  max-width:min(620px,96%);
+}
+#work>.work__stage .project-item:hover .project-row__title,
+#work>.work__stage .project-row:focus-visible .project-row__title{
+  transform:translateY(-17px)!important;
+}
+#work>.work__stage .project-hover-info__text{
+  max-width:460px;
 }
 
 /* View all sits on the exact same baseline as Scroll to explore. */
@@ -243,7 +256,10 @@ body.is-archive-open{overflow:hidden}
 @media(max-width:640px){
   .work{padding-bottom:82px!important}
   .work__stage{padding:8px 0 14px}
-  #work>.work__stage .project-row{height:104px}
+  #work>.work__stage .project-row{height:110px}
+  #work>.work__stage .project-hover-info{bottom:12px}
+  #work>.work__stage .project-item:hover .project-row__title,
+  #work>.work__stage .project-row:focus-visible .project-row__title{transform:translateY(-10px)!important}
   .work-more{bottom:30px;gap:7px}
   .work-more__label{font-size:9px}
   .work-more__meta{font-size:7px}
@@ -261,8 +277,11 @@ body.is-archive-open{overflow:hidden}
 }
 
 @media(max-height:820px) and (min-width:641px){
-  #work>.work__stage .project-row{height:106px}
-  .work__stage{padding:8px 0 12px}
+  #work>.work__stage .project-row{height:112px}
+  .work__stage{padding:4px 0 8px}
+  #work>.work__stage .project-hover-info{bottom:12px}
+  #work>.work__stage .project-item:hover .project-row__title,
+  #work>.work__stage .project-row:focus-visible .project-row__title{transform:translateY(-11px)!important}
 }
 
 @media(prefers-reduced-motion:reduce){
