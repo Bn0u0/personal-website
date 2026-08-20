@@ -81,6 +81,23 @@
     },{passive:true});
   }
 
+  /* About / 002 joins the same directional language wipe as the rest of the site. */
+  document.addEventListener('click',event=>{
+    const toggle=event.target.closest?.('.language-toggle');
+    if(!toggle||toggle.disabled||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const els=qa('.about-ai__kicker,.about-ai__statement,.about-ai__intro,.about-ai__row-title,.about-ai__row-copy,.about-ai__tags');
+    els.forEach((el,i)=>{
+      el.classList.add('lang-fade-target');
+      el.style.setProperty('--lang-delay',`${Math.min((i%10)*5,45)}ms`);
+    });
+    requestAnimationFrame(()=>els.forEach(el=>el.classList.add('is-lang-out')));
+    setTimeout(()=>els.forEach(el=>el.classList.remove('is-lang-out')),390);
+    setTimeout(()=>els.forEach(el=>{
+      el.classList.remove('lang-fade-target');
+      el.style.removeProperty('--lang-delay');
+    }),760);
+  },true);
+
   new MutationObserver(applyCopy).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   applyCopy();
 })();
