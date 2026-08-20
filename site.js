@@ -141,7 +141,7 @@
 
     const from=detailRadius;
     const to=opening?detailMaxRadius:2;
-    const duration=opening?760:620;
+    const duration=1500;
     const started=performance.now();
 
     const frame=now=>{
