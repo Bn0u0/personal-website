@@ -71,6 +71,14 @@
 
   toggle.innerHTML='<span class="language-toggle__option language-toggle__en">EN</span><span class="language-toggle__sep" aria-hidden="true">/</span><span class="language-toggle__option language-toggle__zh">中文</span>';
 
+  function stripHeroEndPunctuation(){
+    const line=document.querySelectorAll('.hero__line>span')[1];
+    if(line)line.textContent=line.textContent.replace(/[。.]+$/u,'');
+  }
+  stripHeroEndPunctuation();
+  const heroLine=document.querySelectorAll('.hero__line>span')[1];
+  if(heroLine)new MutationObserver(stripHeroEndPunctuation).observe(heroLine,{childList:true,characterData:true,subtree:true});
+
   const selector=[
     '.nav a',
     '.profile-card__index','.profile-card__role','.profile-card__location','.profile-card__areas','.profile-card__status',
