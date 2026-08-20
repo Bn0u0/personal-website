@@ -5,6 +5,11 @@
 
   const style=document.createElement('style');
   style.textContent=`
+    @property --lang-wipe{
+      syntax:'<percentage>';
+      inherits:false;
+      initial-value:110%;
+    }
     .language-transition{display:none!important}
     .language-toggle{
       width:auto!important;height:auto!important;padding:0!important;margin-left:2px!important;
@@ -25,16 +30,41 @@
     .language-toggle__sep{opacity:.28}
     .language-toggle:not(.is-zh) .language-toggle__en,
     .language-toggle.is-zh .language-toggle__zh{opacity:1}
+
     .lang-fade-target{
-      transition:opacity 260ms ease,filter 320ms ease!important;
-      transition-delay:var(--lang-delay,0ms)!important
+      --lang-wipe:110%;
+      -webkit-mask-image:linear-gradient(90deg,
+        #000 calc(var(--lang-wipe) - 7%),
+        rgba(0,0,0,.96) calc(var(--lang-wipe) - 3%),
+        rgba(0,0,0,.48) calc(var(--lang-wipe) + 2%),
+        transparent calc(var(--lang-wipe) + 8%));
+      mask-image:linear-gradient(90deg,
+        #000 calc(var(--lang-wipe) - 7%),
+        rgba(0,0,0,.96) calc(var(--lang-wipe) - 3%),
+        rgba(0,0,0,.48) calc(var(--lang-wipe) + 2%),
+        transparent calc(var(--lang-wipe) + 8%));
+      -webkit-mask-repeat:no-repeat;
+      mask-repeat:no-repeat;
+      transition:--lang-wipe 255ms cubic-bezier(.55,.05,.25,1)!important;
+      transition-delay:var(--lang-delay,0ms)!important;
+      will-change:mask-image,-webkit-mask-image;
     }
-    .lang-fade-target.is-lang-out{opacity:0!important;filter:blur(5px)}
+    .lang-fade-target.is-lang-out{--lang-wipe:-10%}
+
+    @supports not (mask-image:linear-gradient(#000,transparent)){
+      .lang-fade-target{
+        clip-path:inset(0 0 0 0);
+        transition:clip-path 255ms cubic-bezier(.55,.05,.25,1)!important;
+        transition-delay:var(--lang-delay,0ms)!important
+      }
+      .lang-fade-target.is-lang-out{clip-path:inset(0 100% 0 0)}
+    }
+
     @media(max-width:640px){
       .language-toggle{font-size:9px!important;gap:4px!important;margin-left:0!important}
     }
     @media(prefers-reduced-motion:reduce){
-      .lang-fade-target{transition:none!important}.lang-fade-target.is-lang-out{opacity:1!important;filter:none!important}
+      .lang-fade-target{transition:none!important;-webkit-mask-image:none!important;mask-image:none!important;clip-path:none!important}
     }
   `;
   document.head.appendChild(style);
@@ -61,17 +91,21 @@
     const els=targets();
     els.forEach((el,i)=>{
       el.classList.add('lang-fade-target');
-      el.style.setProperty('--lang-delay',`${Math.min((i%12)*7,77)}ms`);
+      el.style.setProperty('--lang-delay',`${Math.min((i%12)*5,55)}ms`);
     });
+
     requestAnimationFrame(()=>els.forEach(el=>el.classList.add('is-lang-out')));
+
+    // lang.js replaces the copy at ~360ms. At this point every right→left wipe is fully hidden.
     setTimeout(()=>{
       els.forEach(el=>el.classList.remove('is-lang-out'));
-    },410);
+    },390);
+
     setTimeout(()=>{
       els.forEach(el=>{
         el.classList.remove('lang-fade-target');
         el.style.removeProperty('--lang-delay');
       });
-    },820);
+    },760);
   },true);
 })();
