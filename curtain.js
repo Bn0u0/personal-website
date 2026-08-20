@@ -77,6 +77,14 @@
     const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(innerWidth<700?5:8,innerWidth<700?4:6);return t;
   }
 
+  function restingFold(u,v,gather=0){
+    const vertical=.42+.58*Math.sin(Math.PI*clamp(v*.94));
+    const primary=Math.sin(u*Math.PI*12+Math.sin(v*Math.PI*1.2)*.32);
+    const secondary=Math.sin(u*Math.PI*24-v*1.7)*.28;
+    const amplitude=w*((innerWidth<700?.0055:.0068)+gather*(innerWidth<700?.010:.014));
+    return (primary+secondary)*amplitude*vertical;
+  }
+
   function constraint(a,b,m=.9){
     const A=a*3,B=b*3,dx=rest[B]-rest[A],dy=rest[B+1]-rest[A+1],dz=rest[B+2]-rest[A+2];
     constraints.push([a,b,Math.hypot(dx,dy,dz),m]);
@@ -111,9 +119,9 @@
 
   function reset(){
     if(!pos)return;pos.set(rest);prev.set(rest);
-    for(let y=1;y<rows;y++)for(let x=0;x<cols;x++){
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
       const i=id(x,y)*3,u=x/segX,v=y/segY;
-      const z=Math.sin(u*Math.PI*20+v*2.4)*.0018*Math.sin(v*Math.PI);
+      const z=restingFold(u,v,0);
       pos[i+2]=prev[i+2]=z;
     }
     geometry.attributes.position.needsUpdate=true;geometry.computeVertexNormals();
@@ -128,8 +136,9 @@
     for(let x=0;x<cols;x++){
       const u=x/segX;
       const ease=u*u*(3-2*u);
-      const ring=Math.sin(u*Math.PI*segX*.96)*w*.013*gather;
-      pins[x]=[left+span*(u*.9+ease*.1),h/2,ring*(.3+.7*Math.sin(Math.PI*clamp(progress/.9)))];
+      const restingTop=restingFold(u,0,gather)*.58;
+      const ring=Math.sin(u*Math.PI*segX*.96)*w*.0055*gather;
+      pins[x]=[left+span*(u*.9+ease*.1),h/2,restingTop+ring*(.25+.45*Math.sin(Math.PI*clamp(progress/.9)))];
     }
   }
 
@@ -161,10 +170,11 @@
 
   function step(dt,time){
     pinTargets();
-    const active=smooth((progress-.01)/.86),exit=smooth((progress-.72)/.28),wind=clamp(velocity/3200,-1.4,1.4);
+    const active=smooth((progress-.01)/.86),gather=smooth(progress/.8),exit=smooth((progress-.72)/.28);
+    const wind=clamp(velocity/5200,-.65,.65);
     const sub=2,frame=Math.min(dt,.032)/sub;
     for(let s=0;s<sub;s++){
-      const damp=Math.pow(.986,frame*60);
+      const damp=Math.pow(.974,frame*60);
       for(let y=1;y<rows;y++){
         const v=y/segY,vertical=Math.sin(v*Math.PI);
         for(let x=0;x<cols;x++){
@@ -172,13 +182,18 @@
           const cx=pos[i],cy=pos[i+1],cz=pos[i+2];
           const vx=(cx-prev[i])*damp,vy=(cy-prev[i+1])*damp,vz=(cz-prev[i+2])*damp;
           prev[i]=cx;prev[i+1]=cy;prev[i+2]=cz;
-          const wave=Math.sin(u*Math.PI*18+v*7.2+time*1.15)*.00043+Math.sin(u*Math.PI*10-v*10-time*.72)*.00022;
-          pos[i]=cx+vx-exit*w*.00085;
-          pos[i+1]=cy+vy-.00011*(.2+active);
-          pos[i+2]=cz+vz+wave*active*vertical+wind*.00055*vertical*(.25+.75*u)*active;
+
+          const foldTarget=restingFold(u,v,gather);
+          const foldSpring=(foldTarget-cz)*(.032+.026*(1-active));
+          const wave=Math.sin(u*Math.PI*18+v*7.2+time*.72)*.00014+Math.sin(u*Math.PI*10-v*10-time*.46)*.00007;
+
+          pos[i]=cx+vx-exit*w*.00072;
+          pos[i+1]=cy+vy-.000085*(.18+active);
+          pos[i+2]=cz+vz+foldSpring+wave*active*vertical+wind*.00016*vertical*(.25+.75*u)*active;
+
           if(exit>.7){
             const guide=-w/2-w*(.76+1.14*exit);
-            pos[i]+=(guide-pos[i])*.0048*exit*(.22+.78*v);
+            pos[i]+=(guide-pos[i])*.0041*exit*(.22+.78*v);
           }
         }
       }
@@ -222,7 +237,7 @@
 
   ScrollTrigger.create({
     trigger:hero,start:'top top',end:()=>`+=${Math.max(620,innerHeight*1.02)}`,
-    scrub:.42,pin:true,pinSpacing:false,anticipatePin:1,invalidateOnRefresh:true,
+    scrub:.32,pin:true,pinSpacing:false,anticipatePin:1,invalidateOnRefresh:true,
     onEnter:()=>{running=true;canvas.classList.add('is-active');},
     onEnterBack:()=>{running=true;canvas.classList.add('is-active');},
     onLeave:()=>{progress=1;setTimeout(()=>canvas.classList.remove('is-active'),180);},
@@ -243,8 +258,8 @@
   if(fine)addEventListener('pointermove',e=>{
     if(progress<.03||progress>.94||!pos)return;
     const py=e.clientY/innerHeight,px=e.clientX/innerWidth;
-    const nudge=Math.sin(py*Math.PI)*(px-.5)*.00034;
-    for(let y=1;y<rows;y++)previous[id(cols-1,y)*3+2]-=nudge*Math.sin((y/segY)*Math.PI);
+    const nudge=Math.sin(py*Math.PI)*(px-.5)*.00008;
+    for(let y=1;y<rows;y++)prev[id(cols-1,y)*3+2]-=nudge*Math.sin((y/segY)*Math.PI);
   },{passive:true});
 
   addEventListener('resize',()=>{
@@ -256,7 +271,7 @@
   function loop(now){
     const dt=Math.min(.034,(now-last)/1000||1/60);last=now;
     if(running&&renderer&&mesh){step(dt,now/1000);renderer.render(scene,camera);if(progress>=.999&&Math.abs(velocity)<8)running=false;}
-    velocity*=.9;requestAnimationFrame(loop);
+    velocity*=.82;requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);ScrollTrigger.refresh();
 })();
