@@ -2,6 +2,7 @@
   const archive=document.querySelector('.project-archive');
   const trigger=document.querySelector('.work-more');
   const close=document.querySelector('.project-archive__close');
+  const detail=document.querySelector('.project-detail');
   if(!archive||!trigger||!close)return;
 
   const COPY={
@@ -63,7 +64,7 @@
 
   function closeArchive(){
     if(!archive.classList.contains('is-open'))return;
-    if(document.querySelector('.project-detail')?.classList.contains('is-open'))return;
+    if(detail?.classList.contains('is-open'))return;
     archive.classList.remove('is-open');
     archive.setAttribute('aria-hidden','true');
     document.body.classList.remove('is-archive-open');
@@ -77,9 +78,17 @@
   archive.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
   addEventListener('keydown',event=>{
     if(event.key!=='Escape'||!archive.classList.contains('is-open'))return;
-    if(document.querySelector('.project-detail')?.classList.contains('is-open'))return;
+    if(detail?.classList.contains('is-open'))return;
     closeArchive();
   });
+
+  /* Project Detail owns its own Lenis stop/start cycle. If it closes back into
+     this modal index, immediately keep page Lenis stopped so only archive scroll moves. */
+  if(detail)new MutationObserver(()=>{
+    if(archive.classList.contains('is-open')&&!detail.classList.contains('is-open')){
+      requestAnimationFrame(()=>window.__lenis?.stop?.());
+    }
+  }).observe(detail,{attributes:true,attributeFilter:['class']});
 
   /* Keep the five-project count from being overwritten by the older language table. */
   const heading=document.querySelector('#work .section-heading');
