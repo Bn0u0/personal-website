@@ -5,6 +5,8 @@
   const detail=document.querySelector('.project-detail');
   if(!archive||!trigger||!close)return;
 
+  /* Kept as a fallback for older cached HTML. The stylesheet is also linked
+     directly from index.html so the first archive open cannot race CSS loading. */
   if(!document.querySelector('link[data-archive-reindex]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
@@ -63,18 +65,23 @@
   let lastFocus=null;
   let transitionLayer=null;
   let transitionTimer=0;
+  let settleTimer=0;
   let busy=false;
 
   function clearTransitionLayer(){
     clearTimeout(transitionTimer);
+    clearTimeout(settleTimer);
+    transitionTimer=0;
+    settleTimer=0;
     transitionLayer?.remove();
     transitionLayer=null;
     document.body.classList.remove('is-archive-reindexing');
   }
 
-  function buildMorph(fromRects,toRects,startAtDestination=false){
+  function buildMorph(fromRects,toRects){
     const originals=sourceRows();
     if(originals.length!==toRects.length||originals.length!==fromRects.length)return null;
+
     const layer=document.createElement('div');
     layer.className='archive-reindex-layer';
     const ease='cubic-bezier(.22,1,.36,1)';
@@ -82,11 +89,14 @@
     originals.forEach((row,i)=>{
       const base=fromRects[i];
       const target=toRects[i];
+      if(!base||!target||base.width<=0||base.height<=0||target.width<=0||target.height<=0)return;
+
       const clone=row.cloneNode(true);
       clone.classList.add('archive-reindex-clone');
       clone.removeAttribute('data-cursor');
       clone.setAttribute('aria-hidden','true');
       clone.tabIndex=-1;
+
       Object.assign(clone.style,{
         left:`${base.left}px`,
         top:`${base.top}px`,
@@ -96,29 +106,20 @@
         opacity:'1'
       });
 
-      if(startAtDestination){
-        const dx=target.left-base.left;
-        const dy=target.top-base.top;
-        const sx=target.width/base.width;
-        const sy=target.height/base.height;
-        clone.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${sx},${sy})`;
-      }
-
       layer.appendChild(clone);
+
+      const dx=target.left-base.left;
+      const dy=target.top-base.top;
+      const sx=target.width/base.width;
+      const sy=target.height/base.height;
+
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
         clone.style.transition=`transform 720ms ${ease},opacity 160ms ease 620ms`;
-        if(startAtDestination){
-          clone.style.transform='translate3d(0,0,0) scale(1,1)';
-        }else{
-          const dx=target.left-base.left;
-          const dy=target.top-base.top;
-          const sx=target.width/base.width;
-          const sy=target.height/base.height;
-          clone.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${sx},${sy})`;
-        }
+        clone.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${sx},${sy})`;
         clone.style.opacity='.98';
       }));
     });
+
     document.body.appendChild(layer);
     return layer;
   }
@@ -137,27 +138,41 @@
 
   function openArchive(){
     if(archive.classList.contains('is-open')||busy)return;
-    if(reduced||sourceRows().length<5){openArchiveImmediate();return}
+    if(reduced||sourceRows().length<5||destinationRows().length<5){openArchiveImmediate();return}
 
     busy=true;
     lastFocus=document.activeElement;
     archive.scrollTop=0;
+
+    /* Measure the source BEFORE overflow is locked. Previously the body lock
+       could remove the scrollbar and shift the source rects before the FLIP began. */
+    const from=rects(sourceRows());
+
     archive.setAttribute('aria-hidden','false');
+    archive.classList.remove('is-reindex-settled');
+    archive.classList.add('is-reindex-opening');
     document.body.classList.add('is-archive-open','is-archive-reindexing');
     window.__lenis?.stop?.();
 
-    const from=rects(sourceRows());
-    archive.classList.add('is-open','is-reindex-opening');
+    /* The archive is visibility:hidden rather than display:none, so its final
+       row geometry is measurable without flashing the destination surface. */
     const to=rects(destinationRows());
-    transitionLayer=buildMorph(from,to,false);
+    transitionLayer=buildMorph(from,to);
 
-    setTimeout(()=>archive.classList.add('is-reindex-settled'),620);
-    transitionTimer=setTimeout(()=>{
-      clearTransitionLayer();
-      archive.classList.remove('is-reindex-opening');
-      busy=false;
-      archive.focus?.({preventScroll:true});
-    },840);
+    /* Force one hidden layout frame before exposing the archive. This makes the
+       first open deterministic instead of adding all transition classes at once. */
+    void archive.offsetWidth;
+    requestAnimationFrame(()=>{
+      archive.classList.add('is-open');
+
+      settleTimer=setTimeout(()=>archive.classList.add('is-reindex-settled'),620);
+      transitionTimer=setTimeout(()=>{
+        clearTransitionLayer();
+        archive.classList.remove('is-reindex-opening');
+        busy=false;
+        archive.focus?.({preventScroll:true});
+      },840);
+    });
   }
 
   function finishClose(){
@@ -171,26 +186,12 @@
   }
 
   function closeArchive(){
-    if(!archive.classList.contains('is-open')||busy)return;
+    if(!archive.classList.contains('is-open'))return;
     if(detail?.classList.contains('is-open'))return;
-    if(reduced||sourceRows().length<5){
-      archive.classList.remove('is-open');
-      archive.setAttribute('aria-hidden','true');
-      document.body.classList.remove('is-archive-open');
-      window.__lenis?.start?.();
-      setTimeout(()=>lastFocus?.focus?.({preventScroll:true}),0);
-      return;
-    }
 
-    busy=true;
-    document.body.classList.add('is-archive-reindexing');
-    archive.classList.remove('is-reindex-opening','is-reindex-settled');
-    archive.classList.add('is-reindex-closing');
-
-    const source=rects(sourceRows());
-    const destination=rects(destinationRows());
-    transitionLayer=buildMorph(source,destination,true);
-    transitionTimer=setTimeout(finishClose,760);
+    /* Close is intentionally immediate. It also cancels an opening FLIP if the
+       user dismisses the archive before the 840ms open sequence has settled. */
+    finishClose();
   }
 
   trigger.addEventListener('click',openArchive);
