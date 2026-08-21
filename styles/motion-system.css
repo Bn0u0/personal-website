@@ -87,14 +87,18 @@
   transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
 }
 .about-ai__explore,
-.about-ai__explore::after,
-.about-ai__explore-meta,
 .about-ai__explore::before,
 .about-ai__row,
 .about-ai__row-title,
 .about-ai__row-index,
 .about-ai__row::before{
   transition-duration:var(--motion-ui)!important;
+}
+.about-ai__explore::after{
+  transition:transform var(--motion-ui) var(--ease-soft),opacity var(--motion-micro) ease!important;
+}
+.about-ai__explore-meta{
+  transition:transform var(--motion-ui) var(--ease-soft),opacity var(--motion-micro) ease!important;
 }
 
 /* CONTENT — finite editorial reveals. */
