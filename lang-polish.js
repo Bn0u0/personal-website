@@ -11,6 +11,26 @@
       inherits:false;
       initial-value:110%;
     }
+
+    :root{
+      --font-latin:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      --font-cjk:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    }
+
+    /* Keep Latin glyphs on the exact same stack in EN and ZH. CJK fonts only
+       participate when the preceding Latin/system families do not contain a glyph. */
+    html[lang="zh-Hant"] body{
+      font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif!important;
+    }
+
+    /* Project names never change language, so their typography must not change either. */
+    .project-row__title,
+    .project-detail__title,
+    .detail-media-title{
+      font-family:var(--font-latin)!important;
+      font-synthesis:none;
+    }
+
     .language-transition{display:none!important}
     .language-toggle{
       width:auto!important;height:auto!important;padding:0!important;margin-left:2px!important;
