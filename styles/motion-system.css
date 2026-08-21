@@ -1,0 +1,156 @@
+/* Motion System — one shared timing language for the entire site.
+   Finite transitions use four entry tiers. Exit motion is the exact 0.5× derivative
+   of the matching tier. Continuous spring/canvas systems are intentionally excluded. */
+:root{
+  /* Entry tiers */
+  --motion-micro:180ms;   /* hover, opacity, cursor feedback */
+  --motion-ui:320ms;      /* controls, dropdowns, local transforms */
+  --motion-content:560ms; /* rows, reveals, section-level content */
+  --motion-scene:1000ms;  /* full-screen / immersive transitions */
+
+  /* Exit tiers: always 2× faster than the corresponding entry tier */
+  --motion-exit-micro:90ms;
+  --motion-exit-ui:160ms;
+  --motion-exit-content:280ms;
+  --motion-exit-scene:500ms;
+
+  /* Stagger scale */
+  --motion-stagger-tight:40ms;
+  --motion-stagger-standard:80ms;
+
+  /* Easing families */
+  --ease-soft:cubic-bezier(.22,1,.36,1);
+  --ease-standard:cubic-bezier(.2,.7,.2,1);
+  --ease-enter:cubic-bezier(.22,1,.36,1);
+  --ease-accelerate:cubic-bezier(.55,.055,.675,.19);
+  --ease-exit:cubic-bezier(.64,0,.78,0);
+}
+
+/* MICRO — immediate feedback. */
+.scroll-progress,
+.work-more,
+.project-archive__close,
+.section-scroll-cue,
+.nav-about__option,
+.ai-depth__close,
+.ai-depth__step,
+.ai-depth__next{
+  transition-duration:var(--motion-micro)!important;
+}
+.scroll-cue span,
+.work-more__arrow,
+.section-scroll-cue>span:last-child{
+  transition-duration:var(--motion-micro)!important;
+  transition-timing-function:var(--ease-soft)!important;
+}
+
+/* UI — controls and local transforms. */
+.brand-avatar{
+  transition:transform var(--motion-ui) var(--ease-soft)!important;
+}
+.brand-label{
+  transition:transform var(--motion-ui) var(--ease-soft),opacity var(--motion-micro) ease!important;
+}
+.profile-card{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s linear var(--motion-ui)!important;
+}
+.profile-card.is-visible{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s!important;
+}
+.nav-about__menu{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s linear var(--motion-ui)!important;
+}
+.nav-about:hover .nav-about__menu,
+.nav-about:focus-within .nav-about__menu,
+.nav-about.is-open .nav-about__menu{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s!important;
+}
+.project-row{
+  transition:color var(--motion-ui) var(--ease-soft),padding var(--motion-ui) var(--ease-soft)!important;
+}
+.project-row::before,
+.project-row__title{
+  transition:transform var(--motion-ui) var(--ease-soft)!important;
+}
+.project-hover-info{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
+}
+.project-row__action{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
+}
+.cursor__dot{
+  transition:width var(--motion-ui) var(--ease-soft),height var(--motion-ui) var(--ease-soft),background var(--motion-micro) ease!important;
+}
+.cursor__label{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
+}
+.about-ai__explore,
+.about-ai__explore::after,
+.about-ai__explore-meta,
+.about-ai__explore::before,
+.about-ai__row,
+.about-ai__row-title,
+.about-ai__row-index,
+.about-ai__row::before{
+  transition-duration:var(--motion-ui)!important;
+}
+
+/* CONTENT — finite editorial reveals. */
+.reveal{
+  transition:opacity var(--motion-content) var(--ease-soft),transform var(--motion-content) var(--ease-soft)!important;
+}
+.project-detail__media{
+  transition:transform var(--motion-content) var(--ease-soft) var(--motion-stagger-standard),opacity var(--motion-ui) ease var(--motion-stagger-standard)!important;
+}
+.manifesto__char{
+  transition:opacity var(--motion-content) ease,transform var(--motion-content) var(--ease-soft),filter var(--motion-content) ease!important;
+  transition-delay:calc(var(--char-index)*var(--motion-stagger-tight))!important;
+}
+.ai-depth{
+  transition:opacity var(--motion-ui) ease,transform var(--motion-content) var(--ease-soft),visibility 0s linear var(--motion-content)!important;
+}
+.ai-depth.is-open{
+  transition:opacity var(--motion-ui) ease,transform var(--motion-content) var(--ease-soft),visibility 0s!important;
+}
+.ai-depth__body,
+.ai-depth__title,
+.ai-depth__headline,
+.ai-depth__index{
+  transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
+}
+
+/* SCENE — only immersive/full-screen entrances use the top tier. */
+.hero__line>span{
+  animation-duration:var(--motion-scene)!important;
+  animation-timing-function:var(--ease-soft)!important;
+}
+.hero__line:nth-child(2)>span{
+  animation-delay:var(--motion-stagger-standard)!important;
+}
+
+/* Discovery pulse is content-scale, never its own ad-hoc duration. */
+.about-ai.is-discovery-cue .about-ai__history::after,
+.about-ai.is-discovery-cue .about-ai__explore-meta,
+.about-ai.is-discovery-cue .about-ai__explore::before{
+  animation-duration:var(--motion-content)!important;
+}
+
+/* Language wipe uses the UI tier; stagger is handled separately. */
+.lang-fade-target{
+  transition-duration:var(--motion-ui)!important;
+}
+
+/* Small continuously-following visual response stays on MICRO. */
+.detail-orb{
+  transition-duration:var(--motion-micro)!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    transition-delay:0ms!important;
+    scroll-behavior:auto!important;
+  }
+}
