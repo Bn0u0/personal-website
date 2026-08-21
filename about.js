@@ -1,4 +1,13 @@
 (()=>{
+  /* Load the page-wide surface integration layer before motion polish. */
+  if(!document.querySelector('link[data-surface-integration]')){
+    const integration=document.createElement('link');
+    integration.rel='stylesheet';
+    integration.href='./surface-integration.css';
+    integration.dataset.surfaceIntegration='true';
+    document.head.appendChild(integration);
+  }
+
   /* Load the elastic cursor grid after the core site is ready. Kept modular so the
      field can be tuned or removed without touching the main interaction system. */
   if(!document.querySelector('link[data-elastic-grid]')){
