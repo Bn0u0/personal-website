@@ -2,6 +2,7 @@
   const toggle=document.querySelector('.language-toggle');
   if(!toggle)return;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine=matchMedia('(pointer:fine)').matches;
 
   const style=document.createElement('style');
   style.textContent=`
@@ -17,19 +18,33 @@
       display:inline-flex!important;align-items:center!important;gap:5px!important;overflow:visible!important;
       font-size:10px!important;line-height:1!important;letter-spacing:.06em!important;
       text-transform:none!important;color:inherit!important;opacity:.92;
-      transition:opacity var(--motion-micro,200ms) ease!important
+      will-change:transform;
+      transition:opacity var(--motion-micro,200ms) ease,transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important
     }
     .language-toggle:hover{background:transparent!important;border:0!important;opacity:1}
-    .language-toggle:active{transform:none!important}
+    .language-toggle:active{transform:scale(.985)!important}
     .language-toggle:disabled{opacity:.58!important}
     .language-toggle__thumb{display:none!important}
     .language-toggle__option{
-      display:inline!important;height:auto!important;color:inherit!important;mix-blend-mode:normal!important;
-      opacity:.38;transition:opacity var(--motion-micro,200ms) ease!important
+      display:inline-block!important;height:auto!important;color:inherit!important;mix-blend-mode:normal!important;
+      opacity:.38;transform:translateY(0);
+      transition:opacity var(--motion-micro,200ms) ease,transform var(--motion-micro,200ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important
     }
-    .language-toggle__sep{opacity:.28}
+    .language-toggle__sep{
+      display:inline-block;
+      opacity:.28;
+      transition:opacity var(--motion-micro,200ms) ease!important
+    }
     .language-toggle:not(.is-zh) .language-toggle__en,
     .language-toggle.is-zh .language-toggle__zh{opacity:1}
+    .language-toggle:hover .language-toggle__sep{opacity:.42}
+    .language-toggle:hover .language-toggle__option{opacity:.56}
+    .language-toggle:hover:not(.is-zh) .language-toggle__en,
+    .language-toggle:hover.is-zh .language-toggle__zh{opacity:1}
+    .language-toggle__option:hover{
+      opacity:1!important;
+      transform:translateY(-1px)
+    }
 
     .hero__eyebrow{justify-content:flex-start!important;gap:12px!important}
     .hero__eyebrow span:last-child{display:inline!important}
@@ -124,6 +139,7 @@
       }
     }
     @media(prefers-reduced-motion:reduce){
+      .language-toggle,.language-toggle__option{transition:none!important;transform:none!important}
       .lang-fade-target{transition:none!important;-webkit-mask-image:none!important;mask-image:none!important;clip-path:none!important}
       .project-detail{scroll-behavior:auto}
     }
@@ -131,6 +147,20 @@
   document.head.appendChild(style);
 
   toggle.innerHTML='<span class="language-toggle__option language-toggle__en">EN</span><span class="language-toggle__sep" aria-hidden="true">/</span><span class="language-toggle__option language-toggle__zh">中文</span>';
+
+  /* The language control is injected after site.js wires the normal .magnetic nodes,
+     so give it the same restrained magnetic response here. */
+  if(fine&&!reduced){
+    toggle.addEventListener('mousemove',event=>{
+      const r=toggle.getBoundingClientRect();
+      const x=event.clientX-r.left-r.width/2;
+      const y=event.clientY-r.top-r.height/2;
+      toggle.style.transform=`translate3d(${x*.16}px,${y*.2}px,0)`;
+    });
+    toggle.addEventListener('mouseleave',()=>{
+      toggle.style.transform='translate3d(0,0,0)';
+    });
+  }
 
   function syncHeroCopy(){
     const lines=document.querySelectorAll('.hero__line>span');
