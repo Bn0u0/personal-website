@@ -1,16 +1,16 @@
 (()=>{
-  /* Load the quiet cursor field after the core site is ready. Kept modular so the
-     effect can be tuned or removed without touching the main interaction system. */
-  if(!document.querySelector('link[data-surface-response]')){
+  /* Load the elastic cursor grid after the core site is ready. Kept modular so the
+     field can be tuned or removed without touching the main interaction system. */
+  if(!document.querySelector('link[data-elastic-grid]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='./surface-response.css';
-    link.dataset.surfaceResponse='true';
+    link.href='./elastic-grid.css';
+    link.dataset.elasticGrid='true';
     const loadBehavior=()=>{
-      if(document.querySelector('script[data-surface-response]'))return;
+      if(document.querySelector('script[data-elastic-grid]'))return;
       const script=document.createElement('script');
-      script.src='./surface-response.js';
-      script.dataset.surfaceResponse='true';
+      script.src='./elastic-grid.js';
+      script.dataset.elasticGrid='true';
       document.body.appendChild(script);
     };
     link.addEventListener('load',loadBehavior,{once:true});
