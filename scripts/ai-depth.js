@@ -11,7 +11,7 @@
       eyebrow:'AI / Extended notes',
       close:'Close',
       next:'Next',
-      home:'Back home',
+      back:'Back',
       items:[
         {
           title:'Prototype together',
@@ -43,7 +43,7 @@
       eyebrow:'AI / 延伸筆記',
       close:'關閉',
       next:'下一則',
-      home:'回首頁',
+      back:'返回',
       items:[
         {
           title:'一起做出原型',
@@ -177,8 +177,8 @@
     q('.ai-depth__title').textContent=item.title;
     q('.ai-depth__headline').textContent=item.headline;
     q('.ai-depth__body').textContent=item.body;
-    q('.ai-depth__next-label').textContent=index===3?c.home:c.next;
-    q('.ai-depth__next-icon').textContent=index===3?'↑':'→';
+    q('.ai-depth__next-label').textContent=index===3?c.back:c.next;
+    q('.ai-depth__next-icon').textContent=index===3?'←':'→';
     [...steps.children].forEach((b,i)=>b.classList.toggle('is-active',i===index));
   }
 
@@ -216,24 +216,13 @@
     if(restoreFocus)setTimeout(()=>explore.focus({preventScroll:true}),0);
   }
 
-  function goHome(){
-    closeLayer(false);
-    requestAnimationFrame(()=>{
-      if(window.__lenis?.scrollTo){
-        window.__lenis.scrollTo(0,{duration:1.05});
-      }else{
-        window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-      }
-    });
-  }
-
   explore.addEventListener('click',openLayer);
   q('.ai-depth__close').addEventListener('click',()=>closeLayer(true));
-  nextButton.addEventListener('click',()=>index===3?goHome():setItem(index+1));
+  nextButton.addEventListener('click',()=>index===3?closeLayer(true):setItem(index+1));
   document.addEventListener('keydown',event=>{
     if(!open)return;
     if(event.key==='Escape')closeLayer(true);
-    if(event.key==='ArrowRight')index===3?goHome():setItem(index+1);
+    if(event.key==='ArrowRight')index===3?closeLayer(true):setItem(index+1);
     if(event.key==='ArrowLeft')setItem(index-1);
   });
 
