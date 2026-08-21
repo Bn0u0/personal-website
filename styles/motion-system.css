@@ -14,9 +14,11 @@
   --motion-exit-content:280ms;
   --motion-exit-scene:500ms;
 
-  /* Stagger scale */
+  /* Stagger scale + exact 0.5× exit derivatives */
   --motion-stagger-tight:40ms;
   --motion-stagger-standard:80ms;
+  --motion-exit-stagger-tight:20ms;
+  --motion-exit-stagger-standard:40ms;
 
   /* Easing families */
   --ease-soft:cubic-bezier(.22,1,.36,1);
