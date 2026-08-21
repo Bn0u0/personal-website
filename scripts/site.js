@@ -77,7 +77,7 @@
   const TAU=Math.PI*2;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const easeOutQuint=t=>1-Math.pow(1-t,5);
-  const easeInOutCubic=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  const easeOutCubic=t=>1-Math.pow(1-t,3);
 
   function detailReady(){return detail&&detailMedia&&dn&&dy&&dt&&dh&&dd&&dTags&&dmn&&dmt&&db}
 
@@ -146,7 +146,9 @@
 
     const frame=now=>{
       const t=clamp((now-started)/duration,0,1);
-      const eased=opening?easeOutQuint(t):easeInOutCubic(t);
+      /* Close keeps the 720ms motion tier, but uses a fast-out curve so the
+         mask visibly contracts on the very first frames instead of easing in. */
+      const eased=opening?easeOutQuint(t):easeOutCubic(t);
       detailRadius=from+(to-from)*eased;
       detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape);
       detail.style.webkitClipPath=detail.style.clipPath;
@@ -218,7 +220,17 @@
     if(!row)return;
     row.addEventListener('click',event=>openProject(item.dataset.project,row,event));
   });
-  detailClose?.addEventListener('click',closeProject);
+
+  /* Start closing on press rather than release. This removes the small input
+     latency of a normal click while preserving keyboard activation. */
+  detailClose?.addEventListener('pointerdown',event=>{
+    if(event.pointerType==='mouse'&&event.button!==0)return;
+    event.preventDefault();
+    closeProject();
+  });
+  detailClose?.addEventListener('click',event=>{
+    if(event.detail===0)closeProject();
+  });
   addEventListener('keydown',e=>{if(e.key==='Escape'&&detail?.classList.contains('is-open'))closeProject()});
 
   if(fine&&!reduced&&detail&&detailMedia){addEventListener('mousemove',e=>{if(!detail.classList.contains('is-open'))return;const r=detailMedia.getBoundingClientRect();const nx=Math.max(-.5,Math.min(.5,(e.clientX-r.left)/r.width-.5));const ny=Math.max(-.5,Math.min(.5,(e.clientY-r.top)/r.height-.5));detailMedia.style.setProperty('--ax',nx*28+'px');detailMedia.style.setProperty('--ay',ny*20+'px');detailMedia.style.setProperty('--bx',nx*-18+'px');detailMedia.style.setProperty('--by',ny*-24+'px')})}
