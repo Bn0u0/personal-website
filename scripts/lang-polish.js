@@ -3,6 +3,11 @@
   if(!toggle)return;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine=matchMedia('(pointer:fine)').matches;
+  const MOTION=window.__motion||{
+    micro:180,ui:320,content:560,scene:1000,
+    exitMicro:90,exitUi:160,exitContent:280,exitScene:500,
+    staggerTight:40,staggerStandard:80
+  };
 
   const style=document.createElement('style');
   style.textContent=`
@@ -17,13 +22,10 @@
       --font-cjk:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
     }
 
-    /* Keep Latin glyphs on the exact same stack in EN and ZH. CJK fonts only
-       participate when the preceding Latin/system families do not contain a glyph. */
     html[lang="zh-Hant"] body{
       font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif!important;
     }
 
-    /* Project names never change language, so their typography must not change either. */
     .project-row__title,
     .project-detail__title,
     .detail-media-title{
@@ -39,7 +41,7 @@
       font-size:10px!important;line-height:1!important;letter-spacing:.06em!important;
       text-transform:none!important;color:inherit!important;opacity:.92;
       will-change:transform;
-      transition:opacity var(--motion-micro,200ms) ease,transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important
+      transition:opacity var(--motion-micro,180ms) ease,transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important
     }
     .language-toggle:hover{background:transparent!important;border:0!important;opacity:1}
     .language-toggle:active{transform:scale(.985)!important}
@@ -48,12 +50,12 @@
     .language-toggle__option{
       display:inline-block!important;height:auto!important;color:inherit!important;mix-blend-mode:normal!important;
       opacity:.38;transform:translateY(0);
-      transition:opacity var(--motion-micro,200ms) ease,transform var(--motion-micro,200ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important
+      transition:opacity var(--motion-micro,180ms) ease,transform var(--motion-micro,180ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important
     }
     .language-toggle__sep{
       display:inline-block;
       opacity:.28;
-      transition:opacity var(--motion-micro,200ms) ease!important
+      transition:opacity var(--motion-micro,180ms) ease!important
     }
     .language-toggle:not(.is-zh) .language-toggle__en,
     .language-toggle.is-zh .language-toggle__zh{opacity:1}
@@ -121,7 +123,7 @@
         transparent calc(var(--lang-wipe) + 8%));
       -webkit-mask-repeat:no-repeat;
       mask-repeat:no-repeat;
-      transition:--lang-wipe var(--motion-ui,340ms) cubic-bezier(.55,.05,.25,1)!important;
+      transition:--lang-wipe var(--motion-ui,320ms) cubic-bezier(.55,.05,.25,1)!important;
       transition-delay:var(--lang-delay,0ms)!important;
       will-change:mask-image,-webkit-mask-image;
     }
@@ -130,7 +132,7 @@
     @supports not (mask-image:linear-gradient(#000,transparent)){
       .lang-fade-target{
         clip-path:inset(0 0 0 0);
-        transition:clip-path var(--motion-ui,340ms) cubic-bezier(.55,.05,.25,1)!important;
+        transition:clip-path var(--motion-ui,320ms) cubic-bezier(.55,.05,.25,1)!important;
         transition-delay:var(--lang-delay,0ms)!important
       }
       .lang-fade-target.is-lang-out{clip-path:inset(0 100% 0 0)}
@@ -168,8 +170,6 @@
 
   toggle.innerHTML='<span class="language-toggle__option language-toggle__en">EN</span><span class="language-toggle__sep" aria-hidden="true">/</span><span class="language-toggle__option language-toggle__zh">中文</span>';
 
-  /* The language control is injected after site.js wires the normal .magnetic nodes,
-     so give it the same restrained magnetic response here. */
   if(fine&&!reduced){
     toggle.addEventListener('mousemove',event=>{
       const r=toggle.getBoundingClientRect();
@@ -230,7 +230,7 @@
     const els=targets();
     els.forEach((el,i)=>{
       el.classList.add('lang-fade-target');
-      el.style.setProperty('--lang-delay',`${Math.min((i%12)*5,55)}ms`);
+      el.style.setProperty('--lang-delay',`${Math.min((i%3)*MOTION.staggerTight,MOTION.staggerStandard)}ms`);
     });
     requestAnimationFrame(()=>els.forEach(el=>el.classList.add('is-lang-out')));
     setTimeout(()=>{
@@ -238,13 +238,13 @@
       syncWorkCue();
       syncProjectCursor();
       els.forEach(el=>el.classList.remove('is-lang-out'));
-    },390);
+    },MOTION.ui+MOTION.staggerStandard);
     setTimeout(()=>{
       els.forEach(el=>{
         el.classList.remove('lang-fade-target');
         el.style.removeProperty('--lang-delay');
       });
-    },800);
+    },MOTION.content+MOTION.ui);
   },true);
 
   const detail=document.querySelector('.project-detail');
