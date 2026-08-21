@@ -6,7 +6,7 @@
     en:{
       intro:'I set the direction. AI searches, decomposes, builds and verifies. The useful part is the loop between the two.',
       principles:['Direction','Challenge','Evidence','Memory'],
-      explore:'Explore the collaboration',
+      explore:'Explore further',
       notes:'04 notes ↗',
       eyebrow:'AI / Extended notes',
       close:'Close',
@@ -37,7 +37,7 @@
     zh:{
       intro:'我決定方向；AI 負責搜尋、拆解、實作與驗證。真正有價值的是兩者之間反覆往返的循環。',
       principles:['方向','質疑','證據','記憶'],
-      explore:'延伸這段合作關係',
+      explore:'延伸探討',
       notes:'04 notes ↗',
       eyebrow:'AI / 延伸筆記',
       close:'關閉',
@@ -70,6 +70,7 @@
   const isZh=()=>document.documentElement.lang.toLowerCase().startsWith('zh');
   const data=()=>COPY[isZh()?'zh':'en'];
   const intro=section.querySelector('.about-ai__intro');
+  const history=section.querySelector('.about-ai__history');
   const rows=[...section.querySelectorAll('.about-ai__row')];
 
   const explore=document.createElement('button');
@@ -77,7 +78,7 @@
   explore.className='about-ai__explore';
   explore.setAttribute('aria-haspopup','dialog');
   explore.innerHTML='<span class="about-ai__explore-label"></span><span class="about-ai__explore-meta"></span>';
-  section.appendChild(explore);
+  (history||section).appendChild(explore);
 
   const layer=document.createElement('section');
   layer.className='ai-depth';
