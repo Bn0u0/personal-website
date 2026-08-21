@@ -1,6 +1,18 @@
 (()=>{
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine=matchMedia('(pointer: fine)').matches;
+  const MOTION=window.__motion=Object.freeze({
+    micro:180,
+    ui:320,
+    content:560,
+    scene:1000,
+    exitMicro:90,
+    exitUi:160,
+    exitContent:280,
+    exitScene:500,
+    staggerTight:40,
+    staggerStandard:80
+  });
   if(!reduced&&window.Lenis){window.__lenis=new Lenis({autoRaf:true,anchors:true,smoothWheel:true,lerp:.085,wheelMultiplier:.9})}
 
   const manifestoStatement=document.querySelector('.manifesto__statement');
@@ -33,7 +45,7 @@
   if(fine&&!reduced&&cursor){addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});(function loop(){cx+=(mx-cx)*.28;cy+=(my-cy)*.28;document.documentElement.style.setProperty('--cx',cx+'px');document.documentElement.style.setProperty('--cy',cy+'px');requestAnimationFrame(loop)})();document.querySelectorAll('[data-cursor],a,button').forEach(el=>{el.addEventListener('mouseenter',()=>{if(el.dataset.cursor){cursor.classList.add('is-active');label.textContent=el.dataset.cursor}});el.addEventListener('mouseleave',()=>cursor.classList.remove('is-active'))})}
 
   const brand=document.querySelector('.brand'),profileTrigger=document.querySelector('.brand-avatar'),profileCard=document.querySelector('.profile-card');
-  if(fine&&brand&&profileTrigger&&profileCard){let profileTimer;const openProfile=()=>{clearTimeout(profileTimer);brand.classList.add('is-profile-open');profileCard.classList.add('is-visible');profileCard.setAttribute('aria-hidden','false')};const closeProfile=()=>{clearTimeout(profileTimer);profileTimer=setTimeout(()=>{brand.classList.remove('is-profile-open');profileCard.classList.remove('is-visible');profileCard.setAttribute('aria-hidden','true')},120)};profileTrigger.addEventListener('mouseenter',openProfile);profileTrigger.addEventListener('mouseleave',closeProfile);profileCard.addEventListener('mouseenter',openProfile);profileCard.addEventListener('mouseleave',closeProfile);brand.addEventListener('focus',openProfile);brand.addEventListener('blur',closeProfile)}
+  if(fine&&brand&&profileTrigger&&profileCard){let profileTimer;const openProfile=()=>{clearTimeout(profileTimer);brand.classList.add('is-profile-open');profileCard.classList.add('is-visible');profileCard.setAttribute('aria-hidden','false')};const closeProfile=()=>{clearTimeout(profileTimer);profileTimer=setTimeout(()=>{brand.classList.remove('is-profile-open');profileCard.classList.remove('is-visible');profileCard.setAttribute('aria-hidden','true')},MOTION.exitMicro)};profileTrigger.addEventListener('mouseenter',openProfile);profileTrigger.addEventListener('mouseleave',closeProfile);profileCard.addEventListener('mouseenter',openProfile);profileCard.addEventListener('mouseleave',closeProfile);brand.addEventListener('focus',openProfile);brand.addEventListener('blur',closeProfile)}
 
   const projects={
     picnest:{number:'01',year:'2026',title:'PicNest 2.0',mediaTitle:'PICNEST 2.0',headline:'A small world designed to feel alive.',description:'Virtual world experiments around exploration, collection, multiplayer presence and Peep personality.',tags:['World','Social','R3F','Systems'],below:'A living-world project focused on discovery, collection and the relationship between players and their Peep.'},
@@ -200,13 +212,11 @@
 
     const from=detailRadius;
     const to=opening?detailMaxRadius:2;
-    const duration=opening?1500:720;
+    const duration=opening?MOTION.scene:MOTION.exitScene;
     const started=performance.now();
 
     const frame=now=>{
       const t=clamp((now-started)/duration,0,1);
-      /* Close keeps the 720ms motion tier, but uses a fast-out curve so the
-         mask visibly contracts on the very first frames instead of easing in. */
       const eased=opening?easeOutQuint(t):easeOutCubic(t);
       detailRadius=from+(to-from)*eased;
       detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape);
@@ -227,12 +237,11 @@
     cancelAnimationFrame(detailFrame);
     const shape=detailShape||randomShape();
     const maxRadius=coverageRadius(origin);
-    const duration=720;
+    const duration=MOTION.exitScene;
     const started=performance.now();
 
-    /* Closing is the compositing inverse of opening: instead of shrinking the
-       project surface, an organic hole grows from the actual close press and
-       reveals the already-rendered site underneath. */
+    /* Closing is the compositing inverse of opening: an organic hole grows from
+       the actual close press and reveals the already-rendered site underneath. */
     setInverseDetailClip(origin,2,shape);
 
     const frame=now=>{
@@ -314,13 +323,13 @@
 
   if(fine&&!reduced&&detail&&detailMedia){addEventListener('mousemove',e=>{if(!detail.classList.contains('is-open'))return;const r=detailMedia.getBoundingClientRect();const nx=Math.max(-.5,Math.min(.5,(e.clientX-r.left)/r.width-.5));const ny=Math.max(-.5,Math.min(.5,(e.clientY-r.top)/r.height-.5));detailMedia.style.setProperty('--ax',nx*28+'px');detailMedia.style.setProperty('--ay',ny*20+'px');detailMedia.style.setProperty('--bx',nx*-18+'px');detailMedia.style.setProperty('--by',ny*-24+'px')})}
 
-  document.querySelectorAll('.magnetic').forEach(el=>{if(!fine||reduced)return;el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;el.style.transform=`translate3d(${x*.16}px,${y*.2}px,0)`});el.addEventListener('mouseleave',()=>{el.style.transition='transform 420ms cubic-bezier(.2,.7,.2,1)';el.style.transform='translate3d(0,0,0)';setTimeout(()=>el.style.transition='',430)})});
+  document.querySelectorAll('.magnetic').forEach(el=>{if(!fine||reduced)return;el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect(),x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2;el.style.transform=`translate3d(${x*.16}px,${y*.2}px,0)`});el.addEventListener('mouseleave',()=>{el.style.transition=`transform ${MOTION.ui}ms cubic-bezier(.2,.7,.2,1)`;el.style.transform='translate3d(0,0,0)';setTimeout(()=>el.style.transition='',MOTION.ui+16)})});
 
   const pr=document.querySelector('.scroll-progress'),pb=document.querySelector('.scroll-progress__bar');let timer;
-  function progressBar(v){if(!pr||!pb)return;v=Math.max(0,Math.min(1,v||0));pb.style.transform=`scaleX(${v})`;pr.classList.add('is-scrolling');clearTimeout(timer);timer=setTimeout(()=>pr.classList.remove('is-scrolling'),180)}
+  function progressBar(v){if(!pr||!pb)return;v=Math.max(0,Math.min(1,v||0));pb.style.transform=`scaleX(${v})`;pr.classList.add('is-scrolling');clearTimeout(timer);timer=setTimeout(()=>pr.classList.remove('is-scrolling'),MOTION.micro)}
   function nativeP(){const s=document.documentElement.scrollHeight-innerHeight;return s>0?(scrollY||document.documentElement.scrollTop)/s:0}
   if(window.__lenis)window.__lenis.on('scroll',({progress:p})=>progressBar(p));else addEventListener('scroll',()=>progressBar(nativeP()),{passive:true});
-  addEventListener('resize',()=>progressBar(nativeP()),{passive:true});progressBar(nativeP());setTimeout(()=>pr?.classList.remove('is-scrolling'),220);
+  addEventListener('resize',()=>progressBar(nativeP()),{passive:true});progressBar(nativeP());setTimeout(()=>pr?.classList.remove('is-scrolling'),MOTION.micro);
 
   const languageScript=document.createElement('script');
   languageScript.src='./scripts/lang.js';languageScript.async=false;
