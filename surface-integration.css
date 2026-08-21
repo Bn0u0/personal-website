@@ -1,0 +1,77 @@
+/* Surface Integration — make the page read as one continuous interface.
+   Section boundaries disappear; only quiet internal structure remains. */
+
+:root{
+  --hairline-light:rgba(18,18,18,.12);
+  --hairline-light-strong:rgba(18,18,18,.24);
+  --hairline-dark:rgba(242,240,235,.10);
+  --hairline-dark-strong:rgba(242,240,235,.18);
+}
+
+/* Sections are surfaces, not cards. Never outline one section against the next. */
+.hero,
+.work,
+.manifesto,
+.about-ai,
+.site-footer{
+  border-top:0!important;
+  border-bottom:0!important;
+  outline:0!important;
+}
+
+/* About 001 + 002 are one continuous black chapter. The same-color shadow also
+   covers occasional 1px/sub-pixel seams produced by viewport sizing/rendering. */
+.manifesto,
+.about-ai{
+  background:var(--fg)!important;
+  color:var(--bg);
+}
+.about-ai{
+  border-top:0!important;
+  box-shadow:0 -2px 0 var(--fg)!important;
+}
+
+/* The footer transition is already communicated by the color change itself. */
+.site-footer{
+  border-top:0!important;
+  background:var(--bg);
+  color:var(--fg);
+}
+
+/* One hairline language across the light interface. */
+.hero__footer{
+  border-top:.5px solid var(--hairline-light)!important;
+}
+.section-heading{
+  border-bottom:.5px solid var(--hairline-light-strong)!important;
+}
+.project-item{
+  border-bottom:.5px solid var(--hairline-light)!important;
+}
+
+/* Internal dark-section rules stay useful, but no longer read as section walls. */
+.manifesto__tags{
+  border-top:.5px solid var(--hairline-dark-strong)!important;
+}
+.manifesto__tags span{
+  border-bottom:.5px solid var(--hairline-dark)!important;
+}
+.about-ai__history{
+  border-top:.5px solid var(--hairline-dark-strong)!important;
+}
+.about-ai__row{
+  border-bottom:.5px solid var(--hairline-dark)!important;
+}
+
+/* Prevent decorative/content layers from creating accidental edge seams. */
+.manifesto::before,
+.manifesto::after,
+.about-ai::before,
+.about-ai::after{
+  border:0!important;
+}
+
+/* Preserve the same continuous surface vocabulary on compact layouts. */
+@media(max-width:640px){
+  .about-ai{box-shadow:0 -2px 0 var(--fg)!important}
+}
