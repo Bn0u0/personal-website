@@ -1,0 +1,60 @@
+/* Section Navigation Cue — one consistent bottom-right navigation rhythm per main surface. */
+.hero,.work,.manifesto,.about-ai{position:relative}
+
+.section-scroll-cue{
+  position:absolute!important;
+  right:var(--pad)!important;
+  bottom:36px!important;
+  left:auto!important;
+  z-index:6;
+  margin:0!important;
+  min-height:20px;
+  display:inline-flex!important;
+  align-items:center;
+  gap:10px;
+  color:var(--muted);
+  font-size:11px!important;
+  line-height:1.25;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  opacity:.62;
+  transition:opacity var(--motion-micro,200ms) ease!important;
+}
+.section-scroll-cue:hover,.section-scroll-cue:focus-visible{opacity:1}
+.section-scroll-cue>span:last-child{
+  display:inline-block;
+  transition:transform var(--motion-micro,200ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important;
+}
+.section-scroll-cue:hover>span:last-child,.section-scroll-cue:focus-visible>span:last-child{transform:translateY(4px)}
+
+/* Dark About surfaces use the same position and hierarchy, only the ink changes. */
+.manifesto .section-scroll-cue,.about-ai .section-scroll-cue{
+  color:rgba(242,240,235,.52);
+}
+.manifesto .section-scroll-cue:hover,.manifesto .section-scroll-cue:focus-visible,
+.about-ai .section-scroll-cue:hover,.about-ai .section-scroll-cue:focus-visible{
+  color:rgba(242,240,235,.88);
+}
+
+/* Work previously had its own placement rules; the shared cue now owns the position. */
+.work-scroll-cue.section-scroll-cue{
+  position:absolute!important;
+  right:var(--pad)!important;
+  bottom:36px!important;
+  left:auto!important;
+  justify-self:auto!important;
+  align-self:auto!important;
+}
+
+@media(max-width:640px){
+  .section-scroll-cue{
+    right:var(--pad)!important;
+    bottom:30px!important;
+    font-size:10px!important;
+  }
+  .work-scroll-cue.section-scroll-cue{bottom:30px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .section-scroll-cue,.section-scroll-cue>span:last-child{transition:none!important}
+}
