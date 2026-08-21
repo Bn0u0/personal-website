@@ -1,9 +1,16 @@
-/* Quiet Interface / Fluid Motion — shared polish layer */
+/* Quiet Interface / Fluid Motion — shared polish layer.
+   Timing tokens are mirrored here for first-paint safety; motion-system.css is canonical. */
 :root{
-  --motion-micro:200ms;
-  --motion-ui:340ms;
-  --motion-content:720ms;
-  --motion-scene:1500ms;
+  --motion-micro:180ms;
+  --motion-ui:320ms;
+  --motion-content:560ms;
+  --motion-scene:1000ms;
+  --motion-exit-micro:90ms;
+  --motion-exit-ui:160ms;
+  --motion-exit-content:280ms;
+  --motion-exit-scene:500ms;
+  --motion-stagger-tight:40ms;
+  --motion-stagger-standard:80ms;
   --ease-soft:cubic-bezier(.22,1,.36,1);
   --ease-standard:cubic-bezier(.2,.7,.2,1);
 }
@@ -25,15 +32,15 @@
   transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft),visibility 0s!important;
 }
 .hero__line>span{
-  animation-duration:var(--motion-content)!important;
+  animation-duration:var(--motion-scene)!important;
   animation-timing-function:var(--ease-soft)!important;
 }
-.hero__line:nth-child(2)>span{animation-delay:100ms!important}
+.hero__line:nth-child(2)>span{animation-delay:var(--motion-stagger-standard)!important}
 .scroll-cue span{
   transition:transform var(--motion-micro) var(--ease-soft)!important;
 }
 .project-detail__media{
-  transition:transform var(--motion-content) var(--ease-soft) 120ms,opacity var(--motion-ui) ease 120ms!important;
+  transition:transform var(--motion-content) var(--ease-soft) var(--motion-stagger-standard),opacity var(--motion-ui) ease var(--motion-stagger-standard)!important;
 }
 .brand-avatar,
 .brand-label,
@@ -296,13 +303,13 @@
 .cursor.is-on-dark .cursor__dot{background:var(--bg)}
 .cursor.is-on-dark .cursor__label{color:var(--fg)}
 
-/* Manifesto remains the one poetic motion, but with less blur and no rotation. */
+/* Manifesto remains the poetic motion, but its timing still obeys CONTENT + shared stagger. */
 .manifesto__char{
   opacity:0;
   filter:blur(3px)!important;
   transform:translate3d(-.025em,.16em,0) rotate(0)!important;
-  transition:opacity 620ms ease,transform var(--motion-content) var(--ease-soft),filter var(--motion-content) ease!important;
-  transition-delay:calc(var(--char-index)*28ms)!important;
+  transition:opacity var(--motion-content) ease,transform var(--motion-content) var(--ease-soft),filter var(--motion-content) ease!important;
+  transition-delay:calc(var(--char-index)*var(--motion-stagger-tight))!important;
 }
 .manifesto__statement.is-flowing .manifesto__char{
   opacity:1;
