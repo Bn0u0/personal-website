@@ -32,10 +32,10 @@
   mix-blend-mode:normal!important;
 }
 
-/* Project OPEN / 開啟 labels get 1.5× more type presence while retaining the
-   existing circle size. Project-detail CLOSE keeps the original smaller scale. */
+/* Project OPEN / 開啟 labels use 12px while retaining the existing circle size.
+   Project-detail CLOSE keeps the original smaller scale. */
 body:not(.is-detail-open) .cursor.is-active .cursor__label{
-  font-size:13.5px!important;
+  font-size:12px!important;
 }
 body.is-detail-open .cursor.is-active .cursor__label{
   font-size:9px!important;
