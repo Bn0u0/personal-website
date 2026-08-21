@@ -5,8 +5,8 @@
   const detail=document.querySelector('.project-detail');
   if(!archive||!trigger||!close)return;
 
-  /* Kept as a fallback for older cached HTML. The stylesheet is also linked
-     directly from index.html so the first archive open cannot race CSS loading. */
+  /* Fallback for older cached HTML. Current index.html loads this stylesheet
+     directly so the first click cannot race the animation CSS. */
   if(!document.querySelector('link[data-archive-reindex]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
@@ -43,9 +43,6 @@
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const sourceRows=()=>[...document.querySelectorAll('#work .project-item[data-project] .project-row')].slice(0,5);
-  const destinationRows=()=>[...archive.querySelectorAll('.project-item[data-project] .project-row')].slice(0,5);
-  const rects=nodes=>nodes.map(node=>node.getBoundingClientRect());
 
   function applyCopy(){
     const c=COPY[lang()];
@@ -63,65 +60,15 @@
   }
 
   let lastFocus=null;
-  let transitionLayer=null;
-  let transitionTimer=0;
-  let settleTimer=0;
-  let busy=false;
+  let openingFrame=0;
+  let openingTimer=0;
 
-  function clearTransitionLayer(){
-    clearTimeout(transitionTimer);
-    clearTimeout(settleTimer);
-    transitionTimer=0;
-    settleTimer=0;
-    transitionLayer?.remove();
-    transitionLayer=null;
-    document.body.classList.remove('is-archive-reindexing');
-  }
-
-  function buildMorph(fromRects,toRects){
-    const originals=sourceRows();
-    if(originals.length!==toRects.length||originals.length!==fromRects.length)return null;
-
-    const layer=document.createElement('div');
-    layer.className='archive-reindex-layer';
-    const ease='cubic-bezier(.22,1,.36,1)';
-
-    originals.forEach((row,i)=>{
-      const base=fromRects[i];
-      const target=toRects[i];
-      if(!base||!target||base.width<=0||base.height<=0||target.width<=0||target.height<=0)return;
-
-      const clone=row.cloneNode(true);
-      clone.classList.add('archive-reindex-clone');
-      clone.removeAttribute('data-cursor');
-      clone.setAttribute('aria-hidden','true');
-      clone.tabIndex=-1;
-
-      Object.assign(clone.style,{
-        left:`${base.left}px`,
-        top:`${base.top}px`,
-        width:`${base.width}px`,
-        height:`${base.height}px`,
-        transform:'translate3d(0,0,0) scale(1,1)',
-        opacity:'1'
-      });
-
-      layer.appendChild(clone);
-
-      const dx=target.left-base.left;
-      const dy=target.top-base.top;
-      const sx=target.width/base.width;
-      const sy=target.height/base.height;
-
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        clone.style.transition=`transform 720ms ${ease},opacity 160ms ease 620ms`;
-        clone.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${sx},${sy})`;
-        clone.style.opacity='.98';
-      }));
-    });
-
-    document.body.appendChild(layer);
-    return layer;
+  function clearOpening(){
+    if(openingFrame)cancelAnimationFrame(openingFrame);
+    clearTimeout(openingTimer);
+    openingFrame=0;
+    openingTimer=0;
+    archive.classList.remove('is-split-preparing','is-split-opening');
   }
 
   function openArchiveImmediate(){
@@ -130,67 +77,59 @@
     archive.setAttribute('aria-hidden','false');
     document.body.classList.add('is-archive-open');
     window.__lenis?.stop?.();
-    requestAnimationFrame(()=>{
-      archive.classList.add('is-open');
-      setTimeout(()=>archive.focus?.({preventScroll:true}),40);
-    });
+    archive.classList.remove('is-instant-close','is-split-preparing','is-split-opening');
+    archive.classList.add('is-open');
+    requestAnimationFrame(()=>archive.focus?.({preventScroll:true}));
   }
 
   function openArchive(){
-    if(archive.classList.contains('is-open')||busy)return;
-    if(reduced||sourceRows().length<5||destinationRows().length<5){openArchiveImmediate();return}
+    if(archive.classList.contains('is-open')||archive.classList.contains('is-split-preparing'))return;
+    if(reduced){openArchiveImmediate();return}
 
-    busy=true;
     lastFocus=document.activeElement;
     archive.scrollTop=0;
-
-    /* Measure the source BEFORE overflow is locked. Previously the body lock
-       could remove the scrollbar and shift the source rects before the FLIP began. */
-    const from=rects(sourceRows());
-
     archive.setAttribute('aria-hidden','false');
-    archive.classList.remove('is-reindex-settled');
-    archive.classList.add('is-reindex-opening');
-    document.body.classList.add('is-archive-open','is-archive-reindexing');
+    document.body.classList.add('is-archive-open');
     window.__lenis?.stop?.();
 
-    /* The archive is visibility:hidden rather than display:none, so its final
-       row geometry is measurable without flashing the destination surface. */
-    const to=rects(destinationRows());
-    transitionLayer=buildMorph(from,to);
-
-    /* Force one hidden layout frame before exposing the archive. This makes the
-       first open deterministic instead of adding all transition classes at once. */
+    /* First frame: archive is technically visible, but both large background
+       panels are still completely outside the viewport and all content is hidden. */
+    archive.classList.remove('is-instant-close');
+    archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
-    requestAnimationFrame(()=>{
-      archive.classList.add('is-open');
 
-      settleTimer=setTimeout(()=>archive.classList.add('is-reindex-settled'),620);
-      transitionTimer=setTimeout(()=>{
-        clearTransitionLayer();
-        archive.classList.remove('is-reindex-opening');
-        busy=false;
+    /* Second frame: left + right panels travel toward the center. Only after
+       they meet do the six project rows enter from the left in numeric order. */
+    openingFrame=requestAnimationFrame(()=>{
+      openingFrame=0;
+      archive.classList.remove('is-split-preparing');
+      archive.classList.add('is-open','is-split-opening');
+
+      openingTimer=setTimeout(()=>{
+        openingTimer=0;
+        archive.classList.remove('is-split-opening');
         archive.focus?.({preventScroll:true});
-      },840);
+      },1600);
     });
   }
 
   function finishClose(){
-    clearTransitionLayer();
-    archive.classList.remove('is-open','is-reindex-opening','is-reindex-settled','is-reindex-closing');
+    clearOpening();
+    archive.classList.add('is-instant-close');
+    archive.classList.remove('is-open');
     archive.setAttribute('aria-hidden','true');
     document.body.classList.remove('is-archive-open');
     window.__lenis?.start?.();
-    busy=false;
+
+    /* Keep the no-transition state for one paint so base archive.css cannot
+       introduce its normal 340ms visibility transition on dismissal. */
+    requestAnimationFrame(()=>archive.classList.remove('is-instant-close'));
     setTimeout(()=>lastFocus?.focus?.({preventScroll:true}),0);
   }
 
   function closeArchive(){
-    if(!archive.classList.contains('is-open'))return;
+    if(!archive.classList.contains('is-open')&&!archive.classList.contains('is-split-preparing'))return;
     if(detail?.classList.contains('is-open'))return;
-
-    /* Close is intentionally immediate. It also cancels an opening FLIP if the
-       user dismisses the archive before the 840ms open sequence has settled. */
     finishClose();
   }
 
@@ -199,9 +138,9 @@
   archive.addEventListener('wheel',event=>event.stopPropagation(),{passive:true});
   archive.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
   addEventListener('keydown',event=>{
-    if(event.key!=='Escape'||!archive.classList.contains('is-open'))return;
+    if(event.key!=='Escape')return;
     if(detail?.classList.contains('is-open'))return;
-    closeArchive();
+    if(archive.classList.contains('is-open')||archive.classList.contains('is-split-preparing'))closeArchive();
   });
 
   /* Project Detail owns its own Lenis stop/start cycle. If it closes back into
