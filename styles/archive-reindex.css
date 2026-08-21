@@ -1,0 +1,83 @@
+/* Archive Re-index transition — selected rows reorganize into the full project index. */
+.archive-reindex-layer{
+  position:fixed;
+  inset:0;
+  z-index:372;
+  pointer-events:none;
+  overflow:hidden;
+}
+.archive-reindex-clone{
+  position:fixed!important;
+  z-index:1!important;
+  margin:0!important;
+  background:var(--bg)!important;
+  color:var(--fg)!important;
+  border:0!important;
+  border-bottom:.5px solid rgba(18,18,18,.16)!important;
+  pointer-events:none!important;
+  overflow:hidden!important;
+  transform-origin:top left!important;
+  will-change:transform,opacity;
+  box-shadow:none!important;
+}
+.archive-reindex-clone::before,
+.archive-reindex-clone .project-hover-info,
+.archive-reindex-clone .project-row__action{display:none!important}
+.archive-reindex-clone .project-row__title{transform:none!important}
+
+/* During the morph the archive is already the destination surface, but its
+   metadata waits so the moving rows remain the visual explanation. */
+.project-archive.is-reindex-opening{
+  transform:none!important;
+  transition:opacity 520ms ease,visibility 0s!important;
+}
+.project-archive.is-reindex-opening .project-archive__top,
+.project-archive.is-reindex-opening .project-archive__heading{
+  animation:archiveMetaIn 520ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 220ms both;
+}
+.project-archive.is-reindex-opening .project-archive__footer{
+  animation:archiveMetaIn 440ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 360ms both;
+}
+.project-archive.is-reindex-opening .project-item:nth-child(-n+5){opacity:0}
+.project-archive.is-reindex-opening .project-item:nth-child(6){
+  opacity:0;
+  transform:translate3d(0,8px,0);
+}
+.project-archive.is-reindex-settled .project-item:nth-child(-n+5){
+  opacity:1;
+  transition:opacity 120ms ease;
+}
+.project-archive.is-reindex-settled .project-item:nth-child(6){
+  opacity:1;
+  transform:translate3d(0,0,0);
+  transition:opacity 260ms ease,transform 420ms var(--ease-soft,cubic-bezier(.22,1,.36,1));
+}
+
+/* Closing keeps the same spatial memory in reverse. */
+.project-archive.is-reindex-closing{
+  transform:none!important;
+  opacity:1!important;
+  transition:none!important;
+}
+.project-archive.is-reindex-closing .project-archive__top,
+.project-archive.is-reindex-closing .project-archive__heading,
+.project-archive.is-reindex-closing .project-archive__footer{
+  opacity:0;
+  transform:translate3d(0,-5px,0);
+  transition:opacity 180ms ease,transform 260ms var(--ease-soft,cubic-bezier(.22,1,.36,1));
+}
+.project-archive.is-reindex-closing .project-item{opacity:0!important}
+
+@keyframes archiveMetaIn{
+  from{opacity:0;transform:translate3d(0,6px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+
+body.is-archive-reindexing .work-more{opacity:.18}
+
+@media(prefers-reduced-motion:reduce){
+  .archive-reindex-layer{display:none!important}
+  .project-archive.is-reindex-opening .project-archive__top,
+  .project-archive.is-reindex-opening .project-archive__heading,
+  .project-archive.is-reindex-opening .project-archive__footer{animation:none!important}
+}
