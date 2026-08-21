@@ -69,6 +69,11 @@
     }
   };
 
+  const MOTION=window.__motion||{
+    micro:180,ui:320,content:560,scene:1000,
+    exitMicro:90,exitUi:160,exitContent:280,exitScene:500,
+    staggerTight:40,staggerStandard:80
+  };
   const isZh=()=>document.documentElement.lang.toLowerCase().startsWith('zh');
   const data=()=>COPY[isZh()?'zh':'en'];
   const intro=section.querySelector('.about-ai__intro');
@@ -82,7 +87,7 @@
   explore.innerHTML='<span class="about-ai__explore-label"></span><span class="about-ai__explore-meta"></span>';
   (history||section).appendChild(explore);
 
-  /* Discovery stays editorial: the path itself becomes the affordance. */
+  /* Discovery stays editorial and now speaks only in shared motion tiers. */
   if(!document.querySelector('style[data-ai-depth-discovery]')){
     const style=document.createElement('style');
     style.dataset.aiDepthDiscovery='true';
@@ -101,10 +106,10 @@
         transform:scaleX(0);
         transform-origin:left center;
         opacity:.78;
-        transition:transform var(--motion-content,720ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-ui,340ms) ease;
+        transition:transform var(--motion-content,560ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-ui,320ms) ease;
       }
       .about-ai__row,.about-ai__row-title,.about-ai__row-index,.about-ai__row::before{
-        transition:color var(--motion-ui,340ms) ease,opacity var(--motion-ui,340ms) ease,transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
+        transition:color var(--motion-ui,320ms) ease,opacity var(--motion-ui,320ms) ease,transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
       }
       .about-ai__row:last-of-type::before{
         width:4px!important;
@@ -117,13 +122,13 @@
         transform:translateX(-24px);
         width:calc(100% + 24px);
         padding-left:40px!important;
-        transition:color var(--motion-ui,340ms) ease,transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
+        transition:color var(--motion-ui,320ms) ease,transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
       }
       .about-ai__explore-label{opacity:.96}
       .about-ai__explore-meta{
         display:inline-block;
         opacity:.66!important;
-        transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,200ms) ease;
+        transition:transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,180ms) ease;
       }
       .about-ai__explore::before{
         left:40px!important;
@@ -134,7 +139,7 @@
         background:var(--fg)!important;
         box-sizing:border-box;
         opacity:.92;
-        transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),box-shadow var(--motion-ui,340ms) ease;
+        transition:transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),box-shadow var(--motion-ui,320ms) ease;
       }
       .about-ai__explore::after{left:40px!important}
 
@@ -163,9 +168,9 @@
       }
       .about-ai__explore:hover,.about-ai__explore:focus-visible{color:rgba(242,240,235,.98)!important}
 
-      .about-ai.is-discovery-cue .about-ai__history::after{animation:aiPathReveal 900ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
-      .about-ai.is-discovery-cue .about-ai__explore-meta{animation:aiExploreNudge 760ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
-      .about-ai.is-discovery-cue .about-ai__explore::before{animation:aiExploreNode 760ms ease 1}
+      .about-ai.is-discovery-cue .about-ai__history::after{animation:aiPathReveal var(--motion-content,560ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
+      .about-ai.is-discovery-cue .about-ai__explore-meta{animation:aiExploreNudge var(--motion-content,560ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
+      .about-ai.is-discovery-cue .about-ai__explore::before{animation:aiExploreNode var(--motion-content,560ms) ease 1}
       @keyframes aiPathReveal{0%{transform:scaleX(0);opacity:.35}70%{transform:scaleX(1);opacity:.84}100%{transform:scaleX(0);opacity:.78}}
       @keyframes aiExploreNudge{0%,100%{transform:translate3d(0,0,0);opacity:.66}42%{transform:translate3d(2px,-2px,0);opacity:.96}}
       @keyframes aiExploreNode{0%,100%{box-shadow:0 0 0 0 rgba(242,240,235,0)}45%{box-shadow:0 0 0 4px rgba(242,240,235,.07)}}
@@ -193,7 +198,7 @@
       observer.disconnect();
       clearTimeout(discoveryTimer);
       section.classList.add('is-discovery-cue');
-      discoveryTimer=setTimeout(()=>section.classList.remove('is-discovery-cue'),980);
+      discoveryTimer=setTimeout(()=>section.classList.remove('is-discovery-cue'),MOTION.content);
     },{threshold:[.55]});
     observer.observe(section);
   }
@@ -301,7 +306,7 @@
       index=n;
       render();
       requestAnimationFrame(()=>layer.classList.remove('is-changing'));
-    },160);
+    },MOTION.exitUi);
   }
 
   function openLayer(){
