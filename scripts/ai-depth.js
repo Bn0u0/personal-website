@@ -7,7 +7,7 @@
       intro:'I set the direction. AI searches, decomposes, builds and verifies. The useful part is the loop between the two.',
       principles:['Direction','Challenge','Evidence','Memory'],
       explore:'Explore further',
-      notes:'04 notes ↗',
+      notes:'4 notes ↗',
       eyebrow:'AI / Extended notes',
       close:'Close',
       next:'Next',
@@ -39,7 +39,7 @@
       intro:'我決定方向；AI 負責搜尋、拆解、實作與驗證。真正有價值的是兩者之間反覆往返的循環。',
       principles:['方向','質疑','證據','記憶'],
       explore:'延伸探討',
-      notes:'04 notes ↗',
+      notes:'4 則 ↗',
       eyebrow:'AI / 延伸筆記',
       close:'關閉',
       next:'下一則',
@@ -82,21 +82,106 @@
   explore.innerHTML='<span class="about-ai__explore-label"></span><span class="about-ai__explore-meta"></span>';
   (history||section).appendChild(explore);
 
+  /* Discovery stays editorial: the path itself becomes the affordance. */
   if(!document.querySelector('style[data-ai-depth-discovery]')){
     const style=document.createElement('style');
     style.dataset.aiDepthDiscovery='true';
     style.textContent=`
-      .about-ai__row:last-of-type::before{width:4px!important;height:4px!important;top:-2.5px!important;background:rgba(242,240,235,.58)!important}
-      .about-ai__explore{color:rgba(242,240,235,.70)!important}
-      .about-ai__explore-label{opacity:.94}
-      .about-ai__explore-meta{display:inline-block;opacity:.62!important;transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,200ms) ease}
-      .about-ai__explore::before{width:5px!important;height:5px!important;top:-3px!important;border:1px solid currentColor;background:var(--fg)!important;box-sizing:border-box;opacity:.9}
-      .about-ai__explore:hover,.about-ai__explore:focus-visible{color:rgba(242,240,235,.96)!important}
+      .about-ai__history{isolation:isolate}
+      .about-ai__history::after{
+        content:"";
+        position:absolute;
+        z-index:-1;
+        left:0;
+        right:0;
+        top:-.5px;
+        height:1px;
+        pointer-events:none;
+        background:linear-gradient(90deg,rgba(242,240,235,.04),rgba(242,240,235,.10) 66%,rgba(242,240,235,.58));
+        transform:scaleX(0);
+        transform-origin:left center;
+        opacity:.78;
+        transition:transform var(--motion-content,720ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-ui,340ms) ease;
+      }
+      .about-ai__row,.about-ai__row-title,.about-ai__row-index,.about-ai__row::before{
+        transition:color var(--motion-ui,340ms) ease,opacity var(--motion-ui,340ms) ease,transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
+      }
+      .about-ai__row:last-of-type::before{
+        width:4px!important;
+        height:4px!important;
+        top:-2.5px!important;
+        background:rgba(242,240,235,.58)!important;
+      }
+      .about-ai__explore{
+        color:rgba(242,240,235,.72)!important;
+        transform:translateX(-24px);
+        width:calc(100% + 24px);
+        padding-left:40px!important;
+        transition:color var(--motion-ui,340ms) ease,transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
+      }
+      .about-ai__explore-label{opacity:.96}
+      .about-ai__explore-meta{
+        display:inline-block;
+        opacity:.66!important;
+        transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,200ms) ease;
+      }
+      .about-ai__explore::before{
+        left:40px!important;
+        width:5px!important;
+        height:5px!important;
+        top:-3px!important;
+        border:1px solid currentColor;
+        background:var(--fg)!important;
+        box-sizing:border-box;
+        opacity:.92;
+        transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),box-shadow var(--motion-ui,340ms) ease;
+      }
+      .about-ai__explore::after{left:40px!important}
+
+      .about-ai__history:hover::after,
+      .about-ai__history:focus-within::after,
+      .about-ai__history.is-explore-near::after{transform:scaleX(1)}
+      .about-ai__history:hover .about-ai__row-title,
+      .about-ai__history:focus-within .about-ai__row-title,
+      .about-ai__history.is-explore-near .about-ai__row-title{color:rgba(242,240,235,.50)!important}
+      .about-ai__history:hover .about-ai__row-index,
+      .about-ai__history:focus-within .about-ai__row-index,
+      .about-ai__history.is-explore-near .about-ai__row-index{opacity:.72}
+      .about-ai__history:hover .about-ai__row::before,
+      .about-ai__history:focus-within .about-ai__row::before,
+      .about-ai__history.is-explore-near .about-ai__row::before{opacity:.62}
+      .about-ai__history:hover .about-ai__explore,
+      .about-ai__history:focus-within .about-ai__explore,
+      .about-ai__history.is-explore-near .about-ai__explore{color:rgba(242,240,235,.90)!important}
+      .about-ai__history.is-explore-near .about-ai__explore-meta{
+        opacity:.88!important;
+        transform:translate3d(1.5px,-1.5px,0);
+      }
+      .about-ai__history.is-explore-near .about-ai__explore::before{
+        transform:scale(1.18);
+        box-shadow:0 0 0 4px rgba(242,240,235,.055);
+      }
+      .about-ai__explore:hover,.about-ai__explore:focus-visible{color:rgba(242,240,235,.98)!important}
+
+      .about-ai.is-discovery-cue .about-ai__history::after{animation:aiPathReveal 900ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
       .about-ai.is-discovery-cue .about-ai__explore-meta{animation:aiExploreNudge 760ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
       .about-ai.is-discovery-cue .about-ai__explore::before{animation:aiExploreNode 760ms ease 1}
-      @keyframes aiExploreNudge{0%,100%{transform:translate3d(0,0,0);opacity:.62}42%{transform:translate3d(2px,-2px,0);opacity:.92}}
+      @keyframes aiPathReveal{0%{transform:scaleX(0);opacity:.35}70%{transform:scaleX(1);opacity:.84}100%{transform:scaleX(0);opacity:.78}}
+      @keyframes aiExploreNudge{0%,100%{transform:translate3d(0,0,0);opacity:.66}42%{transform:translate3d(2px,-2px,0);opacity:.96}}
       @keyframes aiExploreNode{0%,100%{box-shadow:0 0 0 0 rgba(242,240,235,0)}45%{box-shadow:0 0 0 4px rgba(242,240,235,.07)}}
-      @media(prefers-reduced-motion:reduce){.about-ai.is-discovery-cue .about-ai__explore-meta,.about-ai.is-discovery-cue .about-ai__explore::before{animation:none!important}}
+
+      @media(max-width:1000px){
+        .about-ai__explore{transform:translateX(-18px);width:calc(100% + 18px);padding-left:28px!important}
+        .about-ai__explore::before,.about-ai__explore::after{left:28px!important}
+      }
+      @media(max-width:640px){
+        .about-ai__explore{transform:none;width:min(230px,100%);padding-left:10px!important}
+        .about-ai__explore::before,.about-ai__explore::after{left:10px!important}
+      }
+      @media(prefers-reduced-motion:reduce){
+        .about-ai__history::after,.about-ai__row,.about-ai__row-title,.about-ai__row-index,.about-ai__row::before,
+        .about-ai__explore,.about-ai__explore-meta,.about-ai__explore::before{transition:none!important;animation:none!important}
+      }
     `;
     document.head.appendChild(style);
   }
@@ -108,9 +193,34 @@
       observer.disconnect();
       clearTimeout(discoveryTimer);
       section.classList.add('is-discovery-cue');
-      discoveryTimer=setTimeout(()=>section.classList.remove('is-discovery-cue'),900);
+      discoveryTimer=setTimeout(()=>section.classList.remove('is-discovery-cue'),980);
     },{threshold:[.55]});
     observer.observe(section);
+  }
+
+  /* On fine pointers, proximity reveals interactivity before the cursor lands on the label. */
+  if(history&&matchMedia('(pointer:fine)').matches){
+    let pointerFrame=0;
+    let pointerX=0;
+    let pointerY=0;
+    const updateProximity=()=>{
+      pointerFrame=0;
+      const rect=explore.getBoundingClientRect();
+      const cx=Math.max(rect.left,Math.min(pointerX,rect.right));
+      const cy=Math.max(rect.top,Math.min(pointerY,rect.bottom));
+      const distance=Math.hypot(pointerX-cx,pointerY-cy);
+      history.classList.toggle('is-explore-near',distance<=150);
+    };
+    history.addEventListener('pointermove',event=>{
+      pointerX=event.clientX;
+      pointerY=event.clientY;
+      if(!pointerFrame)pointerFrame=requestAnimationFrame(updateProximity);
+    },{passive:true});
+    history.addEventListener('pointerleave',()=>{
+      if(pointerFrame)cancelAnimationFrame(pointerFrame);
+      pointerFrame=0;
+      history.classList.remove('is-explore-near');
+    });
   }
 
   const layer=document.createElement('section');
