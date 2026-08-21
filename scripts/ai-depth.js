@@ -80,6 +80,76 @@
   explore.innerHTML='<span class="about-ai__explore-label"></span><span class="about-ai__explore-meta"></span>';
   (history||section).appendChild(explore);
 
+  /* The timeline should stay quiet, but its final node must still read as a real
+     destination. Keep the affordance static by default and use one restrained
+     first-view cue instead of a looping attention animation. */
+  if(!document.querySelector('style[data-ai-depth-discovery]')){
+    const style=document.createElement('style');
+    style.dataset.aiDepthDiscovery='true';
+    style.textContent=`
+      .about-ai__row:last-of-type::before{
+        width:4px!important;
+        height:4px!important;
+        top:-2.5px!important;
+        background:rgba(242,240,235,.58)!important;
+      }
+      .about-ai__explore{
+        color:rgba(242,240,235,.70)!important;
+      }
+      .about-ai__explore-label{
+        opacity:.94;
+      }
+      .about-ai__explore-meta{
+        display:inline-block;
+        opacity:.62!important;
+        transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,200ms) ease;
+      }
+      .about-ai__explore::before{
+        width:5px!important;
+        height:5px!important;
+        top:-3px!important;
+        border:1px solid currentColor;
+        background:var(--fg)!important;
+        box-sizing:border-box;
+        opacity:.9;
+      }
+      .about-ai__explore:hover,.about-ai__explore:focus-visible{
+        color:rgba(242,240,235,.96)!important;
+      }
+      .about-ai.is-discovery-cue .about-ai__explore-meta{
+        animation:aiExploreNudge 760ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1;
+      }
+      .about-ai.is-discovery-cue .about-ai__explore::before{
+        animation:aiExploreNode 760ms ease 1;
+      }
+      @keyframes aiExploreNudge{
+        0%,100%{transform:translate3d(0,0,0);opacity:.62}
+        42%{transform:translate3d(2px,-2px,0);opacity:.92}
+      }
+      @keyframes aiExploreNode{
+        0%,100%{box-shadow:0 0 0 0 rgba(242,240,235,0)}
+        45%{box-shadow:0 0 0 4px rgba(242,240,235,.07)}
+      }
+      @media(prefers-reduced-motion:reduce){
+        .about-ai.is-discovery-cue .about-ai__explore-meta,
+        .about-ai.is-discovery-cue .about-ai__explore::before{animation:none!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  if('IntersectionObserver'in window){
+    let discoveryTimer=0;
+    const observer=new IntersectionObserver(entries=>{
+      if(!entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>=.55))return;
+      observer.disconnect();
+      clearTimeout(discoveryTimer);
+      section.classList.add('is-discovery-cue');
+      discoveryTimer=setTimeout(()=>section.classList.remove('is-discovery-cue'),900);
+    },{threshold:[.55]});
+    observer.observe(section);
+  }
+
   const layer=document.createElement('section');
   layer.className='ai-depth';
   layer.setAttribute('aria-hidden','true');
