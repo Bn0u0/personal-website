@@ -1,0 +1,45 @@
+/* Surface Response — a deliberately quiet cursor field.
+   No visible ripple animation: only a delayed pressure field and a faint ring
+   that live inside each section's background layer. */
+.surface-response{
+  --surface-x:50%;
+  --surface-y:50%;
+  --surface-radius:210px;
+  --surface-core:0;
+  --surface-mid:0;
+  --surface-ring:0;
+  background-image:
+    radial-gradient(circle var(--surface-radius) at var(--surface-x) var(--surface-y),
+      rgba(18,18,18,var(--surface-core)) 0%,
+      rgba(18,18,18,var(--surface-mid)) 34%,
+      transparent 69%),
+    radial-gradient(circle var(--surface-radius) at var(--surface-x) var(--surface-y),
+      transparent 53%,
+      rgba(18,18,18,var(--surface-ring)) 58%,
+      transparent 64%);
+  background-repeat:no-repeat;
+}
+
+.surface-response.surface-response--dark{
+  background-image:
+    radial-gradient(circle var(--surface-radius) at var(--surface-x) var(--surface-y),
+      rgba(242,240,235,var(--surface-core)) 0%,
+      rgba(242,240,235,var(--surface-mid)) 34%,
+      transparent 69%),
+    radial-gradient(circle var(--surface-radius) at var(--surface-x) var(--surface-y),
+      transparent 53%,
+      rgba(242,240,235,var(--surface-ring)) 58%,
+      transparent 64%);
+}
+
+/* Strong interaction surfaces already have enough motion. Keep this field behind them. */
+.project-row:before,
+.project-detail__media{
+  background-blend-mode:normal;
+}
+
+@media(pointer:coarse), (prefers-reduced-motion:reduce){
+  .surface-response{
+    background-image:none!important;
+  }
+}
