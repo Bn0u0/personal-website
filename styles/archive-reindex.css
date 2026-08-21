@@ -1,5 +1,5 @@
-/* All Projects transition — two walls accelerate into the center, then 01→06 enter from the left.
-   Closing is the exact visual inverse at 2× speed, without the impact shake. */
+/* All Projects transition — one canonical scene sequence.
+   Open uses the shared entry tiers; close is the exact 0.5× visual inverse. */
 .project-archive{
   background:transparent!important;
 }
@@ -30,14 +30,13 @@
   transform:translate3d(0,0,0);
 }
 
-/* Opening wall motion: straight path, deliberately slow → fast. The collision
-   now lands at 400ms so the complete sequence resolves inside one second. */
+/* The walls are CONTENT-scale motion inside a SCENE-scale 1000ms composition.
+   Their slow→fast path gives the collision weight without inventing a new tier. */
 .project-archive.is-split-opening::before,
 .project-archive.is-split-opening::after{
-  transition:transform 400ms cubic-bezier(.55,.055,.675,.19);
+  transition:transform var(--motion-content,560ms) var(--ease-accelerate,cubic-bezier(.55,.055,.675,.19));
 }
 
-/* A preparation frame exposes only the off-screen walls. */
 .project-archive.is-split-preparing{
   visibility:visible!important;
   opacity:1!important;
@@ -48,7 +47,7 @@
 .project-archive.is-split-opening{
   opacity:1!important;
   transition:none!important;
-  animation:archiveImpactShake 110ms linear 400ms both;
+  animation:archiveImpactShake var(--motion-micro,180ms) linear var(--motion-content,560ms) both;
 }
 .project-archive.is-split-closing{
   visibility:visible!important;
@@ -79,40 +78,40 @@
   transform:translate3d(-56px,0,0)!important;
 }
 
-/* Chrome appears immediately after the impact. */
+/* Chrome appears as the walls meet. */
 .project-archive.is-split-opening .project-archive__top,
 .project-archive.is-split-opening .project-archive__heading{
   opacity:1!important;
   transform:translate3d(0,0,0);
-  transition:opacity 240ms ease 420ms,transform 240ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 420ms;
+  transition:opacity var(--motion-ui,320ms) ease var(--motion-content,560ms),transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) var(--motion-content,560ms);
 }
 .project-archive.is-split-opening .project-archive__footer{
   opacity:1!important;
   transform:translate3d(0,0,0);
-  transition:opacity 240ms ease 600ms,transform 240ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 600ms;
+  transition:opacity var(--motion-ui,320ms) ease calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms)),transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms));
 }
 .project-archive.is-split-opening .project-archive__list{
   opacity:1!important;
 }
 
-/* 01→06 enter from the left after the two walls meet. */
+/* 01→06 use MICRO motion with one shared 40ms stagger scale.
+   Last row resolves at ~980ms, inside the SCENE 1000ms budget. */
 .project-archive.is-split-opening .project-item{
   opacity:1;
   transform:translate3d(0,0,0);
   transition-property:opacity,transform;
-  transition-duration:200ms,200ms;
+  transition-duration:var(--motion-micro,180ms),var(--motion-micro,180ms);
   transition-timing-function:ease,var(--ease-soft,cubic-bezier(.22,1,.36,1));
   will-change:transform,opacity;
 }
-.project-archive.is-split-opening .project-item:nth-child(1){transition-delay:450ms}
-.project-archive.is-split-opening .project-item:nth-child(2){transition-delay:510ms}
-.project-archive.is-split-opening .project-item:nth-child(3){transition-delay:570ms}
-.project-archive.is-split-opening .project-item:nth-child(4){transition-delay:630ms}
-.project-archive.is-split-opening .project-item:nth-child(5){transition-delay:690ms}
-.project-archive.is-split-opening .project-item:nth-child(6){transition-delay:750ms}
+.project-archive.is-split-opening .project-item:nth-child(1){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-tight,40ms))}
+.project-archive.is-split-opening .project-item:nth-child(2){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms))}
+.project-archive.is-split-opening .project-item:nth-child(3){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
+.project-archive.is-split-opening .project-item:nth-child(4){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
+.project-archive.is-split-opening .project-item:nth-child(5){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
+.project-archive.is-split-opening .project-item:nth-child(6){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
 
-/* Impact: only on open. Small, quickly damped translation makes the two halves
-   feel heavy without turning the portfolio into a game UI. */
+/* Impact exists only on entry. */
 @keyframes archiveImpactShake{
   0%{transform:translate3d(0,0,0)}
   18%{transform:translate3d(2.4px,.6px,0)}
@@ -122,41 +121,40 @@
   100%{transform:translate3d(0,0,0)}
 }
 
-/* Closing: exact order reversal at 2× speed. 06 leaves first, then 05→01;
-   once the rows are gone the joined wall splits outward. No impact shake. */
+/* Close: exact 0.5× derivatives. 06→01 leave first, then walls split outward.
+   No collision shake on exit. */
 .project-archive.is-split-closing .project-item{
   opacity:0!important;
   transform:translate3d(-56px,0,0)!important;
   transition-property:opacity,transform!important;
-  transition-duration:100ms,100ms!important;
-  transition-timing-function:ease,cubic-bezier(.64,0,.78,0)!important;
+  transition-duration:var(--motion-exit-micro,90ms),var(--motion-exit-micro,90ms)!important;
+  transition-timing-function:ease,var(--ease-exit,cubic-bezier(.64,0,.78,0))!important;
   will-change:transform,opacity;
 }
 .project-archive.is-split-closing .project-item:nth-child(6){transition-delay:0ms!important}
-.project-archive.is-split-closing .project-item:nth-child(5){transition-delay:30ms!important}
-.project-archive.is-split-closing .project-item:nth-child(4){transition-delay:60ms!important}
-.project-archive.is-split-closing .project-item:nth-child(3){transition-delay:90ms!important}
-.project-archive.is-split-closing .project-item:nth-child(2){transition-delay:120ms!important}
-.project-archive.is-split-closing .project-item:nth-child(1){transition-delay:150ms!important}
+.project-archive.is-split-closing .project-item:nth-child(5){transition-delay:var(--motion-exit-stagger-tight,20ms)!important}
+.project-archive.is-split-closing .project-item:nth-child(4){transition-delay:var(--motion-exit-stagger-standard,40ms)!important}
+.project-archive.is-split-closing .project-item:nth-child(3){transition-delay:calc(var(--motion-exit-stagger-standard,40ms) + var(--motion-exit-stagger-tight,20ms))!important}
+.project-archive.is-split-closing .project-item:nth-child(2){transition-delay:calc(var(--motion-exit-stagger-standard,40ms) + var(--motion-exit-stagger-standard,40ms))!important}
+.project-archive.is-split-closing .project-item:nth-child(1){transition-delay:calc(var(--motion-exit-stagger-standard,40ms) + var(--motion-exit-stagger-standard,40ms) + var(--motion-exit-stagger-tight,20ms))!important}
 
 .project-archive.is-split-closing .project-archive__top,
 .project-archive.is-split-closing .project-archive__heading,
 .project-archive.is-split-closing .project-archive__footer{
   opacity:0!important;
   transform:translate3d(0,6px,0)!important;
-  transition:opacity 120ms ease,transform 120ms cubic-bezier(.64,0,.78,0)!important;
+  transition:opacity var(--motion-exit-ui,160ms) ease,transform var(--motion-exit-ui,160ms) var(--ease-exit,cubic-bezier(.64,0,.78,0))!important;
 }
 
 .project-archive.is-open.is-split-closing::before{
   transform:translate3d(-100%,0,0);
-  transition:transform 200ms cubic-bezier(.325,.81,.45,.945) 250ms;
+  transition:transform var(--motion-exit-content,280ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms));
 }
 .project-archive.is-open.is-split-closing::after{
   transform:translate3d(100%,0,0);
-  transition:transform 200ms cubic-bezier(.325,.81,.45,.945) 250ms;
+  transition:transform var(--motion-exit-content,280ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms));
 }
 
-/* Safety state used only after the reverse animation has completed. */
 .project-archive.is-instant-close{
   opacity:0!important;
   visibility:hidden!important;
