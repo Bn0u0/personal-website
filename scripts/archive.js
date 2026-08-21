@@ -5,6 +5,14 @@
   const detail=document.querySelector('.project-detail');
   if(!archive||!trigger||!close)return;
 
+  if(!document.querySelector('link[data-archive-reindex]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='./styles/archive-reindex.css';
+    link.dataset.archiveReindex='true';
+    document.head.appendChild(link);
+  }
+
   const COPY={
     en:{
       selected:'05 selected',
@@ -32,6 +40,10 @@
 
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sourceRows=()=>[...document.querySelectorAll('#work .project-item[data-project] .project-row')].slice(0,5);
+  const destinationRows=()=>[...archive.querySelectorAll('.project-item[data-project] .project-row')].slice(0,5);
+  const rects=nodes=>nodes.map(node=>node.getBoundingClientRect());
 
   function applyCopy(){
     const c=COPY[lang()];
@@ -49,8 +61,69 @@
   }
 
   let lastFocus=null;
-  function openArchive(){
-    if(archive.classList.contains('is-open'))return;
+  let transitionLayer=null;
+  let transitionTimer=0;
+  let busy=false;
+
+  function clearTransitionLayer(){
+    clearTimeout(transitionTimer);
+    transitionLayer?.remove();
+    transitionLayer=null;
+    document.body.classList.remove('is-archive-reindexing');
+  }
+
+  function buildMorph(fromRects,toRects,startAtDestination=false){
+    const originals=sourceRows();
+    if(originals.length!==toRects.length||originals.length!==fromRects.length)return null;
+    const layer=document.createElement('div');
+    layer.className='archive-reindex-layer';
+    const ease='cubic-bezier(.22,1,.36,1)';
+
+    originals.forEach((row,i)=>{
+      const base=fromRects[i];
+      const target=toRects[i];
+      const clone=row.cloneNode(true);
+      clone.classList.add('archive-reindex-clone');
+      clone.removeAttribute('data-cursor');
+      clone.setAttribute('aria-hidden','true');
+      clone.tabIndex=-1;
+      Object.assign(clone.style,{
+        left:`${base.left}px`,
+        top:`${base.top}px`,
+        width:`${base.width}px`,
+        height:`${base.height}px`,
+        transform:'translate3d(0,0,0) scale(1,1)',
+        opacity:'1'
+      });
+
+      if(startAtDestination){
+        const dx=target.left-base.left;
+        const dy=target.top-base.top;
+        const sx=target.width/base.width;
+        const sy=target.height/base.height;
+        clone.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${sx},${sy})`;
+      }
+
+      layer.appendChild(clone);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        clone.style.transition=`transform 720ms ${ease},opacity 160ms ease 620ms`;
+        if(startAtDestination){
+          clone.style.transform='translate3d(0,0,0) scale(1,1)';
+        }else{
+          const dx=target.left-base.left;
+          const dy=target.top-base.top;
+          const sx=target.width/base.width;
+          const sy=target.height/base.height;
+          clone.style.transform=`translate3d(${dx}px,${dy}px,0) scale(${sx},${sy})`;
+        }
+        clone.style.opacity='.98';
+      }));
+    });
+    document.body.appendChild(layer);
+    return layer;
+  }
+
+  function openArchiveImmediate(){
     lastFocus=document.activeElement;
     archive.scrollTop=0;
     archive.setAttribute('aria-hidden','false');
@@ -62,14 +135,62 @@
     });
   }
 
-  function closeArchive(){
-    if(!archive.classList.contains('is-open'))return;
-    if(detail?.classList.contains('is-open'))return;
-    archive.classList.remove('is-open');
+  function openArchive(){
+    if(archive.classList.contains('is-open')||busy)return;
+    if(reduced||sourceRows().length<5){openArchiveImmediate();return}
+
+    busy=true;
+    lastFocus=document.activeElement;
+    archive.scrollTop=0;
+    archive.setAttribute('aria-hidden','false');
+    document.body.classList.add('is-archive-open','is-archive-reindexing');
+    window.__lenis?.stop?.();
+
+    const from=rects(sourceRows());
+    archive.classList.add('is-open','is-reindex-opening');
+    const to=rects(destinationRows());
+    transitionLayer=buildMorph(from,to,false);
+
+    setTimeout(()=>archive.classList.add('is-reindex-settled'),620);
+    transitionTimer=setTimeout(()=>{
+      clearTransitionLayer();
+      archive.classList.remove('is-reindex-opening');
+      busy=false;
+      archive.focus?.({preventScroll:true});
+    },840);
+  }
+
+  function finishClose(){
+    clearTransitionLayer();
+    archive.classList.remove('is-open','is-reindex-opening','is-reindex-settled','is-reindex-closing');
     archive.setAttribute('aria-hidden','true');
     document.body.classList.remove('is-archive-open');
     window.__lenis?.start?.();
+    busy=false;
     setTimeout(()=>lastFocus?.focus?.({preventScroll:true}),0);
+  }
+
+  function closeArchive(){
+    if(!archive.classList.contains('is-open')||busy)return;
+    if(detail?.classList.contains('is-open'))return;
+    if(reduced||sourceRows().length<5){
+      archive.classList.remove('is-open');
+      archive.setAttribute('aria-hidden','true');
+      document.body.classList.remove('is-archive-open');
+      window.__lenis?.start?.();
+      setTimeout(()=>lastFocus?.focus?.({preventScroll:true}),0);
+      return;
+    }
+
+    busy=true;
+    document.body.classList.add('is-archive-reindexing');
+    archive.classList.remove('is-reindex-opening','is-reindex-settled');
+    archive.classList.add('is-reindex-closing');
+
+    const source=rects(sourceRows());
+    const destination=rects(destinationRows());
+    transitionLayer=buildMorph(source,destination,true);
+    transitionTimer=setTimeout(finishClose,760);
   }
 
   trigger.addEventListener('click',openArchive);
