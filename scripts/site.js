@@ -73,11 +73,13 @@
   let detailRadius=0;
   let detailMaxRadius=0;
   let detailFrame=0;
+  let detailCloseClipPath=null;
 
   const TAU=Math.PI*2;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const easeOutQuint=t=>1-Math.pow(1-t,5);
   const easeOutCubic=t=>1-Math.pow(1-t,3);
+  const DETAIL_CLOSE_CLIP_ID='project-detail-close-reveal';
 
   function detailReady(){return detail&&detailMedia&&dn&&dy&&dt&&dh&&dd&&dTags&&dmn&&dmt&&db}
 
@@ -99,7 +101,7 @@
 
   function originFromEvent(event,trigger){
     const r=trigger?.getBoundingClientRect?.();
-    const pointer=event&&event.detail!==0&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY);
+    const pointer=event&&Number.isFinite(event.clientX)&&Number.isFinite(event.clientY)&&(event.type?.startsWith('pointer')||event.detail!==0);
     return {
       x:clamp(pointer?event.clientX:(r?r.left+r.width/2:innerWidth/2),0,innerWidth),
       y:clamp(pointer?event.clientY:(r?r.top+r.height/2:innerHeight/2),0,innerHeight)
@@ -133,6 +135,63 @@
     return `polygon(${pts.join(',')})`;
   }
 
+  function blobPath(origin,radius,shape){
+    const count=64;
+    const pts=[];
+    for(let i=0;i<count;i++){
+      const a=TAU*i/count;
+      const organic=1+
+        Math.sin(a*shape.k1+shape.p1)*shape.a1+
+        Math.sin(a*shape.k2+shape.p2)*shape.a2+
+        Math.sin(a*shape.k3+shape.p3)*shape.a3;
+      const rr=Math.max(2,radius*organic);
+      pts.push([
+        origin.x+Math.cos(a)*rr*shape.squashX,
+        origin.y+Math.sin(a)*rr*shape.squashY
+      ]);
+    }
+    return pts.map((point,index)=>`${index?'L':'M'}${point[0].toFixed(2)} ${point[1].toFixed(2)}`).join(' ')+' Z';
+  }
+
+  function ensureDetailCloseClip(){
+    if(detailCloseClipPath?.isConnected)return detailCloseClipPath;
+    const existing=document.getElementById(DETAIL_CLOSE_CLIP_ID);
+    if(existing){
+      detailCloseClipPath=existing.querySelector('path');
+      if(detailCloseClipPath)return detailCloseClipPath;
+    }
+
+    const ns='http://www.w3.org/2000/svg';
+    const svg=document.createElementNS(ns,'svg');
+    const defs=document.createElementNS(ns,'defs');
+    const clip=document.createElementNS(ns,'clipPath');
+    const path=document.createElementNS(ns,'path');
+    svg.setAttribute('aria-hidden','true');
+    svg.setAttribute('width','0');
+    svg.setAttribute('height','0');
+    svg.style.cssText='position:fixed;width:0;height:0;overflow:hidden;pointer-events:none';
+    clip.id=DETAIL_CLOSE_CLIP_ID;
+    clip.setAttribute('clipPathUnits','userSpaceOnUse');
+    path.setAttribute('clip-rule','evenodd');
+    path.setAttribute('fill-rule','evenodd');
+    clip.appendChild(path);
+    defs.appendChild(clip);
+    svg.appendChild(defs);
+    document.body.appendChild(svg);
+    detailCloseClipPath=path;
+    return detailCloseClipPath;
+  }
+
+  function setInverseDetailClip(origin,radius,shape){
+    if(!detail)return;
+    const path=ensureDetailCloseClip();
+    const outer=`M0 0 H${innerWidth.toFixed(2)} V${innerHeight.toFixed(2)} H0 Z`;
+    path.setAttribute('d',`${outer} ${blobPath(origin,radius,shape)}`);
+    const ref=`url(#${DETAIL_CLOSE_CLIP_ID})`;
+    detail.style.clipPath=ref;
+    detail.style.webkitClipPath=ref;
+  }
+
   function animateDetail(opening,onDone){
     if(!detail||reduced){onDone?.();return;}
     cancelAnimationFrame(detailFrame);
@@ -158,6 +217,29 @@
         detail.style.clipPath='none';
         detail.style.webkitClipPath='none';
       }
+      onDone?.();
+    };
+    detailFrame=requestAnimationFrame(frame);
+  }
+
+  function animateDetailCloseReveal(origin,onDone){
+    if(!detail||reduced){onDone?.();return;}
+    cancelAnimationFrame(detailFrame);
+    const shape=detailShape||randomShape();
+    const maxRadius=coverageRadius(origin);
+    const duration=720;
+    const started=performance.now();
+
+    /* Closing is the compositing inverse of opening: instead of shrinking the
+       project surface, an organic hole grows from the actual close press and
+       reveals the already-rendered site underneath. */
+    setInverseDetailClip(origin,2,shape);
+
+    const frame=now=>{
+      const t=clamp((now-started)/duration,0,1);
+      const radius=2+(maxRadius-2)*easeOutCubic(t);
+      setInverseDetailClip(origin,radius,shape);
+      if(t<1){detailFrame=requestAnimationFrame(frame);return;}
       onDone?.();
     };
     detailFrame=requestAnimationFrame(frame);
@@ -192,9 +274,10 @@
     requestAnimationFrame(()=>animateDetail(true,()=>detail.focus?.({preventScroll:true})));
   }
 
-  function closeProject(){
+  function closeProject(event){
     if(!detail||!detail.classList.contains('is-open'))return;
     window.__lenis?.stop?.();
+    const closeOrigin=originFromEvent(event,detailClose);
 
     const finish=()=>{
       detail.classList.remove('is-open');
@@ -208,11 +291,7 @@
     };
 
     if(reduced){finish();return;}
-    detailMaxRadius=coverageRadius(detailOrigin);
-    detailRadius=detailMaxRadius;
-    detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape||randomShape());
-    detail.style.webkitClipPath=detail.style.clipPath;
-    animateDetail(false,finish);
+    animateDetailCloseReveal(closeOrigin,finish);
   }
 
   document.querySelectorAll('.project-item').forEach(item=>{
@@ -221,17 +300,17 @@
     row.addEventListener('click',event=>openProject(item.dataset.project,row,event));
   });
 
-  /* Start closing on press rather than release. This removes the small input
-     latency of a normal click while preserving keyboard activation. */
+  /* Start closing on press rather than release. Pointer coordinates are passed
+     through so the reverse reveal starts exactly where the user pressed. */
   detailClose?.addEventListener('pointerdown',event=>{
     if(event.pointerType==='mouse'&&event.button!==0)return;
     event.preventDefault();
-    closeProject();
+    closeProject(event);
   });
   detailClose?.addEventListener('click',event=>{
-    if(event.detail===0)closeProject();
+    if(event.detail===0)closeProject(event);
   });
-  addEventListener('keydown',e=>{if(e.key==='Escape'&&detail?.classList.contains('is-open'))closeProject()});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&detail?.classList.contains('is-open'))closeProject(e)});
 
   if(fine&&!reduced&&detail&&detailMedia){addEventListener('mousemove',e=>{if(!detail.classList.contains('is-open'))return;const r=detailMedia.getBoundingClientRect();const nx=Math.max(-.5,Math.min(.5,(e.clientX-r.left)/r.width-.5));const ny=Math.max(-.5,Math.min(.5,(e.clientY-r.top)/r.height-.5));detailMedia.style.setProperty('--ax',nx*28+'px');detailMedia.style.setProperty('--ay',ny*20+'px');detailMedia.style.setProperty('--bx',nx*-18+'px');detailMedia.style.setProperty('--by',ny*-24+'px')})}
 
