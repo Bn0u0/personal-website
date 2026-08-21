@@ -8,6 +8,24 @@
     document.head.appendChild(integration);
   }
 
+  /* One shared navigation cue system keeps every main surface aligned to the
+     same bottom-right affordance instead of letting each section improvise. */
+  if(!document.querySelector('link[data-section-cues]')){
+    const cueStyle=document.createElement('link');
+    cueStyle.rel='stylesheet';
+    cueStyle.href='./section-cues.css';
+    cueStyle.dataset.sectionCues='true';
+    const loadCues=()=>{
+      if(document.querySelector('script[data-section-cues]'))return;
+      const cueScript=document.createElement('script');
+      cueScript.src='./section-cues.js';
+      cueScript.dataset.sectionCues='true';
+      document.body.appendChild(cueScript);
+    };
+    cueStyle.addEventListener('load',loadCues,{once:true});
+    document.head.appendChild(cueStyle);
+  }
+
   /* Load the elastic cursor grid after the core site is ready. Kept modular so the
      field can be tuned or removed without touching the main interaction system. */
   if(!document.querySelector('link[data-elastic-grid]')){
