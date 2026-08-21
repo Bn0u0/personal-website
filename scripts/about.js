@@ -44,6 +44,24 @@
     document.head.appendChild(link);
   }
 
+  /* About / 002 stays one viewport tall. Readers who want more can enter a
+     separate full-screen editorial layer without changing the main scroll rhythm. */
+  if(!document.querySelector('link[data-ai-depth]')){
+    const depthStyle=document.createElement('link');
+    depthStyle.rel='stylesheet';
+    depthStyle.href='./styles/ai-depth.css';
+    depthStyle.dataset.aiDepth='true';
+    const loadDepth=()=>{
+      if(document.querySelector('script[data-ai-depth]'))return;
+      const depthScript=document.createElement('script');
+      depthScript.src='./scripts/ai-depth.js';
+      depthScript.dataset.aiDepth='true';
+      document.body.appendChild(depthScript);
+    };
+    depthStyle.addEventListener('load',loadDepth,{once:true});
+    document.head.appendChild(depthStyle);
+  }
+
   const C={
     en:{
       menu001:'About me',
