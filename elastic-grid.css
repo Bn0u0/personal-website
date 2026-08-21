@@ -1,0 +1,32 @@
+/* Elastic Grid — a quiet, same-color dot membrane that follows the cursor.
+   The grid remains ordered; motion comes from layered follow rates and tiny deformation. */
+.elastic-grid-host{
+  position:relative;
+  isolation:isolate;
+}
+
+.elastic-grid-canvas{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  display:block;
+  pointer-events:none;
+  opacity:1;
+}
+
+/* Keep the field behind the interface without changing the visual hierarchy. */
+.elastic-grid-host > :not(.elastic-grid-canvas){
+  position:relative;
+  z-index:1;
+}
+
+/* Existing positioned controls keep ownership of their placement. */
+.work.elastic-grid-host > .work-scroll-cue{
+  position:absolute!important;
+}
+
+@media(pointer:coarse), (prefers-reduced-motion:reduce){
+  .elastic-grid-canvas{display:none!important}
+}
