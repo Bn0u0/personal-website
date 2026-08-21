@@ -1,32 +1,36 @@
-/* Elastic Grid — a quiet, same-color dot membrane that follows the cursor.
-   The grid remains ordered; motion comes from layered follow rates and tiny deformation. */
-.elastic-grid-host{
-  position:relative;
-  isolation:isolate;
-}
-
-.elastic-grid-canvas{
-  position:absolute;
+/* Global Elastic Grid — one continuous dot membrane across the entire site.
+   Section boundaries only affect dot color; they no longer own separate canvases. */
+.elastic-grid-canvas--global{
+  position:fixed;
   inset:0;
-  z-index:0;
-  width:100%;
-  height:100%;
+  z-index:1;
+  width:100vw;
+  height:100vh;
   display:block;
   pointer-events:none;
   opacity:1;
 }
 
-/* Keep the field behind the interface without changing the visual hierarchy. */
-.elastic-grid-host > :not(.elastic-grid-canvas){
+/* Section backgrounds stay below the field; their actual interface stays above it. */
+.elastic-grid-surface{
   position:relative;
-  z-index:1;
+}
+.elastic-grid-surface > *{
+  position:relative;
+  z-index:2;
 }
 
-/* Existing positioned controls keep ownership of their placement. */
-.work.elastic-grid-host > .work-scroll-cue{
+/* Preserve controls whose placement is intentionally absolute. */
+.work.elastic-grid-surface > .work-scroll-cue{
   position:absolute!important;
 }
 
+/* The archive and project detail own their own visual layer and cover the field. */
+.project-archive,
+.project-detail{
+  position:fixed;
+}
+
 @media(pointer:coarse), (prefers-reduced-motion:reduce){
-  .elastic-grid-canvas{display:none!important}
+  .elastic-grid-canvas--global{display:none!important}
 }
