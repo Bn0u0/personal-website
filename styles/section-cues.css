@@ -18,12 +18,12 @@
   letter-spacing:.08em;
   text-transform:uppercase;
   opacity:.62;
-  transition:opacity var(--motion-micro,200ms) ease!important;
+  transition:opacity var(--motion-micro,180ms) ease!important;
 }
 .section-scroll-cue:hover,.section-scroll-cue:focus-visible{opacity:1}
 .section-scroll-cue>span:last-child{
   display:inline-block;
-  transition:transform var(--motion-micro,200ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important;
+  transition:transform var(--motion-micro,180ms) var(--ease-soft,cubic-bezier(.22,1,.36,1))!important;
 }
 .section-scroll-cue:hover>span:last-child,.section-scroll-cue:focus-visible>span:last-child{transform:translateY(4px)}
 
