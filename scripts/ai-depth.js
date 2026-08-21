@@ -11,6 +11,7 @@
       eyebrow:'AI / Extended notes',
       close:'Close',
       next:'Next',
+      home:'Back home',
       items:[
         {
           title:'Prototype together',
@@ -42,6 +43,7 @@
       eyebrow:'AI / 延伸筆記',
       close:'關閉',
       next:'下一則',
+      home:'回首頁',
       items:[
         {
           title:'一起做出原型',
@@ -80,60 +82,21 @@
   explore.innerHTML='<span class="about-ai__explore-label"></span><span class="about-ai__explore-meta"></span>';
   (history||section).appendChild(explore);
 
-  /* The timeline should stay quiet, but its final node must still read as a real
-     destination. Keep the affordance static by default and use one restrained
-     first-view cue instead of a looping attention animation. */
   if(!document.querySelector('style[data-ai-depth-discovery]')){
     const style=document.createElement('style');
     style.dataset.aiDepthDiscovery='true';
     style.textContent=`
-      .about-ai__row:last-of-type::before{
-        width:4px!important;
-        height:4px!important;
-        top:-2.5px!important;
-        background:rgba(242,240,235,.58)!important;
-      }
-      .about-ai__explore{
-        color:rgba(242,240,235,.70)!important;
-      }
-      .about-ai__explore-label{
-        opacity:.94;
-      }
-      .about-ai__explore-meta{
-        display:inline-block;
-        opacity:.62!important;
-        transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,200ms) ease;
-      }
-      .about-ai__explore::before{
-        width:5px!important;
-        height:5px!important;
-        top:-3px!important;
-        border:1px solid currentColor;
-        background:var(--fg)!important;
-        box-sizing:border-box;
-        opacity:.9;
-      }
-      .about-ai__explore:hover,.about-ai__explore:focus-visible{
-        color:rgba(242,240,235,.96)!important;
-      }
-      .about-ai.is-discovery-cue .about-ai__explore-meta{
-        animation:aiExploreNudge 760ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1;
-      }
-      .about-ai.is-discovery-cue .about-ai__explore::before{
-        animation:aiExploreNode 760ms ease 1;
-      }
-      @keyframes aiExploreNudge{
-        0%,100%{transform:translate3d(0,0,0);opacity:.62}
-        42%{transform:translate3d(2px,-2px,0);opacity:.92}
-      }
-      @keyframes aiExploreNode{
-        0%,100%{box-shadow:0 0 0 0 rgba(242,240,235,0)}
-        45%{box-shadow:0 0 0 4px rgba(242,240,235,.07)}
-      }
-      @media(prefers-reduced-motion:reduce){
-        .about-ai.is-discovery-cue .about-ai__explore-meta,
-        .about-ai.is-discovery-cue .about-ai__explore::before{animation:none!important}
-      }
+      .about-ai__row:last-of-type::before{width:4px!important;height:4px!important;top:-2.5px!important;background:rgba(242,240,235,.58)!important}
+      .about-ai__explore{color:rgba(242,240,235,.70)!important}
+      .about-ai__explore-label{opacity:.94}
+      .about-ai__explore-meta{display:inline-block;opacity:.62!important;transition:transform var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),opacity var(--motion-micro,200ms) ease}
+      .about-ai__explore::before{width:5px!important;height:5px!important;top:-3px!important;border:1px solid currentColor;background:var(--fg)!important;box-sizing:border-box;opacity:.9}
+      .about-ai__explore:hover,.about-ai__explore:focus-visible{color:rgba(242,240,235,.96)!important}
+      .about-ai.is-discovery-cue .about-ai__explore-meta{animation:aiExploreNudge 760ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 1}
+      .about-ai.is-discovery-cue .about-ai__explore::before{animation:aiExploreNode 760ms ease 1}
+      @keyframes aiExploreNudge{0%,100%{transform:translate3d(0,0,0);opacity:.62}42%{transform:translate3d(2px,-2px,0);opacity:.92}}
+      @keyframes aiExploreNode{0%,100%{box-shadow:0 0 0 0 rgba(242,240,235,0)}45%{box-shadow:0 0 0 4px rgba(242,240,235,.07)}}
+      @media(prefers-reduced-motion:reduce){.about-ai.is-discovery-cue .about-ai__explore-meta,.about-ai.is-discovery-cue .about-ai__explore::before{animation:none!important}}
     `;
     document.head.appendChild(style);
   }
@@ -172,12 +135,13 @@
     </div>
     <div class="ai-depth__bottom">
       <div class="ai-depth__steps" aria-label="AI notes"></div>
-      <button class="ai-depth__next" type="button"><span class="ai-depth__next-label"></span><span>→</span></button>
+      <button class="ai-depth__next" type="button"><span class="ai-depth__next-label"></span><span class="ai-depth__next-icon">→</span></button>
     </div>`;
   document.body.appendChild(layer);
 
   const q=s=>layer.querySelector(s);
   const steps=q('.ai-depth__steps');
+  const nextButton=q('.ai-depth__next');
   for(let i=0;i<4;i++){
     const b=document.createElement('button');
     b.type='button';
@@ -202,17 +166,19 @@
     explore.querySelector('.about-ai__explore-meta').textContent=c.notes;
     q('.ai-depth__eyebrow').textContent=c.eyebrow;
     q('.ai-depth__close').textContent=c.close;
-    q('.ai-depth__next-label').textContent=c.next;
     layer.setAttribute('aria-label',c.eyebrow);
     render();
   }
 
   function render(){
-    const item=data().items[index];
+    const c=data();
+    const item=c.items[index];
     q('.ai-depth__index').textContent=`0${index+1} / 04`;
     q('.ai-depth__title').textContent=item.title;
     q('.ai-depth__headline').textContent=item.headline;
     q('.ai-depth__body').textContent=item.body;
+    q('.ai-depth__next-label').textContent=index===3?c.home:c.next;
+    q('.ai-depth__next-icon').textContent=index===3?'↑':'→';
     [...steps.children].forEach((b,i)=>b.classList.toggle('is-active',i===index));
   }
 
@@ -240,23 +206,34 @@
     });
   }
 
-  function closeLayer(){
+  function closeLayer(restoreFocus=true){
     if(!open)return;
     open=false;
     layer.classList.remove('is-open');
     layer.setAttribute('aria-hidden','true');
     document.body.classList.remove('is-ai-depth-open');
     window.__lenis?.start?.();
-    setTimeout(()=>explore.focus({preventScroll:true}),0);
+    if(restoreFocus)setTimeout(()=>explore.focus({preventScroll:true}),0);
+  }
+
+  function goHome(){
+    closeLayer(false);
+    requestAnimationFrame(()=>{
+      if(window.__lenis?.scrollTo){
+        window.__lenis.scrollTo(0,{duration:1.05});
+      }else{
+        window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      }
+    });
   }
 
   explore.addEventListener('click',openLayer);
-  q('.ai-depth__close').addEventListener('click',closeLayer);
-  q('.ai-depth__next').addEventListener('click',()=>setItem(index+1));
+  q('.ai-depth__close').addEventListener('click',()=>closeLayer(true));
+  nextButton.addEventListener('click',()=>index===3?goHome():setItem(index+1));
   document.addEventListener('keydown',event=>{
     if(!open)return;
-    if(event.key==='Escape')closeLayer();
-    if(event.key==='ArrowRight')setItem(index+1);
+    if(event.key==='Escape')closeLayer(true);
+    if(event.key==='ArrowRight')index===3?goHome():setItem(index+1);
     if(event.key==='ArrowLeft')setItem(index-1);
   });
 
