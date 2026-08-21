@@ -1,69 +1,126 @@
-/* Archive Re-index transition — selected rows reorganize into the full project index. */
-.archive-reindex-layer{
+/* All Projects opening — two background panels meet at center, then 01→06 enter from the left.
+   This fully replaces the old row-clone / FLIP re-index animation. */
+.project-archive{
+  background:transparent!important;
+}
+
+.project-archive::before,
+.project-archive::after{
+  content:"";
   position:fixed;
-  inset:0;
-  z-index:372;
+  top:0;
+  bottom:0;
+  width:50.05vw;
+  z-index:0;
+  background:var(--bg);
   pointer-events:none;
-  overflow:hidden;
+  will-change:transform;
+  transition:none;
 }
-.archive-reindex-clone{
-  position:fixed!important;
-  z-index:1!important;
-  margin:0!important;
-  background:var(--bg)!important;
-  color:var(--fg)!important;
-  border:0!important;
-  border-bottom:.5px solid rgba(18,18,18,.16)!important;
-  pointer-events:none!important;
-  overflow:hidden!important;
-  transform-origin:top left!important;
-  will-change:transform,opacity;
-  box-shadow:none!important;
+.project-archive::before{
+  left:0;
+  transform:translate3d(-100%,0,0);
 }
-.archive-reindex-clone::before,
-.archive-reindex-clone .project-hover-info,
-.archive-reindex-clone .project-row__action{display:none!important}
-.archive-reindex-clone .project-row__title{transform:none!important}
-
-/* Opening is staged in two phases: JS first prepares/measures the hidden archive,
-   then adds is-open on the next frame. That avoids the old first-frame flash. */
-.project-archive.is-reindex-opening{
-  transform:none!important;
-  transition:opacity 260ms ease,visibility 0s!important;
+.project-archive::after{
+  right:0;
+  transform:translate3d(100%,0,0);
 }
-.project-archive.is-reindex-opening .project-item:nth-child(-n+5){opacity:0}
-.project-archive.is-reindex-opening .project-item:nth-child(6){
-  opacity:0;
-  transform:translate3d(0,8px,0);
-}
-
-.project-archive.is-open.is-reindex-opening .project-archive__top,
-.project-archive.is-open.is-reindex-opening .project-archive__heading{
-  animation:archiveMetaIn 520ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 180ms both;
-}
-.project-archive.is-open.is-reindex-opening .project-archive__footer{
-  animation:archiveMetaIn 440ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 320ms both;
-}
-.project-archive.is-reindex-settled .project-item:nth-child(-n+5){
-  opacity:1;
-  transition:opacity 120ms ease;
-}
-.project-archive.is-reindex-settled .project-item:nth-child(6){
-  opacity:1;
+.project-archive.is-open::before,
+.project-archive.is-open::after{
   transform:translate3d(0,0,0);
-  transition:opacity 260ms ease,transform 420ms var(--ease-soft,cubic-bezier(.22,1,.36,1));
+}
+.project-archive.is-split-opening::before,
+.project-archive.is-split-opening::after{
+  transition:transform var(--motion-content,720ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
 }
 
-@keyframes archiveMetaIn{
+/* A preparation frame exposes only the off-screen panels. It gives the browser
+   a stable start state before is-open triggers the 720ms center merge. */
+.project-archive.is-split-preparing{
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
+  transform:none!important;
+  transition:none!important;
+}
+.project-archive.is-split-opening{
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
+}
+
+.project-archive__top,
+.project-archive__content{
+  position:relative;
+  z-index:1;
+}
+
+.project-archive.is-split-preparing .project-archive__top,
+.project-archive.is-split-preparing .project-archive__heading,
+.project-archive.is-split-preparing .project-archive__list,
+.project-archive.is-split-preparing .project-archive__footer{
+  opacity:0!important;
+}
+
+/* Chrome waits until the two large surfaces have essentially joined. */
+.project-archive.is-split-opening .project-archive__top,
+.project-archive.is-split-opening .project-archive__heading{
+  animation:archiveChromeIn var(--motion-ui,340ms) ease 700ms both;
+}
+.project-archive.is-split-opening .project-archive__footer{
+  animation:archiveChromeIn var(--motion-ui,340ms) ease 1160ms both;
+}
+
+/* The list container itself is present, while each project owns the sequence. */
+.project-archive.is-split-opening .project-archive__list{
+  opacity:1!important;
+}
+.project-archive.is-split-opening .project-item{
+  opacity:0;
+  transform:translate3d(-56px,0,0);
+  animation:archiveProjectIn var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) both;
+  will-change:transform,opacity;
+}
+.project-archive.is-split-opening .project-item:nth-child(1){animation-delay:760ms}
+.project-archive.is-split-opening .project-item:nth-child(2){animation-delay:850ms}
+.project-archive.is-split-opening .project-item:nth-child(3){animation-delay:940ms}
+.project-archive.is-split-opening .project-item:nth-child(4){animation-delay:1030ms}
+.project-archive.is-split-opening .project-item:nth-child(5){animation-delay:1120ms}
+.project-archive.is-split-opening .project-item:nth-child(6){animation-delay:1210ms}
+
+@keyframes archiveChromeIn{
   from{opacity:0;transform:translate3d(0,6px,0)}
   to{opacity:1;transform:translate3d(0,0,0)}
 }
+@keyframes archiveProjectIn{
+  from{opacity:0;transform:translate3d(-56px,0,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
 
-body.is-archive-reindexing .work-more{opacity:.18}
+/* Close is deliberately instantaneous, including while opening. */
+.project-archive.is-instant-close{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  transform:none!important;
+  transition:none!important;
+}
+.project-archive.is-instant-close::before,
+.project-archive.is-instant-close::after{
+  transform:translate3d(0,0,0)!important;
+  transition:none!important;
+}
 
 @media(prefers-reduced-motion:reduce){
-  .archive-reindex-layer{display:none!important}
-  .project-archive.is-open.is-reindex-opening .project-archive__top,
-  .project-archive.is-open.is-reindex-opening .project-archive__heading,
-  .project-archive.is-open.is-reindex-opening .project-archive__footer{animation:none!important}
+  .project-archive::before,
+  .project-archive::after,
+  .project-archive.is-split-opening .project-archive__top,
+  .project-archive.is-split-opening .project-archive__heading,
+  .project-archive.is-split-opening .project-archive__footer,
+  .project-archive.is-split-opening .project-item{
+    transition:none!important;
+    animation:none!important;
+    opacity:1!important;
+    transform:none!important;
+  }
 }
