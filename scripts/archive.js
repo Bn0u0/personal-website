@@ -73,6 +73,7 @@
 
   function openArchiveImmediate(){
     lastFocus=document.activeElement;
+    archive.style.display='';
     archive.scrollTop=0;
     archive.setAttribute('aria-hidden','false');
     document.body.classList.add('is-archive-open');
@@ -87,6 +88,7 @@
     if(reduced){openArchiveImmediate();return}
 
     lastFocus=document.activeElement;
+    archive.style.display='';
     archive.scrollTop=0;
     archive.setAttribute('aria-hidden','false');
     document.body.classList.add('is-archive-open');
@@ -114,6 +116,10 @@
   }
 
   function finishClose(){
+    /* The visual response must happen in the same task as pointer-down. Using
+       display:none here bypasses every inherited opacity/visibility transition,
+       child animation and pseudo-element paint before the next frame. */
+    archive.style.display='none';
     clearOpening();
     archive.classList.add('is-instant-close');
     archive.classList.remove('is-open');
@@ -121,8 +127,6 @@
     document.body.classList.remove('is-archive-open');
     window.__lenis?.start?.();
 
-    /* Keep the no-transition state for one paint so base archive.css cannot
-       introduce its normal 340ms visibility transition on dismissal. */
     requestAnimationFrame(()=>archive.classList.remove('is-instant-close'));
     setTimeout(()=>lastFocus?.focus?.({preventScroll:true}),0);
   }
@@ -134,7 +138,19 @@
   }
 
   trigger.addEventListener('click',openArchive);
-  close.addEventListener('click',closeArchive);
+
+  /* Pointer users close on press, not release. A normal click fires on mouseup,
+     which can add a small but perceptible delay even when CSS itself is instant.
+     Keyboard activation still uses click (detail===0). */
+  close.addEventListener('pointerdown',event=>{
+    if(event.pointerType==='mouse'&&event.button!==0)return;
+    event.preventDefault();
+    closeArchive();
+  });
+  close.addEventListener('click',event=>{
+    if(event.detail===0)closeArchive();
+  });
+
   archive.addEventListener('wheel',event=>event.stopPropagation(),{passive:true});
   archive.addEventListener('touchmove',event=>event.stopPropagation(),{passive:true});
   addEventListener('keydown',event=>{
