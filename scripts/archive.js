@@ -40,6 +40,11 @@
     }
   };
 
+  const MOTION=window.__motion||{
+    micro:180,ui:320,content:560,scene:1000,
+    exitMicro:90,exitUi:160,exitContent:280,exitScene:500,
+    staggerTight:40,staggerStandard:80
+  };
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -95,13 +100,12 @@
     document.body.classList.add('is-archive-open');
     window.__lenis?.stop?.();
 
-    /* Frame 1: both walls sit fully outside the viewport and content is hidden. */
     archive.classList.remove('is-instant-close','is-split-closing','is-open','is-split-opening');
     archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
 
-    /* Frame 2: walls accelerate inward. They collide at 400ms, trigger the
-       small impact shake, then 01→06 enter. Visual completion is 950ms. */
+    /* CONTENT wall motion collides at 560ms; MICRO impact + 01→06 stagger
+       resolve inside the single SCENE budget of 1000ms. */
     phaseFrame=requestAnimationFrame(()=>{
       phaseFrame=0;
       archive.classList.remove('is-split-preparing');
@@ -111,7 +115,7 @@
         phaseTimer=0;
         archive.classList.remove('is-split-opening');
         archive.focus?.({preventScroll:true});
-      },1000);
+      },MOTION.scene);
     });
   }
 
@@ -133,9 +137,7 @@
     if(detail?.classList.contains('is-open'))return;
     if(reduced){finishClose();return}
 
-    /* The reverse begins on pointer-down. 06→01 leave immediately, then the
-       joined walls split outward. Total close time is 500ms: half of the new
-       one-second opening budget, with no impact shake. */
+    /* Exit always uses the exact 0.5× SCENE derivative. */
     clearPhaseTimer();
     archive.classList.remove('is-split-preparing','is-split-opening');
     archive.classList.add('is-open','is-split-closing');
@@ -143,13 +145,12 @@
     phaseTimer=setTimeout(()=>{
       phaseTimer=0;
       finishClose();
-    },500);
+    },MOTION.exitScene);
   }
 
   trigger.addEventListener('click',openArchive);
 
-  /* Pointer users start the reverse on press rather than release. Keyboard
-     activation still uses click (detail===0). */
+  /* Pointer users start the reverse on press rather than release. */
   close.addEventListener('pointerdown',event=>{
     if(event.pointerType==='mouse'&&event.button!==0)return;
     event.preventDefault();
@@ -175,25 +176,24 @@
     }
   }).observe(detail,{attributes:true,attributeFilter:['class']});
 
-  /* Keep the five-project count from being overwritten by the older language table. */
   const heading=document.querySelector('#work .section-heading');
   if(heading)new MutationObserver(()=>requestAnimationFrame(applyCopy)).observe(heading,{childList:true,characterData:true,subtree:true});
   new MutationObserver(applyCopy).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 
-  /* Join the existing directional language wipe while the archive is visible. */
+  /* Language wipe remains UI-scale; its small stagger uses only shared spacing tiers. */
   document.addEventListener('click',event=>{
     if(!event.target.closest?.('.language-toggle')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const els=[...document.querySelectorAll('.work-more,.project-archive__identity,.project-archive__heading,.project-archive__close,.project-archive__footer')];
     els.forEach((el,i)=>{
       el.classList.add('lang-fade-target');
-      el.style.setProperty('--lang-delay',`${Math.min(i*6,30)}ms`);
+      el.style.setProperty('--lang-delay',`${Math.min(i*MOTION.staggerTight,MOTION.staggerStandard)}ms`);
     });
     requestAnimationFrame(()=>els.forEach(el=>el.classList.add('is-lang-out')));
-    setTimeout(()=>els.forEach(el=>el.classList.remove('is-lang-out')),390);
+    setTimeout(()=>els.forEach(el=>el.classList.remove('is-lang-out')),MOTION.ui+MOTION.staggerStandard);
     setTimeout(()=>els.forEach(el=>{
       el.classList.remove('lang-fade-target');
       el.style.removeProperty('--lang-delay');
-    }),760);
+    }),MOTION.content+MOTION.ui);
   },true);
 
   applyCopy();
