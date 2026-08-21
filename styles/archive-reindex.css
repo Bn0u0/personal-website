@@ -1,5 +1,5 @@
-/* All Projects opening — two background panels meet at center, then 01→06 enter from the left.
-   This fully replaces the old row-clone / FLIP re-index animation. */
+/* All Projects transition — two walls accelerate into the center, then 01→06 enter from the left.
+   Closing is the exact visual inverse at 2× speed, without the impact shake. */
 .project-archive{
   background:transparent!important;
 }
@@ -29,13 +29,16 @@
 .project-archive.is-open::after{
   transform:translate3d(0,0,0);
 }
+
+/* Opening wall motion: straight path, deliberately slow → fast. The 560ms
+   collision point leaves enough room for the full 01→06 sequence to finish
+   at 1380ms, safely inside the requested 1.5 second ceiling. */
 .project-archive.is-split-opening::before,
 .project-archive.is-split-opening::after{
-  transition:transform var(--motion-content,720ms) var(--ease-soft,cubic-bezier(.22,1,.36,1));
+  transition:transform 560ms cubic-bezier(.55,.055,.675,.19);
 }
 
-/* A preparation frame exposes only the off-screen panels. It gives the browser
-   a stable start state before is-open triggers the 720ms center merge. */
+/* A preparation frame exposes only the off-screen walls. */
 .project-archive.is-split-preparing{
   visibility:visible!important;
   opacity:1!important;
@@ -45,8 +48,16 @@
 }
 .project-archive.is-split-opening{
   opacity:1!important;
+  transition:none!important;
+  animation:archiveImpactShake 150ms linear 560ms both;
+}
+.project-archive.is-split-closing{
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:none!important;
   transform:none!important;
   transition:none!important;
+  animation:none!important;
 }
 
 .project-archive__top,
@@ -57,47 +68,96 @@
 
 .project-archive.is-split-preparing .project-archive__top,
 .project-archive.is-split-preparing .project-archive__heading,
-.project-archive.is-split-preparing .project-archive__list,
 .project-archive.is-split-preparing .project-archive__footer{
   opacity:0!important;
+  transform:translate3d(0,6px,0);
+}
+.project-archive.is-split-preparing .project-archive__list{
+  opacity:1!important;
+}
+.project-archive.is-split-preparing .project-item{
+  opacity:0!important;
+  transform:translate3d(-56px,0,0)!important;
 }
 
-/* Chrome waits until the two large surfaces have essentially joined. */
+/* Chrome appears immediately after the impact. */
 .project-archive.is-split-opening .project-archive__top,
 .project-archive.is-split-opening .project-archive__heading{
-  animation:archiveChromeIn var(--motion-ui,340ms) ease 700ms both;
+  opacity:1!important;
+  transform:translate3d(0,0,0);
+  transition:opacity 340ms ease 590ms,transform 340ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 590ms;
 }
 .project-archive.is-split-opening .project-archive__footer{
-  animation:archiveChromeIn var(--motion-ui,340ms) ease 1160ms both;
+  opacity:1!important;
+  transform:translate3d(0,0,0);
+  transition:opacity 340ms ease 820ms,transform 340ms var(--ease-soft,cubic-bezier(.22,1,.36,1)) 820ms;
 }
-
-/* The list container itself is present, while each project owns the sequence. */
 .project-archive.is-split-opening .project-archive__list{
   opacity:1!important;
 }
+
+/* 01→06 enter from the left after the two walls meet. */
 .project-archive.is-split-opening .project-item{
-  opacity:0;
-  transform:translate3d(-56px,0,0);
-  animation:archiveProjectIn var(--motion-ui,340ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) both;
+  opacity:1;
+  transform:translate3d(0,0,0);
+  transition-property:opacity,transform;
+  transition-duration:280ms,280ms;
+  transition-timing-function:ease,var(--ease-soft,cubic-bezier(.22,1,.36,1));
   will-change:transform,opacity;
 }
-.project-archive.is-split-opening .project-item:nth-child(1){animation-delay:760ms}
-.project-archive.is-split-opening .project-item:nth-child(2){animation-delay:850ms}
-.project-archive.is-split-opening .project-item:nth-child(3){animation-delay:940ms}
-.project-archive.is-split-opening .project-item:nth-child(4){animation-delay:1030ms}
-.project-archive.is-split-opening .project-item:nth-child(5){animation-delay:1120ms}
-.project-archive.is-split-opening .project-item:nth-child(6){animation-delay:1210ms}
+.project-archive.is-split-opening .project-item:nth-child(1){transition-delay:650ms}
+.project-archive.is-split-opening .project-item:nth-child(2){transition-delay:740ms}
+.project-archive.is-split-opening .project-item:nth-child(3){transition-delay:830ms}
+.project-archive.is-split-opening .project-item:nth-child(4){transition-delay:920ms}
+.project-archive.is-split-opening .project-item:nth-child(5){transition-delay:1010ms}
+.project-archive.is-split-opening .project-item:nth-child(6){transition-delay:1100ms}
 
-@keyframes archiveChromeIn{
-  from{opacity:0;transform:translate3d(0,6px,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
-}
-@keyframes archiveProjectIn{
-  from{opacity:0;transform:translate3d(-56px,0,0)}
-  to{opacity:1;transform:translate3d(0,0,0)}
+/* Impact: only on open. Small, quickly damped translation makes the two halves
+   feel heavy without turning the portfolio into a game UI. */
+@keyframes archiveImpactShake{
+  0%{transform:translate3d(0,0,0)}
+  18%{transform:translate3d(2.4px,.6px,0)}
+  38%{transform:translate3d(-2px,-.45px,0)}
+  58%{transform:translate3d(1.25px,.3px,0)}
+  76%{transform:translate3d(-.65px,-.15px,0)}
+  100%{transform:translate3d(0,0,0)}
 }
 
-/* Close is deliberately instantaneous, including while opening. */
+/* Closing: exact order reversal at 2× speed. 06 leaves first, then 05→01;
+   once the rows are gone the joined wall splits outward. No impact shake. */
+.project-archive.is-split-closing .project-item{
+  opacity:0!important;
+  transform:translate3d(-56px,0,0)!important;
+  transition-property:opacity,transform!important;
+  transition-duration:140ms,140ms!important;
+  transition-timing-function:ease,cubic-bezier(.64,0,.78,0)!important;
+  will-change:transform,opacity;
+}
+.project-archive.is-split-closing .project-item:nth-child(6){transition-delay:0ms!important}
+.project-archive.is-split-closing .project-item:nth-child(5){transition-delay:45ms!important}
+.project-archive.is-split-closing .project-item:nth-child(4){transition-delay:90ms!important}
+.project-archive.is-split-closing .project-item:nth-child(3){transition-delay:135ms!important}
+.project-archive.is-split-closing .project-item:nth-child(2){transition-delay:180ms!important}
+.project-archive.is-split-closing .project-item:nth-child(1){transition-delay:225ms!important}
+
+.project-archive.is-split-closing .project-archive__top,
+.project-archive.is-split-closing .project-archive__heading,
+.project-archive.is-split-closing .project-archive__footer{
+  opacity:0!important;
+  transform:translate3d(0,6px,0)!important;
+  transition:opacity 170ms ease,transform 170ms cubic-bezier(.64,0,.78,0)!important;
+}
+
+.project-archive.is-open.is-split-closing::before{
+  transform:translate3d(-100%,0,0);
+  transition:transform 280ms cubic-bezier(.325,.81,.45,.945) 365ms;
+}
+.project-archive.is-open.is-split-closing::after{
+  transform:translate3d(100%,0,0);
+  transition:transform 280ms cubic-bezier(.325,.81,.45,.945) 365ms;
+}
+
+/* Safety state used only after the reverse animation has completed. */
 .project-archive.is-instant-close{
   opacity:0!important;
   visibility:hidden!important;
@@ -105,22 +165,17 @@
   transform:none!important;
   transition:none!important;
 }
-.project-archive.is-instant-close::before,
-.project-archive.is-instant-close::after{
-  transform:translate3d(0,0,0)!important;
-  transition:none!important;
-}
 
 @media(prefers-reduced-motion:reduce){
+  .project-archive,
   .project-archive::before,
   .project-archive::after,
-  .project-archive.is-split-opening .project-archive__top,
-  .project-archive.is-split-opening .project-archive__heading,
-  .project-archive.is-split-opening .project-archive__footer,
-  .project-archive.is-split-opening .project-item{
+  .project-archive .project-archive__top,
+  .project-archive .project-archive__heading,
+  .project-archive .project-archive__footer,
+  .project-archive .project-item{
     transition:none!important;
     animation:none!important;
-    opacity:1!important;
     transform:none!important;
   }
 }
