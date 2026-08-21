@@ -1,11 +1,11 @@
 (()=>{
   const TIMELINES=Object.freeze({
-    picnest:'11 MAY 2026 — 14 AUG 2026',
-    quant:'15 JAN 2026 — 21 AUG 2026',
-    grass:'16 DEC 2025 — 21 AUG 2026',
-    doodle:'23 APR 2026',
-    learning:'04 JAN 2026',
-    pixel:'08 JAN 2026 — 10 JAN 2026'
+    picnest:'2026.05.11 — 2026.08.14',
+    quant:'2026.01.15 — 2026.08.21',
+    grass:'2025.12.16 — 2026.08.21',
+    doodle:'2026.04.23',
+    learning:'2026.01.04',
+    pixel:'2026.01.08 — 2026.01.10'
   });
 
   let currentKey='picnest';
