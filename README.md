@@ -12,22 +12,14 @@ Current design language:
 
 - warm off-white / black editorial layout
 - oversized typography and large negative space
-- BN0U0 SVG identity with Pale Sage `#B4C2BE`
+- BN0U0 identity with Pale Sage `#B4C2BE`
 - hidden native scrollbar + 1px top scroll progress
-- fast inertial custom cursor with `VIEW` state
+- fast inertial custom cursor with contextual states
 - magnetic navigation micro-interactions
 - smooth Lenis scrolling with native-scroll fallback
 - progressive in-view reveals
 - responsive mobile layout
 - `prefers-reduced-motion` support
-
-## Selected work interaction
-
-Project previews use an **inline expanding row** rather than a floating overlay.
-
-On desktop, hovering a project expands that project downward and pushes the following projects lower in the document flow. The preview and short project summary live inside the expanded area, so content never covers neighboring rows.
-
-On touch devices, projects expand by tap.
 
 ## Selected projects
 
@@ -38,19 +30,41 @@ On touch devices, projects expand by tap.
 5. Learning Games
 6. Pixel Lab
 
-Current preview art is intentionally abstract. Real screenshots / video / case-study transitions can replace these placeholders without changing the interaction structure.
-
 ## Architecture
 
-The current site is intentionally deployment-safe and small:
+The site is a build-free static project. Files are grouped by responsibility so the repository root stays readable:
 
 ```text
-index.html    — complete page, CSS and interaction logic
-favicon.svg   — standalone BN0U0 identity asset
-vercel.json   — static Vercel delivery / security headers
+/
+├─ index.html
+├─ README.md
+├─ vercel.json
+├─ assets/
+│  └─ favicon.svg
+├─ styles/
+│  ├─ site.css
+│  ├─ about.css
+│  ├─ archive.css
+│  ├─ project-details.css
+│  ├─ cursor-contrast.css
+│  ├─ elastic-grid.css
+│  ├─ surface-integration.css
+│  ├─ section-cues.css
+│  └─ timeline.css
+└─ scripts/
+   ├─ site.js
+   ├─ about.js
+   ├─ archive.js
+   ├─ project-details.js
+   ├─ quant-story.js
+   ├─ lang.js
+   ├─ lang-polish.js
+   ├─ elastic-grid.js
+   ├─ section-cues.js
+   └─ timeline.js
 ```
 
-`index.html` is self-contained except for the optional Lenis CDN script. If Lenis fails to load, the site falls back to native scrolling and remains fully styled and usable.
+`index.html` is the only page entry point. Shared visual rules live in `styles/`, behavior lives in `scripts/`, and standalone media assets live in `assets/`.
 
 ## Run locally
 

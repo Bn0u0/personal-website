@@ -232,7 +232,7 @@
   addEventListener('resize',()=>progressBar(nativeP()),{passive:true});progressBar(nativeP());setTimeout(()=>pr?.classList.remove('is-scrolling'),220);
 
   const languageScript=document.createElement('script');
-  languageScript.src='./lang.js';languageScript.async=false;
-  languageScript.addEventListener('load',()=>{const polish=document.createElement('script');polish.src='./lang-polish.js';polish.async=false;document.body.appendChild(polish)});
+  languageScript.src='./scripts/lang.js';languageScript.async=false;
+  languageScript.addEventListener('load',()=>{const polish=document.createElement('script');polish.src='./scripts/lang-polish.js';polish.async=false;document.body.appendChild(polish)});
   document.body.appendChild(languageScript);
 })();

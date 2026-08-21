@@ -3,7 +3,7 @@
   if(!document.querySelector('link[data-surface-integration]')){
     const integration=document.createElement('link');
     integration.rel='stylesheet';
-    integration.href='./surface-integration.css';
+    integration.href='./styles/surface-integration.css';
     integration.dataset.surfaceIntegration='true';
     document.head.appendChild(integration);
   }
@@ -13,12 +13,12 @@
   if(!document.querySelector('link[data-section-cues]')){
     const cueStyle=document.createElement('link');
     cueStyle.rel='stylesheet';
-    cueStyle.href='./section-cues.css';
+    cueStyle.href='./styles/section-cues.css';
     cueStyle.dataset.sectionCues='true';
     const loadCues=()=>{
       if(document.querySelector('script[data-section-cues]'))return;
       const cueScript=document.createElement('script');
-      cueScript.src='./section-cues.js';
+      cueScript.src='./scripts/section-cues.js';
       cueScript.dataset.sectionCues='true';
       document.body.appendChild(cueScript);
     };
@@ -31,12 +31,12 @@
   if(!document.querySelector('link[data-elastic-grid]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href='./elastic-grid.css';
+    link.href='./styles/elastic-grid.css';
     link.dataset.elasticGrid='true';
     const loadBehavior=()=>{
       if(document.querySelector('script[data-elastic-grid]'))return;
       const script=document.createElement('script');
-      script.src='./elastic-grid.js';
+      script.src='./scripts/elastic-grid.js';
       script.dataset.elasticGrid='true';
       document.body.appendChild(script);
     };
