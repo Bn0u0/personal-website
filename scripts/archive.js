@@ -100,8 +100,8 @@
     archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
 
-    /* Frame 2: walls accelerate inward. They collide at 560ms, trigger the
-       small impact shake, then 01→06 enter. Visual completion is 1380ms. */
+    /* Frame 2: walls accelerate inward. They collide at 400ms, trigger the
+       small impact shake, then 01→06 enter. Visual completion is 950ms. */
     phaseFrame=requestAnimationFrame(()=>{
       phaseFrame=0;
       archive.classList.remove('is-split-preparing');
@@ -111,7 +111,7 @@
         phaseTimer=0;
         archive.classList.remove('is-split-opening');
         archive.focus?.({preventScroll:true});
-      },1380);
+      },1000);
     });
   }
 
@@ -134,8 +134,8 @@
     if(reduced){finishClose();return}
 
     /* The reverse begins on pointer-down. 06→01 leave immediately, then the
-       joined walls split outward. Total close time is 690ms: exactly half of
-       the 1380ms opening sequence, and deliberately has no impact shake. */
+       joined walls split outward. Total close time is 500ms: half of the new
+       one-second opening budget, with no impact shake. */
     clearPhaseTimer();
     archive.classList.remove('is-split-preparing','is-split-opening');
     archive.classList.add('is-open','is-split-closing');
@@ -143,7 +143,7 @@
     phaseTimer=setTimeout(()=>{
       phaseTimer=0;
       finishClose();
-    },690);
+    },500);
   }
 
   trigger.addEventListener('click',openArchive);
