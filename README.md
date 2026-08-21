@@ -44,7 +44,9 @@ The site is a build-free static project. Files are grouped by responsibility so 
 ├─ styles/
 │  ├─ site.css
 │  ├─ about.css
+│  ├─ ai-depth.css
 │  ├─ archive.css
+│  ├─ archive-reindex.css
 │  ├─ project-details.css
 │  ├─ cursor-contrast.css
 │  ├─ elastic-grid.css
@@ -54,6 +56,7 @@ The site is a build-free static project. Files are grouped by responsibility so 
 └─ scripts/
    ├─ site.js
    ├─ about.js
+   ├─ ai-depth.js
    ├─ archive.js
    ├─ project-details.js
    ├─ quant-story.js
