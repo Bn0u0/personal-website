@@ -1,3 +1,5 @@
+@import url("./motion-system.css");
+
 /* Cursor contrast: one source of truth.
    The transformed .cursor itself is the blend layer. Keeping difference on the
    child dot trapped it inside the cursor stacking context on some browsers. */
