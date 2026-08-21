@@ -197,11 +197,20 @@
     label.textContent=zh?'往下探索':'Scroll to explore';
   }
 
+  function syncProjectCursor(){
+    const zh=document.documentElement.lang.toLowerCase().startsWith('zh');
+    document.querySelectorAll('.project-row[data-cursor]').forEach(row=>{row.dataset.cursor=zh?'開啟':'OPEN'});
+  }
+
   syncHeroCopy();
   syncWorkCue();
+  syncProjectCursor();
   const heroTitle=document.querySelector('.hero__title');
   if(heroTitle)new MutationObserver(syncHeroCopy).observe(heroTitle,{childList:true,characterData:true,subtree:true});
-  new MutationObserver(syncWorkCue).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  new MutationObserver(()=>{
+    syncWorkCue();
+    syncProjectCursor();
+  }).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 
   const selector=[
     '.nav a',
@@ -227,6 +236,7 @@
     setTimeout(()=>{
       syncHeroCopy();
       syncWorkCue();
+      syncProjectCursor();
       els.forEach(el=>el.classList.remove('is-lang-out'));
     },390);
     setTimeout(()=>{
