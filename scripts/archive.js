@@ -60,33 +60,34 @@
   }
 
   let lastFocus=null;
-  let openingFrame=0;
-  let openingTimer=0;
+  let phaseFrame=0;
+  let phaseTimer=0;
 
-  function clearOpening(){
-    if(openingFrame)cancelAnimationFrame(openingFrame);
-    clearTimeout(openingTimer);
-    openingFrame=0;
-    openingTimer=0;
-    archive.classList.remove('is-split-preparing','is-split-opening');
+  function clearPhaseTimer(){
+    if(phaseFrame)cancelAnimationFrame(phaseFrame);
+    clearTimeout(phaseTimer);
+    phaseFrame=0;
+    phaseTimer=0;
   }
 
   function openArchiveImmediate(){
+    clearPhaseTimer();
     lastFocus=document.activeElement;
     archive.style.display='';
     archive.scrollTop=0;
     archive.setAttribute('aria-hidden','false');
     document.body.classList.add('is-archive-open');
     window.__lenis?.stop?.();
-    archive.classList.remove('is-instant-close','is-split-preparing','is-split-opening');
+    archive.classList.remove('is-instant-close','is-split-preparing','is-split-opening','is-split-closing');
     archive.classList.add('is-open');
     requestAnimationFrame(()=>archive.focus?.({preventScroll:true}));
   }
 
   function openArchive(){
-    if(archive.classList.contains('is-open')||archive.classList.contains('is-split-preparing'))return;
+    if(archive.classList.contains('is-open')||archive.classList.contains('is-split-preparing')||archive.classList.contains('is-split-closing'))return;
     if(reduced){openArchiveImmediate();return}
 
+    clearPhaseTimer();
     lastFocus=document.activeElement;
     archive.style.display='';
     archive.scrollTop=0;
@@ -94,35 +95,31 @@
     document.body.classList.add('is-archive-open');
     window.__lenis?.stop?.();
 
-    /* First frame: archive is technically visible, but both large background
-       panels are still completely outside the viewport and all content is hidden. */
-    archive.classList.remove('is-instant-close');
+    /* Frame 1: both walls sit fully outside the viewport and content is hidden. */
+    archive.classList.remove('is-instant-close','is-split-closing','is-open','is-split-opening');
     archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
 
-    /* Second frame: left + right panels travel toward the center. Only after
-       they meet do the six project rows enter from the left in numeric order. */
-    openingFrame=requestAnimationFrame(()=>{
-      openingFrame=0;
+    /* Frame 2: walls accelerate inward. They collide at 560ms, trigger the
+       small impact shake, then 01→06 enter. Visual completion is 1380ms. */
+    phaseFrame=requestAnimationFrame(()=>{
+      phaseFrame=0;
       archive.classList.remove('is-split-preparing');
       archive.classList.add('is-open','is-split-opening');
 
-      openingTimer=setTimeout(()=>{
-        openingTimer=0;
+      phaseTimer=setTimeout(()=>{
+        phaseTimer=0;
         archive.classList.remove('is-split-opening');
         archive.focus?.({preventScroll:true});
-      },1600);
+      },1380);
     });
   }
 
   function finishClose(){
-    /* The visual response must happen in the same task as pointer-down. Using
-       display:none here bypasses every inherited opacity/visibility transition,
-       child animation and pseudo-element paint before the next frame. */
+    clearPhaseTimer();
     archive.style.display='none';
-    clearOpening();
+    archive.classList.remove('is-open','is-split-preparing','is-split-opening','is-split-closing');
     archive.classList.add('is-instant-close');
-    archive.classList.remove('is-open');
     archive.setAttribute('aria-hidden','true');
     document.body.classList.remove('is-archive-open');
     window.__lenis?.start?.();
@@ -132,16 +129,27 @@
   }
 
   function closeArchive(){
-    if(!archive.classList.contains('is-open')&&!archive.classList.contains('is-split-preparing'))return;
+    if((!archive.classList.contains('is-open')&&!archive.classList.contains('is-split-preparing'))||archive.classList.contains('is-split-closing'))return;
     if(detail?.classList.contains('is-open'))return;
-    finishClose();
+    if(reduced){finishClose();return}
+
+    /* The reverse begins on pointer-down. 06→01 leave immediately, then the
+       joined walls split outward. Total close time is 690ms: exactly half of
+       the 1380ms opening sequence, and deliberately has no impact shake. */
+    clearPhaseTimer();
+    archive.classList.remove('is-split-preparing','is-split-opening');
+    archive.classList.add('is-open','is-split-closing');
+
+    phaseTimer=setTimeout(()=>{
+      phaseTimer=0;
+      finishClose();
+    },690);
   }
 
   trigger.addEventListener('click',openArchive);
 
-  /* Pointer users close on press, not release. A normal click fires on mouseup,
-     which can add a small but perceptible delay even when CSS itself is instant.
-     Keyboard activation still uses click (detail===0). */
+  /* Pointer users start the reverse on press rather than release. Keyboard
+     activation still uses click (detail===0). */
   close.addEventListener('pointerdown',event=>{
     if(event.pointerType==='mouse'&&event.button!==0)return;
     event.preventDefault();
