@@ -1,4 +1,22 @@
 (()=>{
+  /* Load the quiet cursor field after the core site is ready. Kept modular so the
+     effect can be tuned or removed without touching the main interaction system. */
+  if(!document.querySelector('link[data-surface-response]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='./surface-response.css';
+    link.dataset.surfaceResponse='true';
+    const loadBehavior=()=>{
+      if(document.querySelector('script[data-surface-response]'))return;
+      const script=document.createElement('script');
+      script.src='./surface-response.js';
+      script.dataset.surfaceResponse='true';
+      document.body.appendChild(script);
+    };
+    link.addEventListener('load',loadBehavior,{once:true});
+    document.head.appendChild(link);
+  }
+
   const C={
     en:{
       menu001:'About me',
