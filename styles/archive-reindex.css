@@ -30,9 +30,9 @@
   transform:translate3d(0,0,0);
 }
 
-/* Wall speed increases linearly: displacement follows t², sampled at 10%
-   intervals with linear interpolation. This gives a visibly slow launch and a
-   much harder final approach without inventing another duration tier. */
+/* Stronger slow→fast wall motion: displacement now follows t^4 rather than t^2.
+   The first half barely moves, then velocity builds aggressively into the final
+   collision while preserving the shared CONTENT duration tier. */
 .project-archive.is-split-opening::before{
   animation:archiveWallLeftIn var(--motion-content,560ms) linear both;
 }
@@ -42,28 +42,28 @@
 
 @keyframes archiveWallLeftIn{
   0%{transform:translate3d(-100%,0,0)}
-  10%{transform:translate3d(-99%,0,0)}
-  20%{transform:translate3d(-96%,0,0)}
-  30%{transform:translate3d(-91%,0,0)}
-  40%{transform:translate3d(-84%,0,0)}
-  50%{transform:translate3d(-75%,0,0)}
-  60%{transform:translate3d(-64%,0,0)}
-  70%{transform:translate3d(-51%,0,0)}
-  80%{transform:translate3d(-36%,0,0)}
-  90%{transform:translate3d(-19%,0,0)}
+  10%{transform:translate3d(-99.99%,0,0)}
+  20%{transform:translate3d(-99.84%,0,0)}
+  30%{transform:translate3d(-99.19%,0,0)}
+  40%{transform:translate3d(-97.44%,0,0)}
+  50%{transform:translate3d(-93.75%,0,0)}
+  60%{transform:translate3d(-87.04%,0,0)}
+  70%{transform:translate3d(-75.99%,0,0)}
+  80%{transform:translate3d(-59.04%,0,0)}
+  90%{transform:translate3d(-34.39%,0,0)}
   100%{transform:translate3d(0,0,0)}
 }
 @keyframes archiveWallRightIn{
   0%{transform:translate3d(100%,0,0)}
-  10%{transform:translate3d(99%,0,0)}
-  20%{transform:translate3d(96%,0,0)}
-  30%{transform:translate3d(91%,0,0)}
-  40%{transform:translate3d(84%,0,0)}
-  50%{transform:translate3d(75%,0,0)}
-  60%{transform:translate3d(64%,0,0)}
-  70%{transform:translate3d(51%,0,0)}
-  80%{transform:translate3d(36%,0,0)}
-  90%{transform:translate3d(19%,0,0)}
+  10%{transform:translate3d(99.99%,0,0)}
+  20%{transform:translate3d(99.84%,0,0)}
+  30%{transform:translate3d(99.19%,0,0)}
+  40%{transform:translate3d(97.44%,0,0)}
+  50%{transform:translate3d(93.75%,0,0)}
+  60%{transform:translate3d(87.04%,0,0)}
+  70%{transform:translate3d(75.99%,0,0)}
+  80%{transform:translate3d(59.04%,0,0)}
+  90%{transform:translate3d(34.39%,0,0)}
   100%{transform:translate3d(0,0,0)}
 }
 
@@ -124,12 +124,14 @@
   opacity:1!important;
 }
 
-/* 01→06 stay one tier slower: UI 320ms, with the shared 40ms stagger. */
+/* 01→06 are now another tier slower: CONTENT 560ms instead of UI 320ms.
+   The shared 40ms stagger remains, so the sequence is slower without losing
+   the directional 01→06 rhythm. */
 .project-archive.is-split-opening .project-item{
   opacity:1;
   transform:translate3d(0,0,0);
   transition-property:opacity,transform;
-  transition-duration:var(--motion-ui,320ms),var(--motion-ui,320ms);
+  transition-duration:var(--motion-content,560ms),var(--motion-content,560ms);
   transition-timing-function:ease,var(--ease-soft,cubic-bezier(.22,1,.36,1));
   will-change:transform,opacity;
 }
@@ -151,12 +153,12 @@
 }
 
 /* Close: exact time-reversal of the wall acceleration at the 0.5× exit tier.
-   It therefore launches outward fast and decelerates, with no impact shake. */
+   Rows now use the matching CONTENT exit tier (280ms). */
 .project-archive.is-split-closing .project-item{
   opacity:0!important;
   transform:translate3d(-56px,0,0)!important;
   transition-property:opacity,transform!important;
-  transition-duration:var(--motion-exit-ui,160ms),var(--motion-exit-ui,160ms)!important;
+  transition-duration:var(--motion-exit-content,280ms),var(--motion-exit-content,280ms)!important;
   transition-timing-function:ease,var(--ease-exit,cubic-bezier(.64,0,.78,0))!important;
   will-change:transform,opacity;
 }
