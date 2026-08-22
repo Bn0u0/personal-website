@@ -30,11 +30,12 @@
   transform:translate3d(0,0,0);
 }
 
-/* The walls are CONTENT-scale motion inside a SCENE-scale 1000ms composition.
-   Their slow→fast path gives the collision weight without inventing a new tier. */
+/* The two walls now use a deliberately linear CONTENT-scale traverse.
+   Constant velocity makes the left/right collision read as one strong axis
+   instead of another softened page transition. */
 .project-archive.is-split-opening::before,
 .project-archive.is-split-opening::after{
-  transition:transform var(--motion-content,560ms) var(--ease-accelerate,cubic-bezier(.55,.055,.675,.19));
+  transition:transform var(--motion-content,560ms) linear;
 }
 
 .project-archive.is-split-preparing{
@@ -47,7 +48,7 @@
 .project-archive.is-split-opening{
   opacity:1!important;
   transition:none!important;
-  animation:archiveImpactShake var(--motion-micro,180ms) linear var(--motion-content,560ms) both;
+  animation:none!important;
 }
 .project-archive.is-split-closing{
   visibility:visible!important;
@@ -78,7 +79,7 @@
   transform:translate3d(-56px,0,0)!important;
 }
 
-/* Chrome appears as the walls meet. */
+/* Chrome appears exactly as the two linear walls meet. */
 .project-archive.is-split-opening .project-archive__top,
 .project-archive.is-split-opening .project-archive__heading{
   opacity:1!important;
@@ -94,13 +95,14 @@
   opacity:1!important;
 }
 
-/* 01→06 use MICRO motion with one shared 40ms stagger scale.
-   Last row resolves at ~980ms, inside the SCENE 1000ms budget. */
+/* 01→06 are intentionally one tier slower than before: UI 320ms instead of
+   MICRO 180ms. The 40ms stagger remains so the index still reads as a single
+   directional sequence rather than six unrelated fades. */
 .project-archive.is-split-opening .project-item{
   opacity:1;
   transform:translate3d(0,0,0);
   transition-property:opacity,transform;
-  transition-duration:var(--motion-micro,180ms),var(--motion-micro,180ms);
+  transition-duration:var(--motion-ui,320ms),var(--motion-ui,320ms);
   transition-timing-function:ease,var(--ease-soft,cubic-bezier(.22,1,.36,1));
   will-change:transform,opacity;
 }
@@ -111,23 +113,12 @@
 .project-archive.is-split-opening .project-item:nth-child(5){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
 .project-archive.is-split-opening .project-item:nth-child(6){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
 
-/* Impact exists only on entry. */
-@keyframes archiveImpactShake{
-  0%{transform:translate3d(0,0,0)}
-  18%{transform:translate3d(2.4px,.6px,0)}
-  38%{transform:translate3d(-2px,-.45px,0)}
-  58%{transform:translate3d(1.25px,.3px,0)}
-  76%{transform:translate3d(-.65px,-.15px,0)}
-  100%{transform:translate3d(0,0,0)}
-}
-
-/* Close: exact 0.5× derivatives. 06→01 leave first, then walls split outward.
-   No collision shake on exit. */
+/* Close: exact 0.5× derivatives. 06→01 leave first, then walls split outward. */
 .project-archive.is-split-closing .project-item{
   opacity:0!important;
   transform:translate3d(-56px,0,0)!important;
   transition-property:opacity,transform!important;
-  transition-duration:var(--motion-exit-micro,90ms),var(--motion-exit-micro,90ms)!important;
+  transition-duration:var(--motion-exit-ui,160ms),var(--motion-exit-ui,160ms)!important;
   transition-timing-function:ease,var(--ease-exit,cubic-bezier(.64,0,.78,0))!important;
   will-change:transform,opacity;
 }
@@ -148,11 +139,11 @@
 
 .project-archive.is-open.is-split-closing::before{
   transform:translate3d(-100%,0,0);
-  transition:transform var(--motion-exit-content,280ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms));
+  transition:transform var(--motion-exit-content,280ms) linear calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms));
 }
 .project-archive.is-open.is-split-closing::after{
   transform:translate3d(100%,0,0);
-  transition:transform var(--motion-exit-content,280ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms));
+  transition:transform var(--motion-exit-content,280ms) linear calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms));
 }
 
 .project-archive.is-instant-close{
