@@ -51,3 +51,9 @@ body.is-detail-open .cursor.is-active .cursor__label{
   background:#fff!important;
   mix-blend-mode:normal!important;
 }
+
+/* Touch is not a simulated mouse. Never leave the desktop black/white cursor
+   proxy at the center of a phone or tablet viewport. */
+@media(pointer:coarse), (hover:none){
+  .cursor{display:none!important;visibility:hidden!important;opacity:0!important}
+}
