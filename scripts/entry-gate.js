@@ -6,10 +6,11 @@
   }
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MOTION={micro:180,ui:320,content:560,scene:1000};
+  const MOTION={micro:180,ui:320,content:560,scene:1000,epic:1560};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
+  let revealFallback=0;
 
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const currentLanguage=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
@@ -29,22 +30,16 @@
         const current=currentLanguage();
         const toggle=document.querySelector('.language-toggle');
 
-        /* lang.js may have initialized from the saved value before we ever need
-           to touch the toggle. If it is settled, the selected language is ready. */
         if(current===next&&(!toggle||!toggle.disabled)){
           resolve();
           return;
         }
 
-        /* When the existing controller is already live, let it perform the real
-           copy/font swap. Its own transition stays hidden beneath this gate. */
         if(toggle&&!toggle.disabled&&!requestedToggle&&current!==next){
           requestedToggle=true;
           toggle.click();
         }
 
-        /* Defensive fallback: never trap the visitor at the gate if a language
-           script fails. The preference still persists for the next controller run. */
         if(performance.now()-started>1800){
           document.documentElement.lang=next==='zh'?'zh-Hant':'en';
           resolve();
@@ -57,13 +52,50 @@
     });
   }
 
-  function finish(){
-    gate.classList.add('is-finishing');
-    setTimeout(()=>{
+  function releaseGate(){
+    clearTimeout(revealFallback);
+    gate.classList.add('is-cleared');
+
+    /* Keep the cleared layer around for two painted frames. This gives Safari
+       and mobile GPUs a chance to commit the fully-open mask before the overlay
+       node disappears, eliminating the one-frame residue during handoff. */
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
       gate.remove();
       document.documentElement.classList.remove('is-entry-gated');
       window.__lenis?.start?.();
-    },reduced?0:MOTION.ui);
+    }));
+  }
+
+  function finishImmediate(){
+    gate.classList.add('is-cleared');
+    gate.remove();
+    document.documentElement.classList.remove('is-entry-gated');
+    window.__lenis?.start?.();
+  }
+
+  function startFinalReveal(){
+    let settled=false;
+    const settle=()=>{
+      if(settled)return;
+      settled=true;
+      gate.removeEventListener('animationend',onAnimationEnd);
+      releaseGate();
+    };
+    const onAnimationEnd=event=>{
+      if(event.animationName!=='entrySurfaceReveal')return;
+      settle();
+    };
+
+    gate.addEventListener('animationend',onAnimationEnd);
+    gate.classList.add('is-revealing');
+
+    /* Fade the word/ripples late enough that they remain part of the water scene,
+       while the opaque surface itself continues its longer radial reveal. */
+    setTimeout(()=>gate.classList.add('is-finishing'),MOTION.scene);
+
+    /* animationend is the canonical finish signal; this is only a defensive
+       escape hatch for browsers that fail to report pseudo-element animations. */
+    revealFallback=setTimeout(settle,MOTION.epic+220);
   }
 
   async function choose(next,button){
@@ -83,30 +115,19 @@
 
     if(reduced){
       await languageReady;
-      finish();
+      finishImmediate();
       return;
     }
 
     await delay(MOTION.ui);
     gate.classList.add('is-welcoming');
 
-    /* Give the word and first ripple one full CONTENT beat, but never expose
-       the underlying site until the existing language controller is settled. */
     await Promise.all([
       languageReady,
       delay(MOTION.content)
     ]);
 
-    gate.classList.add('is-revealing');
-
-    /* Fade the word only after the expanding radial hole has become readable;
-       the ripple remains the visual edge that carries the page away. */
-    setTimeout(()=>gate.classList.add('is-finishing'),MOTION.content);
-    setTimeout(()=>{
-      gate.remove();
-      document.documentElement.classList.remove('is-entry-gated');
-      window.__lenis?.start?.();
-    },MOTION.scene);
+    startFinalReveal();
   }
 
   buttons.forEach(button=>{
