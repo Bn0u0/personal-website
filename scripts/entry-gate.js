@@ -1,4 +1,14 @@
 (()=>{
+  /* Boot the isolated mobile controller only for touch-capable environments.
+     Desktop execution stops here and therefore never receives phone layout code. */
+  const touchUI=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
+  if(touchUI&&!document.querySelector('script[data-mobile-controller]')){
+    const mobileScript=document.createElement('script');
+    mobileScript.src='./scripts/mobile.js';
+    mobileScript.dataset.mobileController='true';
+    document.head.appendChild(mobileScript);
+  }
+
   const gate=document.querySelector('.entry-gate');
   if(!gate){
     document.documentElement.classList.remove('is-entry-gated');
