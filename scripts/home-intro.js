@@ -90,7 +90,11 @@
     /* Supporting information comes in only after the title has become the focal
        point. Left/right groups cross toward their final edges quickly. */
     root.classList.add('is-home-intro-meta');
-    await wait(70);
+
+    /* Let the lateral UI complete its own UI beat before the brand enters. The
+       logo therefore reads as a separate final punctuation, not another item in
+       the same group motion. */
+    await wait(Math.max(MOTION.ui,320)+40);
     root.classList.add('is-home-intro-logo');
 
     await wait(Math.max(MOTION.content,560)+80);
