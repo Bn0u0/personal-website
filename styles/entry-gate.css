@@ -43,9 +43,15 @@ html.is-entry-gated body{
 .entry-gate::before{top:0}
 .entry-gate::after{bottom:0}
 
+/* Language selection uses an optical golden-section anchor rather than
+   mathematical 50% centering. 38.2% keeps the first decision inside the upper
+   visual field while preserving enough negative space below for the handoff. */
 .entry-gate__choice{
+  --entry-choice-y:38.2%;
   position:absolute;
-  inset:0;
+  left:0;
+  right:0;
+  top:var(--entry-choice-y);
   z-index:3;
   display:grid;
   grid-template-columns:minmax(0,1fr) clamp(28px,3.8vw,64px) minmax(0,1fr);
@@ -53,6 +59,7 @@ html.is-entry-gated body{
   justify-items:center;
   gap:clamp(14px,2.7vw,44px);
   padding:0 clamp(24px,7vw,120px);
+  transform:translate3d(0,-50%,0);
   transition:
     opacity var(--entry-ui) ease,
     transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
@@ -113,7 +120,7 @@ html.is-entry-gated body{
 
 .entry-gate.is-choosing .entry-gate__choice{
   opacity:0;
-  transform:scale(.985);
+  transform:translate3d(0,-50%,0) scale(.985);
   filter:blur(4px);
   pointer-events:none;
 }
@@ -255,11 +262,18 @@ html.is-entry-gated body{
   transition:none!important;
 }
 
+/* Medium viewports get a slight optical correction because the language pair
+   occupies more of the available width than it does on large desktop screens. */
+@media(min-width:701px) and (max-width:1100px){
+  .entry-gate__choice{--entry-choice-y:39.2%}
+}
+
 /* Mobile keeps the same left / slash / right composition rather than stacking
-   it vertically. The sizes are tuned independently so the two scripts still
-   read as one visual pair on narrow screens. */
+   it vertically. The anchor moves to 40%: still clearly above centre, but less
+   aggressive than desktop because the glyphs occupy much more viewport height. */
 @media(max-width:700px){
   .entry-gate__choice{
+    --entry-choice-y:40%;
     grid-template-columns:minmax(0,1fr) clamp(20px,7vw,34px) minmax(0,1fr);
     gap:clamp(7px,2.6vw,14px);
     padding-left:max(18px,env(safe-area-inset-left));
@@ -279,7 +293,10 @@ html.is-entry-gated body{
   }
 }
 
+/* Very short landscape screens need an ergonomic override. A literal golden
+   section would crowd the top edge once the large glyph height is included. */
 @media(max-height:520px) and (orientation:landscape){
+  .entry-gate__choice{--entry-choice-y:45%}
   .entry-gate__option[data-entry-lang="zh"]{font-size:clamp(46px,12vh,72px)}
   .entry-gate__option[data-entry-lang="en"]{font-size:clamp(52px,13vh,78px)}
   .entry-gate__welcome{font-size:clamp(54px,18vh,94px)}
