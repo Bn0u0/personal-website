@@ -2,22 +2,50 @@
   const touchUI=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
   if(!touchUI)return;
 
+  const root=document.documentElement;
   const shortestScreen=Math.min(screen.width||innerWidth,screen.height||innerHeight);
   const shortestViewport=Math.min(innerWidth,innerHeight);
   const phoneSized=Math.min(shortestScreen,shortestViewport)<=700;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOTION=window.__motion||{micro:180,ui:320,content:560,scene:1000};
 
-  /* Capability gate: desktop code never enters this branch. Touch behavior and
-     phone layout are separate flags so tablets lose the mouse cursor without
-     inheriting the compact phone composition. */
-  document.documentElement.classList.add('is-touch-ui');
-  document.documentElement.dataset.inputProfile='touch';
+  root.classList.add('is-touch-ui');
+  root.dataset.inputProfile='touch';
   if(phoneSized){
-    document.documentElement.classList.add('is-mobile-layout');
-    document.documentElement.dataset.layoutProfile='phone';
+    root.classList.add('is-mobile-layout');
+    root.dataset.layoutProfile='phone';
   }
   document.querySelector('.cursor')?.remove();
+
+  /* iOS browser chrome makes 100vh/dvh move while the visitor scrolls. A section
+     that is supposed to be one screen should not grow/shrink under the finger,
+     so capture the actual visual viewport once and refresh it only when the
+     orientation genuinely changes or the page is restored. */
+  let screenHeight=0;
+  let lastOrientation=`${innerWidth}x${innerHeight}`;
+  function captureScreen(){
+    if(!phoneSized)return;
+    const vv=window.visualViewport;
+    const measured=Math.round(vv?.height||innerHeight);
+    if(!Number.isFinite(measured)||measured<320)return;
+    screenHeight=measured;
+    root.style.setProperty('--mobile-screen',`${measured}px`);
+    root.dataset.mobileScreen=`${measured}`;
+  }
+  captureScreen();
+
+  function refreshAfterOrientation(){
+    const signature=`${innerWidth}x${innerHeight}`;
+    if(signature===lastOrientation)return;
+    lastOrientation=signature;
+    setTimeout(captureScreen,120);
+    setTimeout(captureScreen,420);
+  }
+  addEventListener('orientationchange',()=>{
+    lastOrientation='';
+    setTimeout(refreshAfterOrientation,60);
+  },{passive:true});
+  addEventListener('pageshow',captureScreen,{passive:true});
 
   const canVibrate=typeof navigator.vibrate==='function';
   const haptic={
@@ -54,15 +82,11 @@
     new MutationObserver(syncImpact).observe(archive,{attributes:true,attributeFilter:['class']});
   }
 
-  /* Phone-only persistent section control. Desktop keeps its existing per-section
-     cues untouched. On phones this one button stays at one viewport coordinate
-     and changes only its destination, so repeated taps can move through the page
-     without the thumb chasing a new control. */
+  /* Tablets stop here: touch behaviour applies, compact phone composition does not. */
   if(!phoneSized)return;
 
   const footer=document.querySelector('.site-footer');
   if(footer&&!footer.id)footer.id='site-footer';
-
   const flow=[
     {section:document.querySelector('.hero'),target:document.querySelector('#work')},
     {section:document.querySelector('.work'),target:document.querySelector('#about')},
@@ -80,7 +104,7 @@
   let currentIndex=0;
   let raf=0;
   const labelNode=cue.querySelector('.mobile-flow-cue__label');
-  const isZh=()=>document.documentElement.lang.toLowerCase().startsWith('zh');
+  const isZh=()=>root.lang.toLowerCase().startsWith('zh');
   const label=()=>isZh()?'往下探索':'Scroll to explore';
 
   function syncCopy(){
@@ -90,14 +114,17 @@
   }
 
   function overlayOpen(){
-    return document.documentElement.classList.contains('is-entry-gated')||
+    return root.classList.contains('is-entry-gated')||
       document.body.classList.contains('is-archive-open')||
       document.body.classList.contains('is-detail-open')||
       document.body.classList.contains('is-ai-depth-open');
   }
 
+  function activeHeight(){return screenHeight||Math.round(window.visualViewport?.height||innerHeight)}
+
   function detectIndex(){
-    const probe=Math.min(innerHeight*.46,innerHeight-120);
+    const h=activeHeight();
+    const probe=Math.min(h*.46,h-110);
     const footerRect=footer?.getBoundingClientRect();
     if(footerRect&&footerRect.top<=probe){
       cue.hidden=true;
@@ -115,7 +142,8 @@
     if(hit>=0)currentIndex=hit;
 
     cue.hidden=overlayOpen();
-    cue.classList.toggle('is-on-dark',flow[currentIndex].section.classList.contains('manifesto')||flow[currentIndex].section.classList.contains('about-ai'));
+    const section=flow[currentIndex]?.section;
+    cue.classList.toggle('is-on-dark',!!section&&(section.classList.contains('manifesto')||section.classList.contains('about-ai')));
   }
 
   function scheduleDetect(){
@@ -133,10 +161,11 @@
     if(!item)return;
     const target=item.target;
 
-    /* Advance the logical destination immediately. A second tap during motion can
-       continue forward instead of being trapped on the previous destination. */
+    /* Logical destination advances immediately so repeated taps remain fluid at
+       one fixed thumb position, matching the desktop interaction rhythm. */
     currentIndex=Math.min(currentIndex+1,flow.length-1);
-    cue.classList.toggle('is-on-dark',flow[currentIndex]?.section.classList.contains('manifesto')||flow[currentIndex]?.section.classList.contains('about-ai'));
+    const nextSection=flow[currentIndex]?.section;
+    cue.classList.toggle('is-on-dark',!!nextSection&&(nextSection.classList.contains('manifesto')||nextSection.classList.contains('about-ai')));
 
     if(window.__lenis?.scrollTo){
       window.__lenis.scrollTo(target,{duration:reduced?0:1.0,force:true});
@@ -147,12 +176,11 @@
   });
 
   addEventListener('scroll',scheduleDetect,{passive:true});
-  addEventListener('resize',scheduleDetect,{passive:true});
-  addEventListener('orientationchange',scheduleDetect,{passive:true});
+  addEventListener('resize',refreshAfterOrientation,{passive:true});
   new MutationObserver(()=>{
     syncCopy();
     scheduleDetect();
-  }).observe(document.documentElement,{attributes:true,attributeFilter:['lang','class']});
+  }).observe(root,{attributes:true,attributeFilter:['lang','class']});
   new MutationObserver(scheduleDetect).observe(document.body,{attributes:true,attributeFilter:['class']});
 
   syncCopy();
