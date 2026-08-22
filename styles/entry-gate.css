@@ -212,9 +212,9 @@ html.is-entry-gated body{
 }
 
 /* Phase 2: only after the foreground is gone does the surface begin to open.
-   80vmax is deliberately close to the actual centre-to-corner requirement;
-   unlike 220vmax it keeps the reveal visually active for nearly the full timing
-   tier instead of clearing the viewport in the first quarter of the animation. */
+   74vmax is just above the 70.71vmax centre-to-corner radius of a square
+   viewport. That small safety margin keeps the reveal moving visibly almost to
+   the final frame instead of clearing the screen early and animating offscreen. */
 .entry-gate.is-revealing::before{
   -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 0,transparent var(--entry-hole),#000 calc(var(--entry-hole) + 2px),#000 100%);
   mask-image:radial-gradient(circle at 50% 50%,transparent 0,transparent var(--entry-hole),#000 calc(var(--entry-hole) + 2px),#000 100%);
@@ -222,7 +222,7 @@ html.is-entry-gated body{
 }
 @keyframes entrySurfaceReveal{
   from{--entry-hole:0px}
-  to{--entry-hole:80vmax}
+  to{--entry-hole:74vmax}
 }
 
 /* The overlay is removed only after the radial animation has completed and two
