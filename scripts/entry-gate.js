@@ -6,13 +6,14 @@
   }
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MOTION={micro:180,ui:320,content:560,scene:1000,epic:1560};
+  const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000,exitUi:160};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
   let revealFallback=0;
 
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const nextPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   const currentLanguage=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
 
   /* site.js creates Lenis immediately after this file runs. Stop it on the next
@@ -56,9 +57,8 @@
     clearTimeout(revealFallback);
     gate.classList.add('is-cleared');
 
-    /* Keep the cleared layer around for two painted frames. This gives Safari
-       and mobile GPUs a chance to commit the fully-open mask before the overlay
-       node disappears, eliminating the one-frame residue during handoff. */
+    /* The mask has already completed. Keep the now-empty overlay for two painted
+       frames so Safari/mobile GPUs commit the fully revealed page before removal. */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       gate.remove();
       document.documentElement.classList.remove('is-entry-gated');
@@ -71,6 +71,15 @@
     gate.remove();
     document.documentElement.classList.remove('is-entry-gated');
     window.__lenis?.start?.();
+  }
+
+  async function dismissForeground(){
+    /* This phase happens while the background is still fully opaque. Therefore
+       the hero can never become visible underneath WELCOME/歡迎. */
+    gate.classList.add('is-dismissing');
+    await delay(MOTION.exitUi);
+    gate.classList.add('is-welcome-cleared');
+    await nextPaint();
   }
 
   function startFinalReveal(){
@@ -89,13 +98,9 @@
     gate.addEventListener('animationend',onAnimationEnd);
     gate.classList.add('is-revealing');
 
-    /* Fade the word/ripples late enough that they remain part of the water scene,
-       while the opaque surface itself continues its longer radial reveal. */
-    setTimeout(()=>gate.classList.add('is-finishing'),MOTION.scene);
-
-    /* animationend is the canonical finish signal; this is only a defensive
-       escape hatch for browsers that fail to report pseudo-element animations. */
-    revealFallback=setTimeout(settle,MOTION.epic+220);
+    /* animationend is canonical. This timer only prevents a browser-specific
+       pseudo-element event failure from trapping the visitor at the gate. */
+    revealFallback=setTimeout(settle,MOTION.epic+260);
   }
 
   async function choose(next,button){
@@ -122,11 +127,15 @@
     await delay(MOTION.ui);
     gate.classList.add('is-welcoming');
 
+    /* Let the welcome word complete one CONTENT beat and ensure the selected
+       language is already settled behind the opaque gate. */
     await Promise.all([
       languageReady,
       delay(MOTION.content)
     ]);
 
+    /* Foreground-out and background-out are now strictly serial phases. */
+    await dismissForeground();
     startFinalReveal();
   }
 
