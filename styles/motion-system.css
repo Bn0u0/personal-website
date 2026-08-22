@@ -7,14 +7,14 @@
   --motion-ui:320ms;      /* controls, dropdowns, local transforms */
   --motion-content:560ms; /* rows, reveals, section-level content */
   --motion-scene:1000ms;  /* full-screen / immersive transitions */
-  --motion-epic:1560ms;   /* rare full-surface handoffs such as the entry reveal */
+  --motion-epic:2000ms;   /* rare full-surface handoffs such as the entry reveal */
 
   /* Exit tiers: always 2× faster than the corresponding entry tier */
   --motion-exit-micro:90ms;
   --motion-exit-ui:160ms;
   --motion-exit-content:280ms;
   --motion-exit-scene:500ms;
-  --motion-exit-epic:780ms;
+  --motion-exit-epic:1000ms;
 
   /* Stagger scale + exact 0.5× exit derivatives */
   --motion-stagger-tight:40ms;
