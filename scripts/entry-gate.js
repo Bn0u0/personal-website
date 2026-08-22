@@ -23,6 +23,7 @@
   let committed=false;
   let revealFallback=0;
   let announced=false;
+  let introAnnounced=false;
 
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
@@ -31,6 +32,11 @@
     if(announced)return;
     announced=true;
     dispatchEvent(new CustomEvent('bn0u0:entry-complete'));
+  };
+  const announceHomeIntro=()=>{
+    if(introAnnounced)return;
+    introAnnounced=true;
+    dispatchEvent(new CustomEvent('bn0u0:home-intro-start'));
   };
 
   /* site.js creates Lenis immediately after this file runs. Stop it on the next
@@ -89,12 +95,13 @@
     gate.remove();
     document.documentElement.classList.remove('is-entry-gated');
     window.__lenis?.start?.();
+    announceHomeIntro();
     announceEntryComplete();
   }
 
   async function dismissForeground(){
-    /* WELCOME / 歡迎 now receives one full CONTENT beat to leave. The opaque
-       two-panel background does not move at all until this phase is finished. */
+    /* WELCOME / 歡迎 receives one complete CONTENT beat. The surface stays solid
+       until the foreground is actually gone, so the title can never overlap it. */
     gate.classList.add('is-dismissing');
     await delay(MOTION.content);
     gate.classList.add('is-welcome-cleared');
@@ -121,6 +128,11 @@
 
     gate.addEventListener('animationend',onAnimationEnd);
     gate.classList.add('is-revealing');
+
+    /* Start the hero sequence as the surface begins opening, not two seconds
+       later when it has already gone. The title is layered above the departing
+       panels by home-intro.css, so the moving seam never cuts through glyphs. */
+    requestAnimationFrame(announceHomeIntro);
 
     /* Both pseudo-elements should report animationend. This timer is only a
        defensive escape hatch for browsers that suppress pseudo-element events. */
@@ -151,15 +163,11 @@
     await delay(MOTION.ui);
     gate.classList.add('is-welcoming');
 
-    /* Let the welcome word complete one CONTENT beat and ensure the selected
-       language is already settled behind the still-opaque entry surface. */
     await Promise.all([
       languageReady,
       delay(MOTION.content)
     ]);
 
-    /* Foreground-out and surface-out remain strictly serial: no overlap is
-       possible between WELCOME / 歡迎 and the hero underneath. */
     await dismissForeground();
     startFinalReveal();
   }
