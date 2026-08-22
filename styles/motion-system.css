@@ -1,5 +1,5 @@
 /* Motion System — one shared timing language for the entire site.
-   Finite transitions use four entry tiers. Exit motion is the exact 0.5× derivative
+   Finite transitions use five entry tiers. Exit motion is the exact 0.5× derivative
    of the matching tier. Continuous spring/canvas systems are intentionally excluded. */
 :root{
   /* Entry tiers */
@@ -7,12 +7,14 @@
   --motion-ui:320ms;      /* controls, dropdowns, local transforms */
   --motion-content:560ms; /* rows, reveals, section-level content */
   --motion-scene:1000ms;  /* full-screen / immersive transitions */
+  --motion-epic:1560ms;   /* rare full-surface handoffs such as the entry reveal */
 
   /* Exit tiers: always 2× faster than the corresponding entry tier */
   --motion-exit-micro:90ms;
   --motion-exit-ui:160ms;
   --motion-exit-content:280ms;
   --motion-exit-scene:500ms;
+  --motion-exit-epic:780ms;
 
   /* Stagger scale + exact 0.5× exit derivatives */
   --motion-stagger-tight:40ms;
@@ -125,13 +127,19 @@
   transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
 }
 
-/* SCENE — only immersive/full-screen entrances use the top tier. */
+/* SCENE — immersive/full-screen entrances. */
 .hero__line>span{
   animation-duration:var(--motion-scene)!important;
   animation-timing-function:var(--ease-soft)!important;
 }
 .hero__line:nth-child(2)>span{
   animation-delay:var(--motion-stagger-standard)!important;
+}
+
+/* EPIC is intentionally rare: it exists for a transition that hands the entire
+   screen from one visual world to another, not for ordinary page motion. */
+.entry-gate.is-revealing::before{
+  animation-duration:var(--motion-epic)!important;
 }
 
 /* Discovery pulse is content-scale, never its own ad-hoc duration. */
