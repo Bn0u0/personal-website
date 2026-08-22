@@ -95,3 +95,28 @@
     attributeFilter:['lang']
   });
 })();
+
+/* Touch/mobile polish is intentionally loaded after the desktop modules have
+   registered their styles. This gives the touch layer the final cascade without
+   duplicating the main stylesheet or changing the desktop composition. */
+(()=>{
+  const touchUI=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
+  if(!touchUI)return;
+  if(document.querySelector('link[data-mobile-polish]'))return;
+
+  const link=document.createElement('link');
+  link.rel='stylesheet';
+  link.href='./styles/mobile.css';
+  link.dataset.mobilePolish='true';
+
+  const loadBehavior=()=>{
+    if(document.querySelector('script[data-mobile-polish]'))return;
+    const script=document.createElement('script');
+    script.src='./scripts/mobile.js';
+    script.dataset.mobilePolish='true';
+    document.body.appendChild(script);
+  };
+
+  link.addEventListener('load',loadBehavior,{once:true});
+  document.head.appendChild(link);
+})();
