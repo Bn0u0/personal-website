@@ -46,8 +46,8 @@
     staggerTight:40,staggerStandard:80
   };
   /* Sixth row starts after CONTENT + three standard staggers and now spends a
-     full UI tier entering, so keep the opening class alive through that finish. */
-  const OPEN_SEQUENCE_DURATION=MOTION.content+(MOTION.staggerStandard*3)+MOTION.ui;
+     full CONTENT tier entering, so keep the opening class alive through it. */
+  const OPEN_SEQUENCE_DURATION=MOTION.content+(MOTION.staggerStandard*3)+MOTION.content;
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -107,8 +107,8 @@
     archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
 
-    /* Walls travel linearly for one CONTENT tier. 01→06 then use the slower UI
-       tier, so the active opening phase lasts until row 06 has fully resolved. */
+    /* Walls use the stronger accelerating CONTENT motion. 01→06 now also use
+       the CONTENT tier, so the phase lasts until the slower sixth row settles. */
     phaseFrame=requestAnimationFrame(()=>{
       phaseFrame=0;
       archive.classList.remove('is-split-preparing');
@@ -140,7 +140,7 @@
     if(detail?.classList.contains('is-open'))return;
     if(reduced){finishClose();return}
 
-    /* Exit remains the exact 0.5× derivative of the slower UI row tier. */
+    /* Exit remains the 0.5× derivative of the CONTENT row tier. */
     clearPhaseTimer();
     archive.classList.remove('is-split-preparing','is-split-opening');
     archive.classList.add('is-open','is-split-closing');
