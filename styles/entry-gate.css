@@ -15,7 +15,8 @@ html.is-entry-gated body{
   --entry-ui:320ms;
   --entry-content:560ms;
   --entry-scene:1000ms;
-  --entry-epic:1560ms;
+  --entry-epic:2000ms;
+  --entry-exit-ui:160ms;
   --entry-stagger:80ms;
   position:fixed;
   inset:0;
@@ -31,9 +32,8 @@ html.is-entry-gated body{
   contain:paint;
 }
 
-/* A single opaque surface owns the transition. It stays fully solid until the
-   radial reveal begins, then is removed only after the mask animation has
-   actually finished. This avoids the one-frame ghosting seen on some GPUs. */
+/* One opaque surface owns the handoff. Crucially, this surface does not begin
+   opening until the welcome layer has fully disappeared. */
 .entry-gate::before{
   content:"";
   position:absolute;
@@ -186,30 +186,47 @@ html.is-entry-gated body{
   100%{opacity:0;transform:translate(-50%,-50%) scale(12)}
 }
 
-/* Final scene transition gets one tier beyond SCENE: 1560ms. The hole expands
-   far beyond the viewport so the cover is guaranteed to be gone at every edge. */
+/* Phase 1 of the handoff: clear every foreground artefact quickly while the
+   background is still 100% opaque. This makes overlap with the hero impossible. */
+.entry-gate.is-dismissing .entry-gate__welcome{
+  opacity:0;
+  filter:blur(2px);
+  transform:scale(1.006);
+  transition:
+    opacity var(--entry-exit-ui) ease,
+    transform var(--entry-exit-ui) var(--ease-exit,cubic-bezier(.64,0,.78,0)),
+    filter var(--entry-exit-ui) ease;
+}
+.entry-gate.is-dismissing .entry-gate__ripples{
+  opacity:0;
+  transition:opacity var(--entry-exit-ui) ease;
+}
+.entry-gate.is-welcome-cleared .entry-gate__welcome,
+.entry-gate.is-welcome-cleared .entry-gate__ripples{
+  opacity:0!important;
+  visibility:hidden!important;
+  transition:none!important;
+}
+.entry-gate.is-welcome-cleared .entry-gate__ripple{
+  animation:none!important;
+}
+
+/* Phase 2: only after the foreground is gone does the surface begin to open.
+   80vmax is deliberately close to the actual centre-to-corner requirement;
+   unlike 220vmax it keeps the reveal visually active for nearly the full timing
+   tier instead of clearing the viewport in the first quarter of the animation. */
 .entry-gate.is-revealing::before{
   -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 0,transparent var(--entry-hole),#000 calc(var(--entry-hole) + 2px),#000 100%);
   mask-image:radial-gradient(circle at 50% 50%,transparent 0,transparent var(--entry-hole),#000 calc(var(--entry-hole) + 2px),#000 100%);
-  animation:entrySurfaceReveal var(--entry-epic) var(--ease-soft,cubic-bezier(.22,1,.36,1)) forwards;
+  animation:entrySurfaceReveal var(--entry-epic) cubic-bezier(.45,0,.55,1) forwards;
 }
 @keyframes entrySurfaceReveal{
   from{--entry-hole:0px}
-  to{--entry-hole:220vmax}
+  to{--entry-hole:80vmax}
 }
 
-/* Welcome/ripples disappear before the cover completes. The gate itself is
-   never faded during the radial reveal, preventing translucent after-images. */
-.entry-gate.is-finishing .entry-gate__welcome{
-  opacity:0;
-  filter:blur(5px);
-  transform:scale(1.015);
-  transition-duration:var(--entry-ui);
-}
-.entry-gate.is-finishing .entry-gate__ripples{
-  opacity:0;
-  transition:opacity var(--entry-ui) ease;
-}
+/* The overlay is removed only after the radial animation has completed and two
+   painted frames have committed the fully revealed page. */
 .entry-gate.is-cleared{
   opacity:0!important;
   pointer-events:none!important;
@@ -220,6 +237,7 @@ html.is-entry-gated body{
 .entry-gate.is-cleared .entry-gate__welcome,
 .entry-gate.is-cleared .entry-gate__ripples{
   opacity:0!important;
+  visibility:hidden!important;
   animation:none!important;
   transition:none!important;
 }
