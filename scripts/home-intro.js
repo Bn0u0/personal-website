@@ -52,12 +52,13 @@
       });
     });
 
-    /* Every glyph owns a ~500ms bounce, while the stagger is normalized by the
-       selected language so EN and 中文 keep a similar total intro length. */
-    const glyphDuration=500;
-    const targetSequence=2200;
+    /* Each glyph still owns roughly half a second, but the motion is now a soft
+       focus-and-rise rather than a cartoon bounce. Stagger is normalized by the
+       selected language so the focal sentence resolves in about 1.7 seconds. */
+    const glyphDuration=520;
+    const targetSequence=1700;
     const count=animated.length;
-    const stagger=count>1?Math.max(55,Math.min(120,(targetSequence-glyphDuration)/(count-1))):0;
+    const stagger=count>1?Math.max(44,Math.min(88,(targetSequence-glyphDuration)/(count-1))):0;
     animated.forEach((glyph,index)=>glyph.style.setProperty('--home-intro-delay',`${Math.round(index*stagger)}ms`));
 
     return {
@@ -78,39 +79,33 @@
 
     const built=buildGlyphs();
 
-    /* One painted frame guarantees all glyphs exist at their hidden start pose
-       before the pending curtain is released. */
+    /* Two painted frames guarantee the invisible glyph poses are committed before
+       the first one starts. This prevents the first frame from flashing the full
+       sentence and keeps the title as the immediate visual centre. */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       root.classList.remove('is-home-intro-pending');
       root.classList.add('is-home-intro-running');
     }));
 
-    await wait(Math.ceil(built.duration)+70);
+    await wait(Math.ceil(built.duration)+40);
 
-    /* Supporting information comes in only after the title has become the focal
-       point. Left/right groups cross toward their final edges quickly. */
+    /* Supporting information only arrives after the title has resolved. */
     root.classList.add('is-home-intro-meta');
-
-    /* Let the lateral UI complete its own UI beat before the brand enters. The
-       logo therefore reads as a separate final punctuation, not another item in
-       the same group motion. */
-    await wait(Math.max(MOTION.ui,320)+40);
+    await wait(Math.max(MOTION.ui,320)+36);
     root.classList.add('is-home-intro-logo');
 
-    await wait(Math.max(MOTION.content,560)+80);
+    await wait(Math.max(MOTION.content,560)+60);
 
-    /* Return the title to normal semantic text so the existing language system
-       can keep updating it later without knowing about the intro glyph wrappers. */
     unwrap(built.lines);
     root.classList.remove('is-home-intro-running','is-home-intro-meta','is-home-intro-logo');
     root.classList.add('is-home-intro-complete');
     clearTimers();
   }
 
+  addEventListener('bn0u0:home-intro-start',run,{once:true});
+  /* Backward-compatible fallback if a cached entry script only emits complete. */
   addEventListener('bn0u0:entry-complete',run,{once:true});
 
-  /* Defensive path for cached/restored documents where the gate is already gone
-     before this script attaches. */
   if(!document.querySelector('.entry-gate')&&!root.classList.contains('is-entry-gated')){
     queueMicrotask(run);
   }
