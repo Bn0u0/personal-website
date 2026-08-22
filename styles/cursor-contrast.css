@@ -1,5 +1,6 @@
 @import url("./motion-system.css");
 @import url("./mobile.css");
+@import url("./mobile-detail-motion.css");
 
 /* Cursor contrast: one source of truth.
    The transformed .cursor itself is the blend layer. Keeping difference on the
