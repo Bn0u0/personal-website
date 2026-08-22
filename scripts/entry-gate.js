@@ -6,7 +6,7 @@
   }
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000,exitUi:160};
+  const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
@@ -57,8 +57,8 @@
     clearTimeout(revealFallback);
     gate.classList.add('is-cleared');
 
-    /* The mask has already completed. Keep the now-empty overlay for two painted
-       frames so Safari/mobile GPUs commit the fully revealed page before removal. */
+    /* Both panels are already completely off-screen. Keep the empty overlay for
+       two painted frames so Safari/mobile GPUs commit the handoff before removal. */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       gate.remove();
       document.documentElement.classList.remove('is-entry-gated');
@@ -74,32 +74,37 @@
   }
 
   async function dismissForeground(){
-    /* This phase happens while the background is still fully opaque. Therefore
-       the hero can never become visible underneath WELCOME/歡迎. */
+    /* WELCOME / 歡迎 now receives one full CONTENT beat to leave. The opaque
+       two-panel background does not move at all until this phase is finished. */
     gate.classList.add('is-dismissing');
-    await delay(MOTION.exitUi);
+    await delay(MOTION.content);
     gate.classList.add('is-welcome-cleared');
     await nextPaint();
   }
 
   function startFinalReveal(){
     let settled=false;
+    const completed=new Set();
+    const required=new Set(['entrySurfaceTopReveal','entrySurfaceBottomReveal']);
+
     const settle=()=>{
       if(settled)return;
       settled=true;
       gate.removeEventListener('animationend',onAnimationEnd);
       releaseGate();
     };
+
     const onAnimationEnd=event=>{
-      if(event.animationName!=='entrySurfaceReveal')return;
-      settle();
+      if(!required.has(event.animationName))return;
+      completed.add(event.animationName);
+      if(completed.size===required.size)settle();
     };
 
     gate.addEventListener('animationend',onAnimationEnd);
     gate.classList.add('is-revealing');
 
-    /* animationend is canonical. This timer only prevents a browser-specific
-       pseudo-element event failure from trapping the visitor at the gate. */
+    /* Both pseudo-elements should report animationend. This timer is only a
+       defensive escape hatch for browsers that suppress pseudo-element events. */
     revealFallback=setTimeout(settle,MOTION.epic+260);
   }
 
@@ -128,13 +133,14 @@
     gate.classList.add('is-welcoming');
 
     /* Let the welcome word complete one CONTENT beat and ensure the selected
-       language is already settled behind the opaque gate. */
+       language is already settled behind the still-opaque entry surface. */
     await Promise.all([
       languageReady,
       delay(MOTION.content)
     ]);
 
-    /* Foreground-out and background-out are now strictly serial phases. */
+    /* Foreground-out and surface-out remain strictly serial: no overlap is
+       possible between WELCOME / 歡迎 and the hero underneath. */
     await dismissForeground();
     startFinalReveal();
   }
