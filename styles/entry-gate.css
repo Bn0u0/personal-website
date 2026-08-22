@@ -1,9 +1,3 @@
-@property --entry-hole{
-  syntax:'<length>';
-  inherits:false;
-  initial-value:0px;
-}
-
 html.is-entry-gated,
 html.is-entry-gated body{
   overflow:hidden!important;
@@ -16,7 +10,6 @@ html.is-entry-gated body{
   --entry-content:560ms;
   --entry-scene:1000ms;
   --entry-epic:2000ms;
-  --entry-exit-ui:160ms;
   --entry-stagger:80ms;
   position:fixed;
   inset:0;
@@ -32,19 +25,23 @@ html.is-entry-gated body{
   contain:paint;
 }
 
-/* One opaque surface owns the handoff. Crucially, this surface does not begin
-   opening until the welcome layer has fully disappeared. */
-.entry-gate::before{
+/* The handoff is owned by two opaque halves. They meet with a tiny overlap so
+   there can never be a one-pixel seam at the centre on fractional DPR screens. */
+.entry-gate::before,
+.entry-gate::after{
   content:"";
   position:absolute;
-  inset:0;
+  left:0;
+  right:0;
   z-index:-2;
-  --entry-hole:0px;
+  height:50.1%;
   background:var(--bg,#f2f0eb);
-  transform:translateZ(0);
+  transform:translate3d(0,0,0);
   backface-visibility:hidden;
-  will-change:mask-image,-webkit-mask-image;
+  will-change:transform;
 }
+.entry-gate::before{top:0}
+.entry-gate::after{bottom:0}
 
 .entry-gate__choice{
   position:absolute;
@@ -134,12 +131,14 @@ html.is-entry-gated body{
   text-align:center;
   opacity:0;
   filter:blur(8px);
-  transform:scale(.975);
+  transform:translate3d(0,0,0) scale(.975);
   transition:
     opacity var(--entry-content) ease,
     transform var(--entry-content) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
-    filter var(--entry-content) ease;
+    filter var(--entry-content) ease,
+    letter-spacing var(--entry-content) ease;
   pointer-events:none;
+  will-change:opacity,transform,filter;
 }
 .entry-gate[data-language="zh"] .entry-gate__welcome{
   font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
@@ -148,7 +147,7 @@ html.is-entry-gated body{
 .entry-gate.is-welcoming .entry-gate__welcome{
   opacity:.92;
   filter:blur(0);
-  transform:scale(1);
+  transform:translate3d(0,0,0) scale(1);
 }
 
 .entry-gate__ripples{
@@ -186,20 +185,29 @@ html.is-entry-gated body{
   100%{opacity:0;transform:translate(-50%,-50%) scale(12)}
 }
 
-/* Phase 1 of the handoff: clear every foreground artefact quickly while the
-   background is still 100% opaque. This makes overlap with the hero impossible. */
+/* Phase 1: WELCOME / 歡迎 gets a full CONTENT beat to leave with intention.
+   It drifts upward a few pixels, opens its tracking and dissolves into a soft
+   blur. The background remains completely opaque for this entire phase. */
 .entry-gate.is-dismissing .entry-gate__welcome{
   opacity:0;
-  filter:blur(2px);
-  transform:scale(1.006);
+  filter:blur(7px);
+  transform:translate3d(0,-8px,0) scale(1.018);
+  letter-spacing:-.025em;
   transition:
-    opacity var(--entry-exit-ui) ease,
-    transform var(--entry-exit-ui) var(--ease-exit,cubic-bezier(.64,0,.78,0)),
-    filter var(--entry-exit-ui) ease;
+    opacity var(--entry-content) cubic-bezier(.4,0,.2,1),
+    transform var(--entry-content) cubic-bezier(.4,0,.2,1),
+    filter var(--entry-content) cubic-bezier(.4,0,.2,1),
+    letter-spacing var(--entry-content) cubic-bezier(.4,0,.2,1);
+}
+.entry-gate[data-language="zh"].is-dismissing .entry-gate__welcome{
+  letter-spacing:-.035em;
 }
 .entry-gate.is-dismissing .entry-gate__ripples{
   opacity:0;
-  transition:opacity var(--entry-exit-ui) ease;
+  transform:scale(1.035);
+  transition:
+    opacity var(--entry-content) cubic-bezier(.4,0,.2,1),
+    transform var(--entry-content) cubic-bezier(.4,0,.2,1);
 }
 .entry-gate.is-welcome-cleared .entry-gate__welcome,
 .entry-gate.is-welcome-cleared .entry-gate__ripples{
@@ -211,28 +219,33 @@ html.is-entry-gated body{
   animation:none!important;
 }
 
-/* Phase 2: only after the foreground is gone does the surface begin to open.
-   74vmax is just above the 70.71vmax centre-to-corner radius of a square
-   viewport. That small safety margin keeps the reveal moving visibly almost to
-   the final frame instead of clearing the screen early and animating offscreen. */
+/* Phase 2: after the foreground is physically gone, the surface opens from the
+   centre seam toward the top and bottom. Strong ease-out means it breaks open
+   quickly, then loses speed and settles gently at the edges. */
 .entry-gate.is-revealing::before{
-  -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 0,transparent var(--entry-hole),#000 calc(var(--entry-hole) + 2px),#000 100%);
-  mask-image:radial-gradient(circle at 50% 50%,transparent 0,transparent var(--entry-hole),#000 calc(var(--entry-hole) + 2px),#000 100%);
-  animation:entrySurfaceReveal var(--entry-epic) cubic-bezier(.45,0,.55,1) forwards;
+  animation:entrySurfaceTopReveal var(--entry-epic) cubic-bezier(.16,1,.3,1) forwards;
 }
-@keyframes entrySurfaceReveal{
-  from{--entry-hole:0px}
-  to{--entry-hole:74vmax}
+.entry-gate.is-revealing::after{
+  animation:entrySurfaceBottomReveal var(--entry-epic) cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes entrySurfaceTopReveal{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(0,-100.5%,0)}
+}
+@keyframes entrySurfaceBottomReveal{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(0,100.5%,0)}
 }
 
-/* The overlay is removed only after the radial animation has completed and two
-   painted frames have committed the fully revealed page. */
+/* The overlay is removed only after BOTH surface halves report completion and
+   two painted frames have committed the fully revealed page. */
 .entry-gate.is-cleared{
   opacity:0!important;
   pointer-events:none!important;
   transition:none!important;
 }
 .entry-gate.is-cleared::before,
+.entry-gate.is-cleared::after,
 .entry-gate.is-cleared .entry-gate__choice,
 .entry-gate.is-cleared .entry-gate__welcome,
 .entry-gate.is-cleared .entry-gate__ripples{
@@ -280,5 +293,6 @@ html.is-entry-gated body{
     transition:none!important;
   }
   .entry-gate__ripple{display:none!important}
-  .entry-gate.is-revealing::before{animation:none!important}
+  .entry-gate.is-revealing::before,
+  .entry-gate.is-revealing::after{animation:none!important}
 }
