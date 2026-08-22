@@ -7,7 +7,7 @@
   const shortestViewport=Math.min(innerWidth,innerHeight);
   const phoneSized=Math.min(shortestScreen,shortestViewport)<=700;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MOTION=window.__motion||{micro:180,ui:320,content:560,scene:1000};
+  const MOTION=window.__motion||{micro:180,ui:320,content:560,scene:1000,exitContent:280};
 
   root.classList.add('is-touch-ui');
   root.dataset.inputProfile='touch';
@@ -80,6 +80,69 @@
       },MOTION.content);
     };
     new MutationObserver(syncImpact).observe(archive,{attributes:true,attributeFilter:['class']});
+  }
+
+  /* PHONE PROJECT DETAIL ---------------------------------------------------
+     Desktop keeps the organic inverse clip. On phones, capture the close action
+     before site.js reaches its SVG/64-point clip renderer and run one cheap
+     transform/opacity exit instead. This removes the path-rasterization spikes
+     that can produce a frozen or fractured Safari frame. */
+  if(phoneSized){
+    const detail=document.querySelector('.project-detail');
+    const detailClose=detail?.querySelector('.project-detail__close');
+    let detailClosing=false;
+    let detailCloseTimer=0;
+
+    const finishDetailClose=()=>{
+      if(!detail)return;
+      clearTimeout(detailCloseTimer);
+      detail.classList.remove('is-open','is-mobile-detail-closing');
+      detail.setAttribute('aria-hidden','true');
+      document.body.classList.remove('is-detail-open');
+      detail.style.removeProperty('clip-path');
+      detail.style.removeProperty('-webkit-clip-path');
+      detailClosing=false;
+      window.__lenis?.start?.();
+    };
+
+    const startDetailClose=event=>{
+      if(!detail?.classList.contains('is-open'))return false;
+      event?.preventDefault?.();
+      event?.stopPropagation?.();
+      event?.stopImmediatePropagation?.();
+      if(detailClosing)return true;
+
+      detailClosing=true;
+      haptic.impact('light');
+      window.__lenis?.stop?.();
+
+      /* Inline !important defeats any in-flight non-important clip-path writes
+         from the desktop renderer immediately, so no stale polygon can flash. */
+      detail.style.setProperty('clip-path','none','important');
+      detail.style.setProperty('-webkit-clip-path','none','important');
+      detail.classList.add('is-mobile-detail-closing');
+
+      detailCloseTimer=setTimeout(finishDetailClose,reduced?0:(MOTION.exitContent||280));
+      return true;
+    };
+
+    detailClose?.addEventListener('pointerdown',startDetailClose,{capture:true});
+    detailClose?.addEventListener('click',event=>{
+      if(detail?.classList.contains('is-open'))startDetailClose(event);
+    },{capture:true});
+    addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&detail?.classList.contains('is-open'))startDetailClose(event);
+    },true);
+
+    /* If navigation/state cleanup closes the detail externally, clear the phone
+       exit marker rather than leaving a stale compositing state for the next open. */
+    new MutationObserver(()=>{
+      if(!document.body.classList.contains('is-detail-open')&&detail){
+        clearTimeout(detailCloseTimer);
+        detail.classList.remove('is-mobile-detail-closing');
+        detailClosing=false;
+      }
+    }).observe(document.body,{attributes:true,attributeFilter:['class']});
   }
 
   /* Tablets stop here: touch behaviour applies, compact phone composition does not. */
