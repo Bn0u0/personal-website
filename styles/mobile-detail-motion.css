@@ -1,0 +1,65 @@
+/* Phone project-detail motion -------------------------------------------------
+   Desktop keeps the organic polygon/SVG reveal. Phones deliberately use a much
+   cheaper compositing path so iOS Safari does not have to rasterize a 64-point
+   clip-path while a full-screen dark layer, media surface and browser chrome are
+   all moving at once. The old JS can keep updating clip-path internally, but the
+   phone visual layer ignores it with !important and owns transform/opacity. */
+
+html.is-mobile-layout .project-detail{
+  clip-path:none!important;
+  -webkit-clip-path:none!important;
+  opacity:0!important;
+  transform:translate3d(0,10px,0) scale(.994)!important;
+  transform-origin:50% 50%!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+  will-change:opacity,transform!important;
+  contain:paint!important;
+  transition:
+    opacity var(--motion-ui,320ms) cubic-bezier(.2,.7,.2,1),
+    transform var(--motion-content,560ms) cubic-bezier(.16,1,.3,1),
+    visibility 0s linear var(--motion-content,560ms)!important;
+}
+
+html.is-mobile-layout .project-detail.is-open{
+  visibility:visible!important;
+  pointer-events:auto!important;
+  opacity:1!important;
+  transform:translate3d(0,0,0) scale(1)!important;
+  transition:
+    opacity var(--motion-ui,320ms) cubic-bezier(.2,.7,.2,1),
+    transform var(--motion-content,560ms) cubic-bezier(.16,1,.3,1),
+    visibility 0s!important;
+}
+
+/* Closing is intentionally shorter than opening and never uses inverse SVG
+   clipping. This avoids the occasional fractured frame / checkerboard artifact
+   reported on mobile Safari while preserving immediate press feedback. */
+html.is-mobile-layout .project-detail.is-open.is-mobile-detail-closing{
+  pointer-events:none!important;
+  opacity:0!important;
+  transform:translate3d(0,7px,0) scale(.996)!important;
+  transition:
+    opacity var(--motion-exit-content,280ms) cubic-bezier(.4,0,1,1),
+    transform var(--motion-exit-content,280ms) cubic-bezier(.4,0,1,1)!important;
+}
+
+/* The outer scene already carries the motion. Do not ask the media card to run a
+   second scale animation at the same time on a phone GPU. */
+html.is-mobile-layout .project-detail__media,
+html.is-mobile-layout .project-detail.is-open .project-detail__media{
+  transform:none!important;
+  opacity:1!important;
+  will-change:auto!important;
+  transition:none!important;
+}
+
+@media(prefers-reduced-motion:reduce){
+  html.is-mobile-layout .project-detail,
+  html.is-mobile-layout .project-detail.is-open,
+  html.is-mobile-layout .project-detail.is-open.is-mobile-detail-closing{
+    opacity:1!important;
+    transform:none!important;
+    transition:none!important;
+  }
+}
