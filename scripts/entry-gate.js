@@ -12,6 +12,7 @@
   const gate=document.querySelector('.entry-gate');
   if(!gate){
     document.documentElement.classList.remove('is-entry-gated');
+    dispatchEvent(new CustomEvent('bn0u0:entry-complete'));
     return;
   }
 
@@ -21,10 +22,16 @@
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
   let revealFallback=0;
+  let announced=false;
 
   const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   const nextPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
   const currentLanguage=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
+  const announceEntryComplete=()=>{
+    if(announced)return;
+    announced=true;
+    dispatchEvent(new CustomEvent('bn0u0:entry-complete'));
+  };
 
   /* site.js creates Lenis immediately after this file runs. Stop it on the next
      task so the entry screen owns the viewport even if a wheel event arrives. */
@@ -73,6 +80,7 @@
       gate.remove();
       document.documentElement.classList.remove('is-entry-gated');
       window.__lenis?.start?.();
+      announceEntryComplete();
     }));
   }
 
@@ -81,6 +89,7 @@
     gate.remove();
     document.documentElement.classList.remove('is-entry-gated');
     window.__lenis?.start?.();
+    announceEntryComplete();
   }
 
   async function dismissForeground(){
