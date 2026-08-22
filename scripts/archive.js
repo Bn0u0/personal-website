@@ -45,6 +45,9 @@
     exitMicro:90,exitUi:160,exitContent:280,exitScene:500,
     staggerTight:40,staggerStandard:80
   };
+  /* Sixth row starts after CONTENT + three standard staggers and now spends a
+     full UI tier entering, so keep the opening class alive through that finish. */
+  const OPEN_SEQUENCE_DURATION=MOTION.content+(MOTION.staggerStandard*3)+MOTION.ui;
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -104,8 +107,8 @@
     archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
 
-    /* CONTENT wall motion collides at 560ms; MICRO impact + 01→06 stagger
-       resolve inside the single SCENE budget of 1000ms. */
+    /* Walls travel linearly for one CONTENT tier. 01→06 then use the slower UI
+       tier, so the active opening phase lasts until row 06 has fully resolved. */
     phaseFrame=requestAnimationFrame(()=>{
       phaseFrame=0;
       archive.classList.remove('is-split-preparing');
@@ -115,7 +118,7 @@
         phaseTimer=0;
         archive.classList.remove('is-split-opening');
         archive.focus?.({preventScroll:true});
-      },MOTION.scene);
+      },OPEN_SEQUENCE_DURATION);
     });
   }
 
@@ -137,7 +140,7 @@
     if(detail?.classList.contains('is-open'))return;
     if(reduced){finishClose();return}
 
-    /* Exit always uses the exact 0.5× SCENE derivative. */
+    /* Exit remains the exact 0.5× derivative of the slower UI row tier. */
     clearPhaseTimer();
     archive.classList.remove('is-split-preparing','is-split-opening');
     archive.classList.add('is-open','is-split-closing');
