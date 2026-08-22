@@ -1,6 +1,8 @@
 /* Mobile / Touch layer
-   The desktop visual language is preserved, but pointer-only affordances are
-   replaced with direct touch feedback, safe-area spacing and cheaper surfaces. */
+   IMPORTANT: every phone layout rule is scoped behind .is-mobile-layout, which
+   is set only by scripts/mobile.js after a touch + phone-size capability check.
+   Desktop CSS remains the canonical desktop implementation and is not overridden
+   merely because a desktop browser window becomes narrow. */
 :root{
   --safe-top:env(safe-area-inset-top,0px);
   --safe-right:env(safe-area-inset-right,0px);
@@ -9,219 +11,329 @@
   --touch-target:44px;
 }
 
-@media(pointer:coarse), (hover:none){
-  html,body{overscroll-behavior-x:none}
-
-  /* A mouse proxy has no semantic value on touch. Remove it entirely rather
-     than leaving the desktop black point stranded in the viewport. */
-  .cursor{display:none!important;visibility:hidden!important;opacity:0!important}
-  .elastic-grid-canvas--global{display:none!important}
-  .profile-card{display:none!important}
-
-  body,a,button,.project-row,[data-cursor],.magnetic{cursor:auto!important}
-  a,button,.project-row{
-    -webkit-tap-highlight-color:transparent;
-    touch-action:manipulation;
-  }
-
-  /* Do not let simulated/sticky :hover states move content after a tap. Focus
-     remains available for keyboard users; touch receives a short press state. */
-  #work .project-item:hover .project-row,
-  .project-archive .project-item:hover .project-row{
-    color:inherit!important;
-    padding-left:0!important;
-    padding-right:0!important;
-  }
-  #work .project-item:hover .project-row::before,
-  .project-archive .project-item:hover .project-row::before{transform:scaleY(0)!important}
-  #work .project-item:hover .project-row__title,
-  .project-archive .project-item:hover .project-row__title{transform:none!important}
-  #work .project-item:hover .project-hover-info,
-  #work .project-item:hover .project-row__action{opacity:0!important}
-
-  .project-row:active,
-  .work-more:active,
-  .section-scroll-cue:active,
-  .project-archive__close:active,
-  .project-detail__close:active,
-  .about-ai__explore:active,
-  .ai-depth__next:active,
-  .ai-depth__step:active{
-    opacity:.68!important;
-  }
-
-  /* Blur over a continuously scrolling surface is expensive on mobile GPUs.
-     Use an almost-opaque sticky surface instead; visually it reads the same. */
-  .project-archive__top{
-    background:rgba(242,240,235,.985)!important;
-    backdrop-filter:none!important;
-    -webkit-backdrop-filter:none!important;
-  }
-
-  /* Invisible hit-area expansion: visual sizing stays minimal while touch
-     controls meet a roughly 44px interaction target. */
-  .nav>a,
-  .nav-about__trigger,
-  .language-toggle,
-  .work-more,
-  .section-scroll-cue,
-  .project-archive__close,
-  .project-detail__close{
-    position:relative!important;
-  }
-  .nav>a::after,
-  .nav-about__trigger::after,
-  .language-toggle::after,
-  .work-more::after,
-  .section-scroll-cue::after,
-  .project-archive__close::after,
-  .project-detail__close::after{
-    content:"";
-    position:absolute;
-    left:-10px;
-    right:-10px;
-    top:50%;
-    height:var(--touch-target);
-    transform:translateY(-50%);
-  }
+/* Touch behavior shared by phones/tablets. No desktop mouse substitute. */
+html.is-touch-ui,
+html.is-touch-ui body{overscroll-behavior-x:none}
+html.is-touch-ui .cursor{display:none!important;visibility:hidden!important;opacity:0!important}
+html.is-touch-ui .elastic-grid-canvas--global{display:none!important}
+html.is-touch-ui .profile-card{display:none!important}
+html.is-touch-ui body,
+html.is-touch-ui a,
+html.is-touch-ui button,
+html.is-touch-ui .project-row,
+html.is-touch-ui [data-cursor],
+html.is-touch-ui .magnetic{cursor:auto!important}
+html.is-touch-ui a,
+html.is-touch-ui button,
+html.is-touch-ui .project-row{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
 
-@media(max-width:700px){
-  html{scroll-padding-top:calc(var(--safe-top) + 64px)}
+/* Simulated :hover after a tap must never move the phone layout. */
+html.is-touch-ui #work .project-item:hover .project-row,
+html.is-touch-ui .project-archive .project-item:hover .project-row{
+  color:inherit!important;
+  padding-left:0!important;
+  padding-right:0!important;
+}
+html.is-touch-ui #work .project-item:hover .project-row::before,
+html.is-touch-ui .project-archive .project-item:hover .project-row::before{transform:scaleY(0)!important}
+html.is-touch-ui #work .project-item:hover .project-row__title,
+html.is-touch-ui .project-archive .project-item:hover .project-row__title{transform:none!important}
+html.is-touch-ui #work .project-item:hover .project-hover-info,
+html.is-touch-ui #work .project-item:hover .project-row__action{opacity:0!important}
 
-  .site-header{
-    padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-  }
+html.is-touch-ui .project-row:active,
+html.is-touch-ui .work-more:active,
+html.is-touch-ui .mobile-flow-cue:active,
+html.is-touch-ui .project-archive__close:active,
+html.is-touch-ui .project-detail__close:active,
+html.is-touch-ui .about-ai__explore:active,
+html.is-touch-ui .ai-depth__next:active,
+html.is-touch-ui .ai-depth__step:active{opacity:.68!important}
 
-  .hero,
-  .work,
-  .manifesto,
-  html body .about-ai{
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-  }
-
-  .hero{
-    min-height:100dvh;
-    padding-bottom:max(36px,calc(var(--safe-bottom) + 22px))!important;
-  }
-  .hero__title{
-    font-size:clamp(50px,16vw,92px)!important;
-    line-height:.90!important;
-  }
-
-  .work{
-    min-height:100dvh;
-    padding-bottom:max(92px,calc(var(--safe-bottom) + 78px))!important;
-  }
-  #work>.work__stage .project-row{height:clamp(94px,12.5dvh,110px)!important}
-  #work .project-row__title{font-size:clamp(23px,7.6vw,36px)!important}
-
-  /* Bottom actions preserve their desktop baseline but clear the home indicator. */
-  html body .work-more,
-  html body .section-scroll-cue,
-  html body .work-scroll-cue.section-scroll-cue{
-    bottom:max(24px,calc(var(--safe-bottom) + 14px))!important;
-  }
-
-  .project-detail__top{
-    padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-  }
-  .project-detail__hero,
-  .project-detail__below{
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-  }
-  .project-detail__hero{
-    min-height:100dvh!important;
-    padding-top:max(82px,calc(var(--safe-top) + 72px))!important;
-  }
-  .project-detail__title{font-size:clamp(44px,14vw,76px)!important}
-  .project-detail__media{min-height:clamp(300px,43dvh,520px)!important}
-  .project-detail__below{padding-bottom:max(80px,calc(var(--safe-bottom) + 56px))!important}
-
-  .project-archive__top{
-    padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-  }
-  .project-archive__content{
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-    padding-bottom:max(54px,calc(var(--safe-bottom) + 34px))!important;
-  }
-  .project-archive__heading h2{font-size:clamp(38px,12vw,58px)!important}
-
-  /* About / 002 is no longer forced into exactly one physical phone viewport.
-     It still starts as a full-screen composition, but can grow naturally when
-     CJK wrapping, a short device, or browser chrome would otherwise collide. */
-  html body .about-ai{
-    height:auto!important;
-    min-height:100dvh!important;
-    max-height:none!important;
-    overflow:visible!important;
-    padding-top:max(104px,calc(var(--safe-top) + 86px))!important;
-    padding-bottom:max(106px,calc(var(--safe-bottom) + 82px))!important;
-  }
-  html body .about-ai__kicker{margin-bottom:44px!important}
-  html body .about-ai__statement{
-    font-size:clamp(40px,11.8vw,60px)!important;
-    line-height:.94!important;
-  }
-  html body .about-ai__grid{
-    margin-top:clamp(48px,8dvh,76px)!important;
-    padding-bottom:0!important;
-  }
-  html body .about-ai__intro{
-    max-width:100%!important;
-    font-size:13px!important;
-    line-height:1.48!important;
-  }
-  html body .about-ai__history{
-    position:relative!important;
-    left:auto!important;
-    right:auto!important;
-    bottom:auto!important;
-    width:100%!important;
-    margin-top:44px!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  }
-  html body .about-ai__explore{
-    grid-column:1 / -1!important;
-    min-height:44px!important;
-    width:min(240px,100%)!important;
-  }
-
-  html body .ai-depth{
-    height:100dvh!important;
-    padding-top:max(24px,calc(var(--safe-top) + 18px))!important;
-    padding-bottom:max(26px,calc(var(--safe-bottom) + 18px))!important;
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-  }
-
-  .site-footer{
-    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
-    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
-    padding-bottom:max(30px,calc(var(--safe-bottom) + 22px))!important;
-  }
+/* Mobile GPU: avoid live blur on a scrolling sticky archive bar. */
+html.is-touch-ui .project-archive__top{
+  background:rgba(242,240,235,.985)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
 }
 
-/* Short landscape phones need their own vertical treatment; width-only media
-   queries are insufficient when browser chrome consumes half the viewport. */
+/* PHONE LAYOUT ------------------------------------------------------------ */
+html.is-mobile-layout{scroll-padding-top:calc(var(--safe-top) + 64px)}
+
+html.is-mobile-layout .site-header{
+  padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+}
+html.is-mobile-layout .nav{gap:10px!important}
+html.is-mobile-layout .nav a{font-size:10px!important}
+html.is-mobile-layout .language-toggle{width:62px!important;height:26px!important}
+
+html.is-mobile-layout .hero,
+html.is-mobile-layout .work,
+html.is-mobile-layout .manifesto,
+html.is-mobile-layout body .about-ai{
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+}
+
+html.is-mobile-layout .hero{
+  min-height:100dvh!important;
+  padding-top:max(92px,calc(var(--safe-top) + 76px))!important;
+  padding-bottom:max(88px,calc(var(--safe-bottom) + 68px))!important;
+}
+html.is-mobile-layout .hero__title{
+  font-size:clamp(50px,16vw,92px)!important;
+  line-height:.90!important;
+}
+html.is-mobile-layout .hero__eyebrow span:last-child,
+html.is-mobile-layout .hero__footer p{display:none!important}
+html.is-mobile-layout .hero__footer{justify-content:flex-end!important}
+
+/* The desktop owns one cue per section. Phones use one persistent viewport cue
+   instead, so the visitor can keep tapping the exact same screen coordinate. */
+html.is-mobile-layout .section-scroll-cue,
+html.is-mobile-layout .hero__footer .scroll-cue,
+html.is-mobile-layout .work-scroll-cue{display:none!important}
+
+.mobile-flow-cue{display:none}
+html.is-mobile-layout .mobile-flow-cue{
+  position:fixed;
+  right:max(20px,calc(var(--safe-right) + 16px));
+  bottom:max(22px,calc(var(--safe-bottom) + 16px));
+  z-index:250;
+  min-width:var(--touch-target);
+  min-height:var(--touch-target);
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:rgba(18,18,18,.58);
+  display:inline-flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  font:inherit;
+  font-size:9px;
+  line-height:1;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  opacity:.88;
+  transition:opacity var(--motion-micro,180ms) ease,color var(--motion-micro,180ms) ease;
+  -webkit-tap-highlight-color:transparent;
+}
+html.is-mobile-layout .mobile-flow-cue.is-on-dark{color:rgba(242,240,235,.68)}
+html.is-mobile-layout .mobile-flow-cue__arrow{
+  display:inline-block;
+  font-size:12px;
+  transform:translateY(-1px);
+}
+html.is-mobile-layout .mobile-flow-cue[hidden]{display:none!important}
+html.is-entry-gated .mobile-flow-cue,
+body.is-archive-open .mobile-flow-cue,
+body.is-detail-open .mobile-flow-cue,
+body.is-ai-depth-open .mobile-flow-cue{display:none!important;pointer-events:none!important}
+
+/* Selected Work — phone-native two-column editorial rows.
+   Number stays on the left; title + date share one flexible content column.
+   This removes the title/date collision visible on 390–430px iPhones. */
+html.is-mobile-layout .work{
+  min-height:100dvh!important;
+  height:auto!important;
+  padding-top:max(90px,calc(var(--safe-top) + 74px))!important;
+  padding-bottom:max(112px,calc(var(--safe-bottom) + 92px))!important;
+}
+html.is-mobile-layout .work__stage{
+  display:block!important;
+  width:100%!important;
+  padding:28px 0 0!important;
+}
+html.is-mobile-layout #work>.work__stage .project-row{
+  width:100%!important;
+  height:auto!important;
+  min-height:104px!important;
+  padding:18px 0 17px!important;
+  display:grid!important;
+  grid-template-columns:28px minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  column-gap:14px!important;
+  row-gap:9px!important;
+  align-items:start!important;
+}
+html.is-mobile-layout #work .project-row__number{
+  grid-column:1!important;
+  grid-row:1!important;
+  align-self:start!important;
+  padding-top:.45em!important;
+  font-size:9px!important;
+  opacity:.56!important;
+}
+html.is-mobile-layout #work .project-row__title-wrap{
+  grid-column:2!important;
+  grid-row:1!important;
+  height:auto!important;
+  min-width:0!important;
+  align-items:flex-start!important;
+}
+html.is-mobile-layout #work .project-row__title{
+  max-width:100%!important;
+  font-size:clamp(28px,8.5vw,38px)!important;
+  line-height:.93!important;
+  letter-spacing:-.052em!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+}
+html.is-mobile-layout #work .project-row__year{
+  grid-column:2!important;
+  grid-row:2!important;
+  justify-self:start!important;
+  width:100%!important;
+  text-align:left!important;
+  white-space:normal!important;
+  font-size:8px!important;
+  line-height:1.25!important;
+  letter-spacing:.07em!important;
+  opacity:.46!important;
+}
+html.is-mobile-layout #work .project-row__meta,
+html.is-mobile-layout #work .project-row__action,
+html.is-mobile-layout #work .project-hover-info{display:none!important}
+html.is-mobile-layout .work-more{
+  bottom:max(26px,calc(var(--safe-bottom) + 18px))!important;
+  min-height:44px!important;
+}
+
+/* Project detail */
+html.is-mobile-layout .project-detail__top{
+  padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+}
+html.is-mobile-layout .project-detail__hero,
+html.is-mobile-layout .project-detail__below{
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+}
+html.is-mobile-layout .project-detail__hero{
+  min-height:100dvh!important;
+  padding-top:max(82px,calc(var(--safe-top) + 72px))!important;
+}
+html.is-mobile-layout .project-detail__title{font-size:clamp(44px,14vw,76px)!important}
+html.is-mobile-layout .project-detail__media{min-height:clamp(300px,43dvh,520px)!important}
+html.is-mobile-layout .project-detail__below{padding-bottom:max(80px,calc(var(--safe-bottom) + 56px))!important}
+
+/* Archive */
+html.is-mobile-layout .project-archive__top{
+  padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+}
+html.is-mobile-layout .project-archive__content{
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  padding-bottom:max(54px,calc(var(--safe-bottom) + 34px))!important;
+}
+html.is-mobile-layout .project-archive__heading{grid-template-columns:1fr!important;gap:18px!important}
+html.is-mobile-layout .project-archive__heading p{text-align:left!important}
+html.is-mobile-layout .project-archive__heading h2{font-size:clamp(38px,12vw,58px)!important}
+html.is-mobile-layout .project-archive .project-row{
+  height:auto!important;
+  min-height:76px!important;
+  grid-template-columns:28px minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  gap:7px 12px!important;
+  padding:14px 0!important;
+}
+html.is-mobile-layout .project-archive .project-row__number{grid-column:1;grid-row:1;padding-top:.35em}
+html.is-mobile-layout .project-archive .project-row__title-wrap{grid-column:2;grid-row:1;height:auto!important}
+html.is-mobile-layout .project-archive .project-row__year{
+  grid-column:2!important;
+  grid-row:2!important;
+  text-align:left!important;
+  justify-self:start!important;
+  font-size:8px!important;
+  opacity:.48!important;
+}
+html.is-mobile-layout .project-archive .project-row__meta{display:none!important}
+html.is-mobile-layout .project-archive .project-row__title{font-size:clamp(22px,7vw,30px)!important}
+
+/* About / 002 can grow on phones. Desktop remains exactly one viewport. */
+html.is-mobile-layout body .about-ai{
+  height:auto!important;
+  min-height:100dvh!important;
+  max-height:none!important;
+  overflow:visible!important;
+  padding-top:max(104px,calc(var(--safe-top) + 86px))!important;
+  padding-bottom:max(118px,calc(var(--safe-bottom) + 94px))!important;
+}
+html.is-mobile-layout body .about-ai__kicker{margin-bottom:44px!important}
+html.is-mobile-layout body .about-ai__statement{
+  font-size:clamp(40px,11.8vw,60px)!important;
+  line-height:.94!important;
+}
+html.is-mobile-layout body .about-ai__grid{
+  margin-top:clamp(48px,8dvh,76px)!important;
+  padding-bottom:0!important;
+}
+html.is-mobile-layout body .about-ai__intro{max-width:100%!important;font-size:13px!important;line-height:1.48!important}
+html.is-mobile-layout body .about-ai__history{
+  position:relative!important;
+  left:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  margin-top:44px!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+html.is-mobile-layout body .about-ai__explore{
+  grid-column:1 / -1!important;
+  min-height:44px!important;
+  width:min(240px,100%)!important;
+}
+html.is-mobile-layout body .ai-depth{
+  height:100dvh!important;
+  padding-top:max(24px,calc(var(--safe-top) + 18px))!important;
+  padding-bottom:max(26px,calc(var(--safe-bottom) + 18px))!important;
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+}
+
+html.is-mobile-layout .site-footer{
+  padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+  padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  padding-bottom:max(30px,calc(var(--safe-bottom) + 22px))!important;
+}
+
+/* Invisible hit area expansion without changing visual size. */
+html.is-touch-ui .nav>a,
+html.is-touch-ui .nav-about__trigger,
+html.is-touch-ui .language-toggle,
+html.is-touch-ui .work-more,
+html.is-touch-ui .project-archive__close,
+html.is-touch-ui .project-detail__close{position:relative!important}
+html.is-touch-ui .nav>a::after,
+html.is-touch-ui .nav-about__trigger::after,
+html.is-touch-ui .language-toggle::after,
+html.is-touch-ui .work-more::after,
+html.is-touch-ui .project-archive__close::after,
+html.is-touch-ui .project-detail__close::after{
+  content:"";
+  position:absolute;
+  left:-10px;
+  right:-10px;
+  top:50%;
+  height:var(--touch-target);
+  transform:translateY(-50%);
+}
+
+/* Short landscape phones: phone classification is orientation-independent. */
 @media(max-height:560px) and (orientation:landscape){
-  .hero{min-height:100dvh;padding-top:max(72px,calc(var(--safe-top) + 58px))!important}
-  .hero__title{font-size:clamp(42px,11vw,72px)!important}
-  .work{padding-top:76px!important}
-  html body .about-ai{
-    height:auto!important;
-    min-height:100dvh!important;
-    max-height:none!important;
-    overflow:visible!important;
-  }
-  .project-detail__hero{padding-top:max(70px,calc(var(--safe-top) + 56px))!important}
+  html.is-mobile-layout .hero{min-height:100dvh!important;padding-top:max(72px,calc(var(--safe-top) + 58px))!important}
+  html.is-mobile-layout .hero__title{font-size:clamp(42px,11vw,72px)!important}
+  html.is-mobile-layout .work{padding-top:76px!important}
+  html.is-mobile-layout body .about-ai{height:auto!important;min-height:100dvh!important;max-height:none!important;overflow:visible!important}
+  html.is-mobile-layout .project-detail__hero{padding-top:max(70px,calc(var(--safe-top) + 56px))!important}
 }
