@@ -1,0 +1,227 @@
+/* Mobile / Touch layer
+   The desktop visual language is preserved, but pointer-only affordances are
+   replaced with direct touch feedback, safe-area spacing and cheaper surfaces. */
+:root{
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-right:env(safe-area-inset-right,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left:env(safe-area-inset-left,0px);
+  --touch-target:44px;
+}
+
+@media(pointer:coarse), (hover:none){
+  html,body{overscroll-behavior-x:none}
+
+  /* A mouse proxy has no semantic value on touch. Remove it entirely rather
+     than leaving the desktop black point stranded in the viewport. */
+  .cursor{display:none!important;visibility:hidden!important;opacity:0!important}
+  .elastic-grid-canvas--global{display:none!important}
+  .profile-card{display:none!important}
+
+  body,a,button,.project-row,[data-cursor],.magnetic{cursor:auto!important}
+  a,button,.project-row{
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+
+  /* Do not let simulated/sticky :hover states move content after a tap. Focus
+     remains available for keyboard users; touch receives a short press state. */
+  #work .project-item:hover .project-row,
+  .project-archive .project-item:hover .project-row{
+    color:inherit!important;
+    padding-left:0!important;
+    padding-right:0!important;
+  }
+  #work .project-item:hover .project-row::before,
+  .project-archive .project-item:hover .project-row::before{transform:scaleY(0)!important}
+  #work .project-item:hover .project-row__title,
+  .project-archive .project-item:hover .project-row__title{transform:none!important}
+  #work .project-item:hover .project-hover-info,
+  #work .project-item:hover .project-row__action{opacity:0!important}
+
+  .project-row:active,
+  .work-more:active,
+  .section-scroll-cue:active,
+  .project-archive__close:active,
+  .project-detail__close:active,
+  .about-ai__explore:active,
+  .ai-depth__next:active,
+  .ai-depth__step:active{
+    opacity:.68!important;
+  }
+
+  /* Blur over a continuously scrolling surface is expensive on mobile GPUs.
+     Use an almost-opaque sticky surface instead; visually it reads the same. */
+  .project-archive__top{
+    background:rgba(242,240,235,.985)!important;
+    backdrop-filter:none!important;
+    -webkit-backdrop-filter:none!important;
+  }
+
+  /* Invisible hit-area expansion: visual sizing stays minimal while touch
+     controls meet a roughly 44px interaction target. */
+  .nav>a,
+  .nav-about__trigger,
+  .language-toggle,
+  .work-more,
+  .section-scroll-cue,
+  .project-archive__close,
+  .project-detail__close{
+    position:relative!important;
+  }
+  .nav>a::after,
+  .nav-about__trigger::after,
+  .language-toggle::after,
+  .work-more::after,
+  .section-scroll-cue::after,
+  .project-archive__close::after,
+  .project-detail__close::after{
+    content:"";
+    position:absolute;
+    left:-10px;
+    right:-10px;
+    top:50%;
+    height:var(--touch-target);
+    transform:translateY(-50%);
+  }
+}
+
+@media(max-width:700px){
+  html{scroll-padding-top:calc(var(--safe-top) + 64px)}
+
+  .site-header{
+    padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  }
+
+  .hero,
+  .work,
+  .manifesto,
+  html body .about-ai{
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  }
+
+  .hero{
+    min-height:100dvh;
+    padding-bottom:max(36px,calc(var(--safe-bottom) + 22px))!important;
+  }
+  .hero__title{
+    font-size:clamp(50px,16vw,92px)!important;
+    line-height:.90!important;
+  }
+
+  .work{
+    min-height:100dvh;
+    padding-bottom:max(92px,calc(var(--safe-bottom) + 78px))!important;
+  }
+  #work>.work__stage .project-row{height:clamp(94px,12.5dvh,110px)!important}
+  #work .project-row__title{font-size:clamp(23px,7.6vw,36px)!important}
+
+  /* Bottom actions preserve their desktop baseline but clear the home indicator. */
+  html body .work-more,
+  html body .section-scroll-cue,
+  html body .work-scroll-cue.section-scroll-cue{
+    bottom:max(24px,calc(var(--safe-bottom) + 14px))!important;
+  }
+
+  .project-detail__top{
+    padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  }
+  .project-detail__hero,
+  .project-detail__below{
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  }
+  .project-detail__hero{
+    min-height:100dvh!important;
+    padding-top:max(82px,calc(var(--safe-top) + 72px))!important;
+  }
+  .project-detail__title{font-size:clamp(44px,14vw,76px)!important}
+  .project-detail__media{min-height:clamp(300px,43dvh,520px)!important}
+  .project-detail__below{padding-bottom:max(80px,calc(var(--safe-bottom) + 56px))!important}
+
+  .project-archive__top{
+    padding-top:max(16px,calc(var(--safe-top) + 10px))!important;
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  }
+  .project-archive__content{
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+    padding-bottom:max(54px,calc(var(--safe-bottom) + 34px))!important;
+  }
+  .project-archive__heading h2{font-size:clamp(38px,12vw,58px)!important}
+
+  /* About / 002 is no longer forced into exactly one physical phone viewport.
+     It still starts as a full-screen composition, but can grow naturally when
+     CJK wrapping, a short device, or browser chrome would otherwise collide. */
+  html body .about-ai{
+    height:auto!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding-top:max(104px,calc(var(--safe-top) + 86px))!important;
+    padding-bottom:max(106px,calc(var(--safe-bottom) + 82px))!important;
+  }
+  html body .about-ai__kicker{margin-bottom:44px!important}
+  html body .about-ai__statement{
+    font-size:clamp(40px,11.8vw,60px)!important;
+    line-height:.94!important;
+  }
+  html body .about-ai__grid{
+    margin-top:clamp(48px,8dvh,76px)!important;
+    padding-bottom:0!important;
+  }
+  html body .about-ai__intro{
+    max-width:100%!important;
+    font-size:13px!important;
+    line-height:1.48!important;
+  }
+  html body .about-ai__history{
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    width:100%!important;
+    margin-top:44px!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  html body .about-ai__explore{
+    grid-column:1 / -1!important;
+    min-height:44px!important;
+    width:min(240px,100%)!important;
+  }
+
+  html body .ai-depth{
+    height:100dvh!important;
+    padding-top:max(24px,calc(var(--safe-top) + 18px))!important;
+    padding-bottom:max(26px,calc(var(--safe-bottom) + 18px))!important;
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+  }
+
+  .site-footer{
+    padding-left:max(var(--pad),calc(var(--safe-left) + 16px))!important;
+    padding-right:max(var(--pad),calc(var(--safe-right) + 16px))!important;
+    padding-bottom:max(30px,calc(var(--safe-bottom) + 22px))!important;
+  }
+}
+
+/* Short landscape phones need their own vertical treatment; width-only media
+   queries are insufficient when browser chrome consumes half the viewport. */
+@media(max-height:560px) and (orientation:landscape){
+  .hero{min-height:100dvh;padding-top:max(72px,calc(var(--safe-top) + 58px))!important}
+  .hero__title{font-size:clamp(42px,11vw,72px)!important}
+  .work{padding-top:76px!important}
+  html body .about-ai{
+    height:auto!important;
+    min-height:100dvh!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .project-detail__hero{padding-top:max(70px,calc(var(--safe-top) + 56px))!important}
+}
