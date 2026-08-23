@@ -5,8 +5,6 @@
   const detail=document.querySelector('.project-detail');
   if(!archive||!trigger||!close)return;
 
-  /* Fallback for older cached HTML. Current index.html loads this stylesheet
-     directly so the first click cannot race the animation CSS. */
   if(!document.querySelector('link[data-archive-reindex]')){
     const link=document.createElement('link');
     link.rel='stylesheet';
@@ -40,14 +38,27 @@
     }
   };
 
-  const MOTION=window.__motion||{
+  const BASE=window.__motion||{
     micro:180,ui:320,content:560,scene:1000,
     exitMicro:90,exitUi:160,exitContent:280,exitScene:500,
     staggerTight:40,staggerStandard:80
   };
-  /* Sixth row starts after CONTENT + three standard staggers and now spends a
-     full CONTENT tier entering, so keep the opening class alive through it. */
-  const OPEN_SEQUENCE_DURATION=MOTION.content+(MOTION.staggerStandard*3)+MOTION.content;
+  const cssMs=(name,fallback)=>{
+    const raw=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const value=parseFloat(raw);
+    if(!Number.isFinite(value))return fallback;
+    return raw.endsWith('s')&&!raw.endsWith('ms')?value*1000:value;
+  };
+  const MOTION={
+    ...BASE,
+    editorial:cssMs('--motion-editorial',760),
+    showcase:cssMs('--motion-showcase',920)
+  };
+
+  /* Sixth row begins after SHOWCASE + three standard staggers, then receives a
+     full EDITORIAL beat. Keep the opening state alive until that final row has
+     actually settled so CSS never snaps back mid-performance. */
+  const OPEN_SEQUENCE_DURATION=MOTION.showcase+(MOTION.staggerStandard*3)+MOTION.editorial;
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -107,8 +118,6 @@
     archive.classList.add('is-split-preparing');
     void archive.offsetWidth;
 
-    /* Walls use the stronger accelerating CONTENT motion. 01→06 now also use
-       the CONTENT tier, so the phase lasts until the slower sixth row settles. */
     phaseFrame=requestAnimationFrame(()=>{
       phaseFrame=0;
       archive.classList.remove('is-split-preparing');
@@ -140,7 +149,6 @@
     if(detail?.classList.contains('is-open'))return;
     if(reduced){finishClose();return}
 
-    /* Exit remains the 0.5× derivative of the CONTENT row tier. */
     clearPhaseTimer();
     archive.classList.remove('is-split-preparing','is-split-opening');
     archive.classList.add('is-open','is-split-closing');
@@ -153,7 +161,6 @@
 
   trigger.addEventListener('click',openArchive);
 
-  /* Pointer users start the reverse on press rather than release. */
   close.addEventListener('pointerdown',event=>{
     if(event.pointerType==='mouse'&&event.button!==0)return;
     event.preventDefault();
@@ -171,8 +178,6 @@
     if(archive.classList.contains('is-open')||archive.classList.contains('is-split-preparing'))closeArchive();
   });
 
-  /* Project Detail owns its own Lenis stop/start cycle. If it closes back into
-     this modal index, immediately keep page Lenis stopped so only archive scroll moves. */
   if(detail)new MutationObserver(()=>{
     if(archive.classList.contains('is-open')&&!detail.classList.contains('is-open')){
       requestAnimationFrame(()=>window.__lenis?.stop?.());
@@ -183,7 +188,6 @@
   if(heading)new MutationObserver(()=>requestAnimationFrame(applyCopy)).observe(heading,{childList:true,characterData:true,subtree:true});
   new MutationObserver(applyCopy).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
 
-  /* Language wipe remains UI-scale; its small stagger uses only shared spacing tiers. */
   document.addEventListener('click',event=>{
     if(!event.target.closest?.('.language-toggle')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
     const els=[...document.querySelectorAll('.work-more,.project-archive__identity,.project-archive__heading,.project-archive__close,.project-archive__footer')];
