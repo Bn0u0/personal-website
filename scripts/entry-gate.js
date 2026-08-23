@@ -29,8 +29,6 @@
     dispatchEvent(new CustomEvent('bn0u0:home-intro-start'));
   };
 
-  /* site.js creates Lenis immediately after this file runs. Stop it on the next
-     task so the entry screen owns the viewport even if a wheel event arrives. */
   setTimeout(()=>window.__lenis?.stop?.(),0);
 
   function applyPreferredLanguage(next){
@@ -149,6 +147,11 @@
       languageReady,
       delay(MOTION.content)
     ]);
+
+    /* Let the completed word exist for one MICRO beat. This is long enough to
+       register as intentional, but the pause occurs before dismissal; once the
+       word is gone, the hero/background handoff remains immediate. */
+    await delay(MOTION.micro);
 
     await dismissForeground();
     startFinalReveal();
