@@ -219,7 +219,7 @@
 
     const from=detailRadius;
     const to=opening?detailMaxRadius:2;
-    const duration=opening?MOTION.scene:MOTION.exitScene;
+    const duration=opening?MOTION.scene*2:MOTION.exitScene;
     const started=performance.now();
 
     const frame=now=>{
