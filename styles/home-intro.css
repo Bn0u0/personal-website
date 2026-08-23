@@ -13,9 +13,8 @@ html.is-home-intro-pending .nav{
 
 /* Slant invariant ---------------------------------------------------------
    The permanent line wrapper owns the title angle. The intro never animates
-   skew/rotation on this node, and the glyph nodes inside it now remain in the
-   DOM after the intro, so the final painted frame and the resting layout use
-   the exact same box tree. */
+   skew/rotation on this node, and the glyph nodes inside it remain in the DOM
+   after the intro, so the final painted frame and resting layout share one tree. */
 html.is-home-intro-pending .hero__line>span,
 html.is-home-intro-running .hero__line>span,
 html.is-home-intro-complete .hero__line>span{
@@ -37,9 +36,8 @@ html.is-home-intro-running .nav{
   visibility:visible!important;
 }
 
-/* The same overflow geometry is kept after completion. Reverting to the base
-   overflow:hidden at cleanup used to shave the skewed edges in one frame and
-   amplified the impression that the title had snapped straight. */
+/* Keep identical line geometry after completion so the skew never appears to
+   change when choreography classes are removed. */
 html.is-home-intro-running .hero__line,
 html.is-home-intro-complete .hero__line{
   overflow:visible!important;
@@ -59,17 +57,22 @@ html.is-home-intro-running .hero__footer{
   transform:none!important;
 }
 
-/* Featured typography gets the EDITORIAL tier. */
+/* Shared editorial headline language -------------------------------------
+   This intentionally mirrors About / 002 and the same family used by 001:
+   a small lower-left offset, shallow blur and opacity resolve over EDITORIAL
+   timing with the 40ms character cadence. No scale/bounce is involved. */
 .home-intro-char{
   display:inline-block;
   opacity:0;
-  transform:translate3d(0,.22em,0) scale(.985);
+  filter:blur(3px);
+  transform:translate3d(-.025em,.18em,0) rotate(0);
   transform-origin:50% 72%;
-  will-change:transform,opacity;
+  will-change:opacity,transform,filter;
 }
 .home-intro-char.is-space{
   width:.29em;
   opacity:1;
+  filter:none;
   transform:none;
   will-change:auto;
 }
@@ -79,24 +82,31 @@ html.is-home-intro-running .home-intro-char:not(.is-space){
 }
 
 @keyframes homeIntroGlyph{
-  0%{opacity:0;transform:translate3d(0,.22em,0) scale(.985)}
-  34%{opacity:.44;transform:translate3d(0,.125em,0) scale(.991)}
-  68%{opacity:.88;transform:translate3d(0,.028em,0) scale(.998)}
-  100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  from{
+    opacity:0;
+    filter:blur(3px);
+    transform:translate3d(-.025em,.18em,0) rotate(0);
+  }
+  to{
+    opacity:1;
+    filter:blur(0);
+    transform:translate3d(0,0,0) rotate(0);
+  }
 }
 
-/* Completion is not a new visual state. These values are deliberately identical
-   to the 100% keyframe so removing the choreography classes cannot move a glyph
-   even one sub-pixel. */
+/* Completion is exactly the animation's last frame. No DOM swap and no new
+   geometry means the title cannot jump after the entrance finishes. */
 html.is-home-intro-complete .home-intro-char{
   opacity:1!important;
-  transform:translate3d(0,0,0) scale(1)!important;
+  filter:blur(0)!important;
+  transform:translate3d(0,0,0) rotate(0)!important;
   animation:none!important;
   transition:none!important;
   will-change:auto!important;
 }
 html.is-home-intro-complete .home-intro-char.is-space{
   width:.29em;
+  filter:none!important;
   transform:none!important;
 }
 
@@ -157,13 +167,22 @@ html.is-home-intro-running.is-home-intro-logo .brand-avatar{
   html.is-home-intro-complete .hero__line>span{
     transform:skewX(-4.5deg)!important;
   }
-  .home-intro-char{transform:translate3d(0,.17em,0) scale(.99)}
-  @keyframes homeIntroGlyph{
-    0%{opacity:0;transform:translate3d(0,.17em,0) scale(.99)}
-    34%{opacity:.46;transform:translate3d(0,.10em,0) scale(.994)}
-    68%{opacity:.88;transform:translate3d(0,.022em,0) scale(.999)}
-    100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+
+  /* Phones use the exact low-cost title profile already used by 001 / 002:
+     opacity + .12em vertical resolve, with no blur/raster work on Safari. */
+  .home-intro-char{
+    filter:none!important;
+    transform:translate3d(0,.12em,0) rotate(0);
+    will-change:opacity,transform;
   }
+  html.is-home-intro-running .home-intro-char:not(.is-space){
+    animation-name:homeIntroGlyphPhone;
+  }
+  @keyframes homeIntroGlyphPhone{
+    from{opacity:0;transform:translate3d(0,.12em,0) rotate(0)}
+    to{opacity:1;transform:translate3d(0,0,0) rotate(0)}
+  }
+
   html.is-home-intro-running .nav,
   html.is-home-intro-running .hero__eyebrow>span:last-child,
   html.is-home-intro-running .hero__footer .scroll-cue{transform:translate3d(-32px,0,0)!important}
@@ -180,6 +199,6 @@ html.is-home-intro-running.is-home-intro-logo .brand-avatar{
   html.is-home-intro-pending .nav{
     visibility:visible!important;
   }
-  .home-intro-char{opacity:1!important;transform:none!important;animation:none!important}
+  .home-intro-char{opacity:1!important;filter:none!important;transform:none!important;animation:none!important}
   html.is-home-intro-running .brand-avatar{animation:none!important}
 }
