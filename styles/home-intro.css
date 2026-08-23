@@ -12,8 +12,10 @@ html.is-home-intro-pending .nav{
 }
 
 /* Slant invariant ---------------------------------------------------------
-   The line wrapper survives buildGlyphs() and unwrap(), so it permanently owns
-   the title angle. Intro animation never touches this transform. */
+   The permanent line wrapper owns the title angle. The intro never animates
+   skew/rotation on this node, and the glyph nodes inside it now remain in the
+   DOM after the intro, so the final painted frame and the resting layout use
+   the exact same box tree. */
 html.is-home-intro-pending .hero__line>span,
 html.is-home-intro-running .hero__line>span,
 html.is-home-intro-complete .hero__line>span{
@@ -35,6 +37,14 @@ html.is-home-intro-running .nav{
   visibility:visible!important;
 }
 
+/* The same overflow geometry is kept after completion. Reverting to the base
+   overflow:hidden at cleanup used to shave the skewed edges in one frame and
+   amplified the impression that the title had snapped straight. */
+html.is-home-intro-running .hero__line,
+html.is-home-intro-complete .hero__line{
+  overflow:visible!important;
+}
+
 /* Title stays above the departing entry surface. */
 html.is-home-intro-running .hero__title,
 html.is-home-intro-running .hero__eyebrow,
@@ -43,16 +53,13 @@ html.is-home-intro-running .hero__footer{
   z-index:1002;
 }
 html.is-home-intro-running .site-header{z-index:1003!important}
-html.is-home-intro-running .hero__line{overflow:visible!important}
 html.is-home-intro-running .hero__eyebrow,
 html.is-home-intro-running .hero__footer{
   opacity:1!important;
   transform:none!important;
 }
 
-/* Featured typography gets the EDITORIAL tier. The movement is still quiet,
-   but the easing distributes visible travel through the whole animation rather
-   than completing most of it in the opening few frames. */
+/* Featured typography gets the EDITORIAL tier. */
 .home-intro-char{
   display:inline-block;
   opacity:0;
@@ -78,9 +85,22 @@ html.is-home-intro-running .home-intro-char:not(.is-space){
   100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 
-/* Supporting information is intentionally the second beat. It still crosses
-   toward its final side, but CONTENT timing + editorial easing makes the travel
-   readable instead of looking like an instantaneous state change. */
+/* Completion is not a new visual state. These values are deliberately identical
+   to the 100% keyframe so removing the choreography classes cannot move a glyph
+   even one sub-pixel. */
+html.is-home-intro-complete .home-intro-char{
+  opacity:1!important;
+  transform:translate3d(0,0,0) scale(1)!important;
+  animation:none!important;
+  transition:none!important;
+  will-change:auto!important;
+}
+html.is-home-intro-complete .home-intro-char.is-space{
+  width:.29em;
+  transform:none!important;
+}
+
+/* Supporting information is intentionally the second beat. */
 html.is-home-intro-running .nav,
 html.is-home-intro-running .hero__eyebrow>span:last-child,
 html.is-home-intro-running .hero__footer .scroll-cue{
@@ -104,9 +124,7 @@ html.is-home-intro-running.is-home-intro-meta .hero__footer>p{
     transform var(--motion-content,560ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1))!important;
 }
 
-/* Logo is the final punctuation beat and is now a real showcase moment. The
-   mark and wordmark move as one object first; the square mark then supplies a
-   small secondary overshoot that remains visible long enough to register. */
+/* Logo is the final punctuation beat. */
 html.is-home-intro-running .brand{
   opacity:0!important;
   transform:translate3d(0,42px,0) scale(.82)!important;
