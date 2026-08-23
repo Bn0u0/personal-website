@@ -60,6 +60,13 @@ html.is-mobile-layout .project-detail.is-open .project-detail__media{
   transition:none!important;
 }
 
+/* Mobile archive still uses the lighter shake defined in mobile.css, but its
+   impact must happen when the slower SHOWCASE walls actually meet. This file is
+   loaded after mobile.css, so it is the synchronization point for phone motion. */
+html.is-mobile-layout .project-archive.is-split-opening{
+  animation:archiveImpactShakePhone var(--motion-micro,180ms) linear var(--motion-showcase,920ms) both!important;
+}
+
 @media(prefers-reduced-motion:reduce){
   html.is-mobile-layout .project-detail,
   html.is-mobile-layout .project-detail.is-open,
