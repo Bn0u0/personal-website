@@ -62,12 +62,14 @@ html.is-touch-ui .project-archive__top{
   -webkit-backdrop-filter:none!important;
 }
 
-/* PHONE SCREEN MODEL ------------------------------------------------------
-   A phone section is a scene, not a long responsive block. Hero, Work,
-   About/001 and About/002 each own exactly one captured visual viewport.
-   Secondary content is scaled to the scene instead of making the scene taller. */
+/* PHONE SCREEN MODEL ------------------------------------------------------ */
 html.is-mobile-layout{scroll-padding-top:0!important}
 html.is-mobile-layout body{overflow-x:hidden}
+html.is-mobile-layout .noise{opacity:.016!important}
+html.is-mobile-layout.is-home-intro-running .noise,
+html.is-mobile-layout body.is-detail-open .noise,
+html.is-mobile-layout body.is-archive-open .noise{opacity:.010!important}
+
 html.is-mobile-layout main>.hero,
 html.is-mobile-layout main>.work,
 html.is-mobile-layout main>.manifesto,
@@ -78,6 +80,11 @@ html.is-mobile-layout main>.about-ai{
   max-height:var(--mobile-screen)!important;
   overflow:hidden!important;
   scroll-margin-top:0!important;
+}
+html.is-mobile-layout .project-detail,
+html.is-mobile-layout .project-archive{
+  height:var(--mobile-screen)!important;
+  max-height:var(--mobile-screen)!important;
 }
 
 html.is-mobile-layout .site-header{
@@ -97,7 +104,7 @@ html.is-mobile-layout body .about-ai{
   padding-right:var(--mobile-pad-r)!important;
 }
 
-/* HERO — exact one-screen composition. */
+/* HERO — one screen, two intentional title lines, no accidental third line. */
 html.is-mobile-layout .hero{
   padding-top:var(--mobile-top)!important;
   padding-bottom:var(--mobile-bottom)!important;
@@ -110,9 +117,15 @@ html.is-mobile-layout .hero__eyebrow span:last-child,
 html.is-mobile-layout .hero__footer p{display:none!important}
 html.is-mobile-layout .hero__title{
   align-self:center!important;
-  font-size:clamp(48px,15.6vw,76px)!important;
-  line-height:.89!important;
+  font-size:clamp(40px,11.4vw,50px)!important;
+  line-height:.92!important;
   letter-spacing:-.068em!important;
+  text-wrap:balance;
+}
+html.is-mobile-layout .hero__line>span{white-space:nowrap}
+html[lang^="zh"].is-mobile-layout .hero__title{
+  font-size:clamp(38px,10.6vw,46px)!important;
+  line-height:.94!important;
 }
 html.is-mobile-layout .hero__footer{justify-content:flex-end!important}
 
@@ -217,6 +230,7 @@ html.is-mobile-layout #work .project-row__title{
   letter-spacing:-.05em!important;
   white-space:normal!important;
   overflow-wrap:normal!important;
+  text-wrap:balance;
 }
 html.is-mobile-layout #work .project-row__year{
   grid-column:2!important;
@@ -245,7 +259,7 @@ html.is-mobile-layout .work-more{
   min-height:38px!important;
 }
 
-/* ABOUT / 001 — one complete editorial screen, no spill into 002. */
+/* ABOUT / 001 — two deliberate statement lines stay intact in Chinese. */
 html.is-mobile-layout .manifesto{
   padding-top:var(--mobile-top)!important;
   padding-bottom:var(--mobile-bottom)!important;
@@ -260,10 +274,16 @@ html.is-mobile-layout .manifesto .section-kicker{
 html.is-mobile-layout .manifesto__statement{
   align-self:center!important;
   margin:0!important;
-  font-size:clamp(39px,11.2vw,54px)!important;
-  line-height:.92!important;
+  font-size:clamp(36px,10.2vw,46px)!important;
+  line-height:.94!important;
   letter-spacing:-.058em!important;
+  text-wrap:balance;
+  line-break:strict;
 }
+html[lang^="zh"].is-mobile-layout .manifesto__statement{
+  font-size:clamp(34px,9.4vw,42px)!important;
+}
+html[lang^="zh"].is-mobile-layout .manifesto__line{white-space:nowrap!important}
 html.is-mobile-layout .manifesto__grid{
   align-self:end!important;
   margin:0!important;
@@ -277,6 +297,8 @@ html.is-mobile-layout .manifesto__grid>p{
   font-size:clamp(13px,3.7vw,16px)!important;
   line-height:1.42!important;
   letter-spacing:-.018em!important;
+  text-wrap:pretty;
+  line-break:strict;
 }
 html.is-mobile-layout .manifesto__tags{
   display:grid!important;
@@ -287,8 +309,7 @@ html.is-mobile-layout .manifesto__tags span{
   font-size:9px!important;
 }
 
-/* ABOUT / 002 — also exactly one screen. Secondary information compresses into
-   the lower band instead of growing the section beyond the viewport. */
+/* ABOUT / 002 — same one-screen hierarchy with tighter CJK optical sizing. */
 html.is-mobile-layout body .about-ai{
   padding-top:var(--mobile-top)!important;
   padding-bottom:var(--mobile-bottom)!important;
@@ -304,10 +325,16 @@ html.is-mobile-layout body .about-ai__statement{
   align-self:center!important;
   margin:0!important;
   max-width:100%!important;
-  font-size:clamp(34px,9.7vw,46px)!important;
-  line-height:.92!important;
+  font-size:clamp(32px,9vw,42px)!important;
+  line-height:.94!important;
   letter-spacing:-.052em!important;
+  text-wrap:balance;
+  line-break:strict;
 }
+html[lang^="zh"].is-mobile-layout body .about-ai__statement{
+  font-size:clamp(29px,7.8vw,35px)!important;
+}
+html[lang^="zh"].is-mobile-layout body .about-ai__title-line{white-space:nowrap!important}
 html.is-mobile-layout body .about-ai__grid{
   align-self:end!important;
   margin:0!important;
@@ -321,6 +348,8 @@ html.is-mobile-layout body .about-ai__intro{
   font-size:clamp(11px,3.2vw,13px)!important;
   line-height:1.43!important;
   letter-spacing:-.01em!important;
+  text-wrap:pretty;
+  line-break:strict;
 }
 html.is-mobile-layout body .about-ai__history{
   position:relative!important;
@@ -347,10 +376,22 @@ html.is-mobile-layout body .about-ai__explore{
   font-size:8px!important;
 }
 
-/* PROJECT DETAIL — top bar + hero together equal one phone screen. */
-html.is-mobile-layout{
-  --mobile-detail-bar:calc(54px + var(--safe-top));
+/* Phone editorial title motion avoids blur/raster work; opacity + translation is
+   enough to preserve the desktop rhythm while staying smooth on Safari. */
+html.is-mobile-layout .manifesto__char,
+html.is-mobile-layout .about-ai__title-char{
+  filter:none!important;
+  transform:translate3d(0,.12em,0)!important;
+  transition-property:opacity,transform!important;
 }
+html.is-mobile-layout .manifesto__statement.is-flowing .manifesto__char,
+html.is-mobile-layout .about-ai__statement.is-flowing .about-ai__title-char{
+  filter:none!important;
+  transform:translate3d(0,0,0)!important;
+}
+
+/* PROJECT DETAIL — top bar + hero together equal one phone screen. */
+html.is-mobile-layout{--mobile-detail-bar:calc(54px + var(--safe-top))}
 html.is-mobile-layout .project-detail__top{
   height:var(--mobile-detail-bar)!important;
   min-height:var(--mobile-detail-bar)!important;
@@ -373,19 +414,18 @@ html.is-mobile-layout .project-detail__hero{
   overflow:hidden!important;
 }
 html.is-mobile-layout .project-detail__copy{padding:0!important;min-height:0!important}
-html.is-mobile-layout .project-detail__number{
-  margin-bottom:16px!important;
-  font-size:8px!important;
-}
+html.is-mobile-layout .project-detail__number{margin-bottom:16px!important;font-size:8px!important}
 html.is-mobile-layout .project-detail__title{
   margin-bottom:12px!important;
   font-size:clamp(38px,11.8vw,56px)!important;
   line-height:.89!important;
+  text-wrap:balance;
 }
 html.is-mobile-layout .project-detail__headline{
   margin-bottom:8px!important;
   font-size:clamp(17px,4.8vw,22px)!important;
   line-height:1.06!important;
+  text-wrap:balance;
 }
 html.is-mobile-layout .project-detail__description{
   max-width:100%!important;
@@ -396,10 +436,7 @@ html.is-mobile-layout .project-detail__description{
   -webkit-line-clamp:3!important;
   overflow:hidden!important;
 }
-html.is-mobile-layout .project-detail__tags{
-  margin-top:12px!important;
-  gap:5px!important;
-}
+html.is-mobile-layout .project-detail__tags{margin-top:12px!important;gap:5px!important}
 html.is-mobile-layout .project-detail__tags span{padding:5px 7px!important;font-size:7px!important}
 html.is-mobile-layout .project-detail__media{
   min-height:0!important;
@@ -448,7 +485,7 @@ html.is-mobile-layout .project-archive .project-row__year{
   opacity:.48!important;
 }
 html.is-mobile-layout .project-archive .project-row__meta{display:none!important}
-html.is-mobile-layout .project-archive .project-row__title{font-size:clamp(22px,7vw,30px)!important;white-space:normal!important}
+html.is-mobile-layout .project-archive .project-row__title{font-size:clamp(22px,7vw,30px)!important;white-space:normal!important;text-wrap:balance}
 
 /* Extended AI notes remain a self-contained screen. */
 html.is-mobile-layout body .ai-depth{
@@ -467,7 +504,7 @@ html.is-mobile-layout .site-footer{
   padding-bottom:max(30px,calc(var(--safe-bottom) + 22px))!important;
 }
 
-/* Invisible 44px touch targets without changing the visual scale. */
+/* Invisible 44px touch targets without changing visual size. */
 html.is-touch-ui .nav>a,
 html.is-touch-ui .nav-about__trigger,
 html.is-touch-ui .language-toggle,
@@ -489,18 +526,16 @@ html.is-touch-ui .project-detail__close::after{
   transform:translateY(-50%);
 }
 
-/* Short phones keep the one-screen rule by reducing secondary density, never by
-   letting a section become 1.3–1.8 screens tall. */
 @media(max-height:700px){
   html.is-mobile-layout{--mobile-top:max(88px,calc(var(--safe-top) + 70px));--mobile-bottom:max(62px,calc(var(--safe-bottom) + 46px))}
-  html.is-mobile-layout .hero__title{font-size:clamp(43px,14vw,64px)!important}
+  html.is-mobile-layout .hero__title{font-size:clamp(38px,10.8vw,46px)!important}
   html.is-mobile-layout #work .project-row__title{font-size:clamp(20px,6.6vw,28px)!important}
   html.is-mobile-layout #work .project-row__year{font-size:6.5px!important}
-  html.is-mobile-layout .manifesto__statement{font-size:clamp(34px,10.2vw,46px)!important}
+  html.is-mobile-layout .manifesto__statement{font-size:clamp(34px,9.6vw,42px)!important}
   html.is-mobile-layout .manifesto__grid{gap:12px!important}
   html.is-mobile-layout .manifesto__grid>p{font-size:12px!important;line-height:1.36!important}
   html.is-mobile-layout .manifesto__tags span{padding:6px 0!important;font-size:8px!important}
-  html.is-mobile-layout body .about-ai__statement{font-size:clamp(30px,8.8vw,40px)!important}
+  html.is-mobile-layout body .about-ai__statement{font-size:clamp(29px,8vw,36px)!important}
   html.is-mobile-layout body .about-ai__grid{gap:12px!important}
   html.is-mobile-layout body .about-ai__intro{font-size:10.5px!important;line-height:1.36!important}
   html.is-mobile-layout body .about-ai__row{padding-top:6px!important;padding-bottom:5px!important}
@@ -510,7 +545,7 @@ html.is-touch-ui .project-detail__close::after{
 
 @media(max-height:560px) and (orientation:landscape){
   html.is-mobile-layout{--mobile-top:max(70px,calc(var(--safe-top) + 54px));--mobile-bottom:max(48px,calc(var(--safe-bottom) + 34px))}
-  html.is-mobile-layout .hero__title{font-size:clamp(38px,10vw,58px)!important}
+  html.is-mobile-layout .hero__title{font-size:clamp(36px,9vw,44px)!important}
   html.is-mobile-layout .manifesto__statement{font-size:clamp(30px,7.4vw,42px)!important}
   html.is-mobile-layout body .about-ai__statement{font-size:clamp(27px,6.8vw,38px)!important}
   html.is-mobile-layout .project-detail__description{display:none!important}
