@@ -1,20 +1,21 @@
 /* Phone project-detail motion -------------------------------------------------
-   Desktop keeps the organic polygon/SVG reveal. Phones deliberately use a much
-   cheaper compositing path so iOS Safari does not have to rasterize a 64-point
-   clip-path while a full-screen dark layer, media surface and browser chrome are
-   all moving at once. The old JS can keep updating clip-path internally, but the
-   phone visual layer ignores it with !important and owns transform/opacity. */
+   Desktop keeps the organic polygon/SVG reveal. Phones use a compositor-only
+   opacity/transform path so Safari never rasterizes a complex full-screen clip
+   while browser chrome and the media surface are moving. */
 
 html.is-mobile-layout .project-detail{
+  width:100%!important;
+  height:var(--mobile-screen,100svh)!important;
+  max-height:var(--mobile-screen,100svh)!important;
   clip-path:none!important;
   -webkit-clip-path:none!important;
   opacity:0!important;
-  transform:translate3d(0,10px,0) scale(.994)!important;
-  transform-origin:50% 50%!important;
+  transform:translate3d(0,8px,0) scale(.997)!important;
+  transform-origin:50% 46%!important;
   backface-visibility:hidden!important;
   -webkit-backface-visibility:hidden!important;
+  isolation:isolate;
   will-change:opacity,transform!important;
-  contain:paint!important;
   transition:
     opacity var(--motion-ui,320ms) cubic-bezier(.2,.7,.2,1),
     transform var(--motion-content,560ms) cubic-bezier(.16,1,.3,1),
@@ -32,20 +33,25 @@ html.is-mobile-layout .project-detail.is-open{
     visibility 0s!important;
 }
 
-/* Closing is intentionally shorter than opening and never uses inverse SVG
-   clipping. This avoids the occasional fractured frame / checkerboard artifact
-   reported on mobile Safari while preserving immediate press feedback. */
+/* Press-to-close starts immediately and is exactly the CONTENT exit tier. */
 html.is-mobile-layout .project-detail.is-open.is-mobile-detail-closing{
   pointer-events:none!important;
   opacity:0!important;
-  transform:translate3d(0,7px,0) scale(.996)!important;
+  transform:translate3d(0,5px,0) scale(.998)!important;
   transition:
-    opacity var(--motion-exit-content,280ms) cubic-bezier(.4,0,1,1),
-    transform var(--motion-exit-content,280ms) cubic-bezier(.4,0,1,1)!important;
+    opacity var(--motion-exit-content,280ms) var(--ease-exit,cubic-bezier(.64,0,.78,0)),
+    transform var(--motion-exit-content,280ms) var(--ease-exit,cubic-bezier(.64,0,.78,0))!important;
 }
 
-/* The outer scene already carries the motion. Do not ask the media card to run a
-   second scale animation at the same time on a phone GPU. */
+html.is-mobile-layout .project-detail__top,
+html.is-mobile-layout .project-detail__hero,
+html.is-mobile-layout .project-detail__media{
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+}
+
+/* The outer scene carries the transition. The media card stays optically stable
+   so there is never a second simultaneous scale/raster pass. */
 html.is-mobile-layout .project-detail__media,
 html.is-mobile-layout .project-detail.is-open .project-detail__media{
   transform:none!important;
