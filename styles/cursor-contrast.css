@@ -50,6 +50,25 @@ body.is-detail-open .cursor.is-active .cursor__label{
   mix-blend-mode:normal!important;
 }
 
+/* The entry gate sits above the normal page at z-index 1000. The custom desktop
+   cursor used to remain at z-index 700 while the native cursor was intentionally
+   hidden, which made the language chooser appear to have no pointer at all.
+   Lift only the fine-pointer cursor above the gate and keep it as the quiet black
+   dot used by the rest of the desktop experience. */
+@media(pointer:fine){
+  html.is-entry-gated .cursor{
+    z-index:1200!important;
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+    mix-blend-mode:normal!important;
+  }
+  html.is-entry-gated .cursor:not(.is-active) .cursor__dot{
+    background:var(--fg)!important;
+    mix-blend-mode:normal!important;
+  }
+}
+
 /* Touch is not a simulated mouse. Never leave the desktop black/white cursor
    proxy at the center of a phone or tablet viewport. */
 @media(pointer:coarse), (hover:none){
