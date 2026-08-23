@@ -1,30 +1,41 @@
 /* Motion System — one shared timing language for the entire site.
-   Finite transitions use five entry tiers. Exit motion is the exact 0.5× derivative
-   of the matching tier. Continuous spring/canvas systems are intentionally excluded. */
+   Fast tiers stay reserved for feedback. Editorial/showcase tiers exist so a
+   designed moment has enough screen time to be perceived rather than merely
+   registered as a state change. Continuous spring/canvas systems are excluded. */
 :root{
-  /* Entry tiers */
-  --motion-micro:180ms;   /* hover, opacity, cursor feedback */
-  --motion-ui:320ms;      /* controls, dropdowns, local transforms */
-  --motion-content:560ms; /* rows, reveals, section-level content */
-  --motion-scene:1000ms;  /* full-screen / immersive transitions */
-  --motion-epic:2000ms;   /* rare full-surface handoffs such as the entry reveal */
+  /* Interaction tiers */
+  --motion-micro:180ms;    /* hover, opacity, cursor feedback */
+  --motion-ui:320ms;       /* controls, dropdowns, local transforms */
+  --motion-content:560ms;  /* ordinary rows / content reveals */
 
-  /* Exit tiers: always 2× faster than the corresponding entry tier */
+  /* Presentation tiers — intentionally slower than ordinary UI. */
+  --motion-editorial:760ms; /* featured typography / composed content entrances */
+  --motion-showcase:920ms;  /* one-off visual gestures worth actually watching */
+  --motion-scene:1000ms;    /* full-screen / immersive transitions */
+  --motion-epic:2000ms;     /* rare full-surface handoffs such as entry reveal */
+  --motion-hold:180ms;      /* a short readable still frame between major beats */
+
+  /* Exit tiers remain responsive. Leaving should not feel ceremonious. */
   --motion-exit-micro:90ms;
   --motion-exit-ui:160ms;
   --motion-exit-content:280ms;
+  --motion-exit-editorial:380ms;
+  --motion-exit-showcase:460ms;
   --motion-exit-scene:500ms;
   --motion-exit-epic:1000ms;
 
-  /* Stagger scale + exact 0.5× exit derivatives */
+  /* Stagger scale + exact 0.5× exit derivatives for ordinary sequences. */
   --motion-stagger-tight:40ms;
   --motion-stagger-standard:80ms;
   --motion-exit-stagger-tight:20ms;
   --motion-exit-stagger-standard:40ms;
 
-  /* Easing families */
+  /* Easing families. `soft` is deliberately quick for controls; editorial and
+     showcase distribute visible travel across more of the duration. */
   --ease-soft:cubic-bezier(.22,1,.36,1);
   --ease-standard:cubic-bezier(.2,.7,.2,1);
+  --ease-editorial:cubic-bezier(.20,.65,.20,1);
+  --ease-showcase:cubic-bezier(.16,.72,.20,1);
   --ease-enter:cubic-bezier(.22,1,.36,1);
   --ease-accelerate:cubic-bezier(.55,.055,.675,.19);
   --ease-exit:cubic-bezier(.64,0,.78,0);
@@ -103,16 +114,12 @@
   transition:transform var(--motion-ui) var(--ease-soft),opacity var(--motion-micro) ease!important;
 }
 
-/* CONTENT — finite editorial reveals. */
+/* CONTENT — ordinary finite reveals. */
 .reveal{
   transition:opacity var(--motion-content) var(--ease-soft),transform var(--motion-content) var(--ease-soft)!important;
 }
 .project-detail__media{
   transition:transform var(--motion-content) var(--ease-soft) var(--motion-stagger-standard),opacity var(--motion-ui) ease var(--motion-stagger-standard)!important;
-}
-.manifesto__char{
-  transition:opacity var(--motion-content) ease,transform var(--motion-content) var(--ease-soft),filter var(--motion-content) ease!important;
-  transition-delay:calc(var(--char-index)*var(--motion-stagger-tight))!important;
 }
 .ai-depth{
   transition:opacity var(--motion-ui) ease,transform var(--motion-content) var(--ease-soft),visibility 0s linear var(--motion-content)!important;
@@ -127,6 +134,12 @@
   transition:opacity var(--motion-micro) ease,transform var(--motion-ui) var(--ease-soft)!important;
 }
 
+/* EDITORIAL — large type should be watched, not flashed. */
+.manifesto__char{
+  transition:opacity var(--motion-editorial) ease,transform var(--motion-editorial) var(--ease-editorial),filter var(--motion-editorial) ease!important;
+  transition-delay:calc(var(--char-index)*var(--motion-stagger-tight))!important;
+}
+
 /* SCENE — immersive/full-screen entrances. */
 .hero__line>span{
   animation-duration:var(--motion-scene)!important;
@@ -138,18 +151,20 @@
 
 /* EPIC is intentionally rare: it exists for a transition that hands the entire
    screen from one visual world to another, not for ordinary page motion. */
-.entry-gate.is-revealing::before{
+.entry-gate.is-revealing::before,
+.entry-gate.is-revealing::after{
   animation-duration:var(--motion-epic)!important;
 }
 
-/* Discovery pulse is content-scale, never its own ad-hoc duration. */
+/* Discovery pulse is a showcase beat: subtle geometry needs more time to become
+   legible than a conventional content transition. */
 .about-ai.is-discovery-cue .about-ai__history::after,
 .about-ai.is-discovery-cue .about-ai__explore-meta,
 .about-ai.is-discovery-cue .about-ai__explore::before{
-  animation-duration:var(--motion-content)!important;
+  animation-duration:var(--motion-showcase)!important;
 }
 
-/* Language wipe uses the UI tier; stagger is handled separately. */
+/* Language wipe stays UI-scale because it is navigation feedback, not spectacle. */
 .lang-fade-target{
   transition-duration:var(--motion-ui)!important;
 }
