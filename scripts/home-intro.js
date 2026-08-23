@@ -45,7 +45,10 @@
       node.textContent='';
       node.setAttribute('aria-label',text);
       [...text].forEach(char=>{
-        const glyph=document.createElement('i');
+        /* A neutral span is deliberate. The previous <i> brought the UA's
+           italic style into every glyph, so large CJK text was being synthetic-
+           obliqued per character and then skewed again by the line wrapper. */
+        const glyph=document.createElement('span');
         glyph.className='home-intro-char';
         glyph.setAttribute('aria-hidden','true');
         if(char===' '){
