@@ -1,14 +1,4 @@
 (()=>{
-  /* Boot the isolated mobile controller only for touch-capable environments.
-     Desktop execution stops here and therefore never receives phone layout code. */
-  const touchUI=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
-  if(touchUI&&!document.querySelector('script[data-mobile-controller]')){
-    const mobileScript=document.createElement('script');
-    mobileScript.src='./scripts/mobile.js';
-    mobileScript.dataset.mobileController='true';
-    document.head.appendChild(mobileScript);
-  }
-
   const gate=document.querySelector('.entry-gate');
   if(!gate){
     document.documentElement.classList.remove('is-entry-gated');
@@ -80,8 +70,6 @@
     clearTimeout(revealFallback);
     gate.classList.add('is-cleared');
 
-    /* Both panels are already completely off-screen. Keep the empty overlay for
-       two painted frames so Safari/mobile GPUs commit the handoff before removal. */
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       gate.remove();
       document.documentElement.classList.remove('is-entry-gated');
@@ -100,8 +88,6 @@
   }
 
   async function dismissForeground(){
-    /* WELCOME / 歡迎 receives one complete CONTENT beat. The surface stays solid
-       until the foreground is actually gone, so the title can never overlap it. */
     gate.classList.add('is-dismissing');
     await delay(MOTION.content);
     gate.classList.add('is-welcome-cleared');
@@ -129,13 +115,9 @@
     gate.addEventListener('animationend',onAnimationEnd);
     gate.classList.add('is-revealing');
 
-    /* Start the hero sequence as the surface begins opening, not two seconds
-       later when it has already gone. The title is layered above the departing
-       panels by home-intro.css, so the moving seam never cuts through glyphs. */
+    /* The hero becomes the visual centre while the surface opens behind it. */
     requestAnimationFrame(announceHomeIntro);
 
-    /* Both pseudo-elements should report animationend. This timer is only a
-       defensive escape hatch for browsers that suppress pseudo-element events. */
     revealFallback=setTimeout(settle,MOTION.epic+260);
   }
 
