@@ -183,15 +183,26 @@
   }
 
   function syncHeroCopy(){
-    /* home-intro.js temporarily replaces text with glyph nodes. Do not let this
-       observer flatten those nodes (NBSP spaces otherwise made EN especially
-       vulnerable to being rewritten mid-animation). */
-    if(document.querySelector('.home-intro-char'))return;
+    const root=document.documentElement;
     const lines=document.querySelectorAll('.hero__line>span');
     if(lines.length<2)return;
-    const zh=document.documentElement.lang.toLowerCase().startsWith('zh');
+    const zh=root.lang.toLowerCase().startsWith('zh');
     const copy=zh?['我只是想把','腦子裡的東西做出來']:['I just want to make','the things in my head'];
-    copy.forEach((value,index)=>{if(lines[index].textContent!==value)lines[index].textContent=value});
+
+    /* While the intro is running, the glyph DOM is the active animation and must
+       never be flattened by an observer. After it is fully settled, a deliberate
+       language change may replace that glyph DOM behind the language wipe; the
+       permanent skew lives on the line wrapper, so its angle remains invariant. */
+    const introLocked=root.classList.contains('is-home-intro-pending')||root.classList.contains('is-home-intro-running');
+    if(introLocked&&document.querySelector('.home-intro-char'))return;
+
+    copy.forEach((value,index)=>{
+      const line=lines[index];
+      const current=line.getAttribute('aria-label')||line.textContent;
+      if(current===value)return;
+      line.textContent=value;
+      line.removeAttribute('aria-label');
+    });
   }
 
   function syncWorkCue(){
