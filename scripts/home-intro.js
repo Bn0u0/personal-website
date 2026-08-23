@@ -59,11 +59,11 @@
       });
     });
 
-    /* The glyph itself gets an EDITORIAL beat. The important invariant is that
-       these glyph nodes are also the final rendered title nodes: they are not
-       replaced with a different text layout after the animation finishes. */
+    /* About / 001 and About / 002 both use the 40ms editorial character rhythm.
+       The hero now uses the same cadence instead of switching between 80/40ms
+       based on language length, so all three headline systems feel related. */
     const glyphDuration=MOTION.editorial;
-    const stagger=animated.length<=18?(MOTION.staggerStandard||80):(MOTION.staggerTight||40);
+    const stagger=MOTION.staggerTight||40;
     animated.forEach((glyph,index)=>glyph.style.setProperty('--home-intro-delay',`${index*stagger}ms`));
 
     return {
@@ -100,12 +100,8 @@
     root.classList.add('is-home-intro-logo');
     await wait(MOTION.showcase+MOTION.hold);
 
-    /* Settle without a DOM swap. Previously the final frame was followed by
-       node.textContent=text, which destroyed every inline glyph. That changed
-       kerning/inline-box metrics in a single frame and looked like the title
-       straightened and the layout snapped. The animated DOM is now the final
-       DOM. First apply the final-state class, commit it for two painted frames,
-       then remove temporary choreography classes. No geometry changes here. */
+    /* The animated glyph DOM is the resting DOM. Commit the final state first,
+       paint it twice, then remove choreography classes so no geometry can snap. */
     root.classList.add('is-home-intro-complete');
     await nextPaint();
     root.classList.remove('is-home-intro-running','is-home-intro-meta','is-home-intro-logo');
