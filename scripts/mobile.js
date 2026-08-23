@@ -9,7 +9,14 @@
   const shortestViewport=Math.min(innerWidth,innerHeight);
   const phoneSized=Math.min(shortestScreen,shortestViewport)<=700;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MOTION=window.__motion||{micro:180,ui:320,content:560,scene:1000,exitContent:280};
+  const BASE=window.__motion||{micro:180,ui:320,content:560,scene:1000,exitContent:280};
+  const cssMs=(name,fallback)=>{
+    const raw=getComputedStyle(root).getPropertyValue(name).trim();
+    const value=parseFloat(raw);
+    if(!Number.isFinite(value))return fallback;
+    return raw.endsWith('s')&&!raw.endsWith('ms')?value*1000:value;
+  };
+  const MOTION={...BASE,showcase:cssMs('--motion-showcase',920)};
 
   root.classList.add('is-touch-ui');
   root.dataset.inputProfile='touch';
@@ -76,7 +83,7 @@
       if(!archive.classList.contains('is-split-opening'))return;
       impactTimer=setTimeout(()=>{
         if(archive.classList.contains('is-split-opening'))haptic.impact('medium');
-      },MOTION.content);
+      },MOTION.showcase);
     };
     new MutationObserver(syncImpact).observe(archive,{attributes:true,attributeFilter:['class']});
   }
