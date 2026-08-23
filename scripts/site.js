@@ -13,6 +13,13 @@
     staggerTight:40,
     staggerStandard:80
   });
+  const isPhoneMotionProfile=()=>{
+    const touch=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
+    if(!touch)return false;
+    const shortestScreen=Math.min(screen.width||innerWidth,screen.height||innerHeight);
+    const shortestViewport=Math.min(innerWidth,innerHeight);
+    return Math.min(shortestScreen,shortestViewport)<=700;
+  };
   if(!reduced&&window.Lenis){window.__lenis=new Lenis({autoRaf:true,anchors:true,smoothWheel:true,lerp:.085,wheelMultiplier:.9})}
 
   const manifestoStatement=document.querySelector('.manifesto__statement');
@@ -205,7 +212,7 @@
   }
 
   function animateDetail(opening,onDone){
-    if(!detail||reduced){onDone?.();return;}
+    if(!detail||reduced||isPhoneMotionProfile()){onDone?.();return;}
     cancelAnimationFrame(detailFrame);
     if(opening)detailMaxRadius=coverageRadius(detailOrigin);
     else if(!Number.isFinite(detailRadius)||detailRadius<=0)detailRadius=coverageRadius(detailOrigin);
@@ -233,15 +240,13 @@
   }
 
   function animateDetailCloseReveal(origin,onDone){
-    if(!detail||reduced){onDone?.();return;}
+    if(!detail||reduced||isPhoneMotionProfile()){onDone?.();return;}
     cancelAnimationFrame(detailFrame);
     const shape=detailShape||randomShape();
     const maxRadius=coverageRadius(origin);
     const duration=MOTION.exitScene;
     const started=performance.now();
 
-    /* Closing is the compositing inverse of opening: an organic hole grows from
-       the actual close press and reveals the already-rendered site underneath. */
     setInverseDetailClip(origin,2,shape);
 
     const frame=now=>{
@@ -257,21 +262,31 @@
   function openProject(key,trigger,event){
     const p=projects[key];
     if(!p||!detailReady())return;
+    const phoneMotion=isPhoneMotionProfile();
     lastTrigger=trigger||null;
     dn.textContent=p.number;dy.textContent=p.year;dt.textContent=p.title;dh.textContent=p.headline;dd.textContent=p.description;dmn.textContent=p.number;dmt.textContent=p.mediaTitle;db.textContent=p.below;
     detailMedia.dataset.project=key;dTags.innerHTML=p.tags.map(t=>`<span>${t}</span>`).join('');detail.scrollTop=0;
+    detail.classList.remove('is-mobile-detail-closing');
 
-    detailOrigin=originFromEvent(event,trigger);
-    detailShape=randomShape();
-    detailMaxRadius=coverageRadius(detailOrigin);
-    detailRadius=reduced?detailMaxRadius:6;
-
-    if(!reduced){
-      detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape);
-      detail.style.webkitClipPath=detail.style.clipPath;
+    if(phoneMotion){
+      detailShape=null;
+      detailRadius=0;
+      detailMaxRadius=0;
+      detail.style.removeProperty('clip-path');
+      detail.style.removeProperty('-webkit-clip-path');
     }else{
-      detail.style.clipPath='none';
-      detail.style.webkitClipPath='none';
+      detailOrigin=originFromEvent(event,trigger);
+      detailShape=randomShape();
+      detailMaxRadius=coverageRadius(detailOrigin);
+      detailRadius=reduced?detailMaxRadius:6;
+
+      if(!reduced){
+        detail.style.clipPath=blobPolygon(detailOrigin,detailRadius,detailShape);
+        detail.style.webkitClipPath=detail.style.clipPath;
+      }else{
+        detail.style.clipPath='none';
+        detail.style.webkitClipPath='none';
+      }
     }
 
     detail.setAttribute('aria-hidden','false');
@@ -279,17 +294,22 @@
     window.__lenis?.stop?.();
     detail.classList.add('is-open');
 
-    if(reduced){requestAnimationFrame(()=>detail.focus?.({preventScroll:true}));return;}
+    if(reduced||phoneMotion){
+      const delay=phoneMotion&&!reduced?MOTION.content:0;
+      requestAnimationFrame(()=>setTimeout(()=>detail.focus?.({preventScroll:true}),delay));
+      return;
+    }
     requestAnimationFrame(()=>animateDetail(true,()=>detail.focus?.({preventScroll:true})));
   }
 
   function closeProject(event){
     if(!detail||!detail.classList.contains('is-open'))return;
+    const phoneMotion=isPhoneMotionProfile();
     window.__lenis?.stop?.();
-    const closeOrigin=originFromEvent(event,detailClose);
+    const closeOrigin=phoneMotion?null:originFromEvent(event,detailClose);
 
     const finish=()=>{
-      detail.classList.remove('is-open');
+      detail.classList.remove('is-open','is-mobile-detail-closing');
       detail.setAttribute('aria-hidden','true');
       document.body.classList.remove('is-detail-open');
       detail.style.clipPath='none';
@@ -300,6 +320,11 @@
     };
 
     if(reduced){finish();return;}
+    if(phoneMotion){
+      detail.classList.add('is-mobile-detail-closing');
+      setTimeout(finish,MOTION.exitContent);
+      return;
+    }
     animateDetailCloseReveal(closeOrigin,finish);
   }
 
@@ -309,8 +334,6 @@
     row.addEventListener('click',event=>openProject(item.dataset.project,row,event));
   });
 
-  /* Start closing on press rather than release. Pointer coordinates are passed
-     through so the reverse reveal starts exactly where the user pressed. */
   detailClose?.addEventListener('pointerdown',event=>{
     if(event.pointerType==='mouse'&&event.button!==0)return;
     event.preventDefault();
