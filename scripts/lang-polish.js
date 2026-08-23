@@ -183,6 +183,10 @@
   }
 
   function syncHeroCopy(){
+    /* home-intro.js temporarily replaces text with glyph nodes. Do not let this
+       observer flatten those nodes (NBSP spaces otherwise made EN especially
+       vulnerable to being rewritten mid-animation). */
+    if(document.querySelector('.home-intro-char'))return;
     const lines=document.querySelectorAll('.hero__line>span');
     if(lines.length<2)return;
     const zh=document.documentElement.lang.toLowerCase().startsWith('zh');
