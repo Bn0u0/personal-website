@@ -29,17 +29,11 @@
     const id=setTimeout(resolve,ms);
     timers.push(id);
   });
+  const nextPaint=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
 
   function clearTimers(){
     timers.forEach(clearTimeout);
     timers=[];
-  }
-
-  function unwrap(lines){
-    lines.forEach(({node,text})=>{
-      node.textContent=text;
-      node.removeAttribute('aria-label');
-    });
   }
 
   function buildGlyphs(){
@@ -65,14 +59,14 @@
       });
     });
 
-    /* The glyph itself now gets an EDITORIAL beat. Stagger stays restrained so
-       English never turns into a ten-second typewriter sequence. */
+    /* The glyph itself gets an EDITORIAL beat. The important invariant is that
+       these glyph nodes are also the final rendered title nodes: they are not
+       replaced with a different text layout after the animation finishes. */
     const glyphDuration=MOTION.editorial;
     const stagger=animated.length<=18?(MOTION.staggerStandard||80):(MOTION.staggerTight||40);
     animated.forEach((glyph,index)=>glyph.style.setProperty('--home-intro-delay',`${index*stagger}ms`));
 
     return {
-      lines,
       duration:glyphDuration+Math.max(0,animated.length-1)*stagger
     };
   }
@@ -98,19 +92,23 @@
        else competes for attention. */
     await wait(Math.ceil(built.duration)+MOTION.hold);
 
-    /* Beat 2 — supporting information. It is allowed to almost finish before
-       the logo arrives, so the cross-screen motion can actually be read. */
+    /* Beat 2 — supporting information. */
     root.classList.add('is-home-intro-meta');
     await wait((MOTION.ui||320)+MOTION.hold);
 
-    /* Beat 3 — logo punctuation. This gets SHOWCASE timing rather than ordinary
-       content timing because it is the final memorable accent of the entrance. */
+    /* Beat 3 — logo punctuation. */
     root.classList.add('is-home-intro-logo');
     await wait(MOTION.showcase+MOTION.hold);
 
-    unwrap(built.lines);
-    root.classList.remove('is-home-intro-running','is-home-intro-meta','is-home-intro-logo');
+    /* Settle without a DOM swap. Previously the final frame was followed by
+       node.textContent=text, which destroyed every inline glyph. That changed
+       kerning/inline-box metrics in a single frame and looked like the title
+       straightened and the layout snapped. The animated DOM is now the final
+       DOM. First apply the final-state class, commit it for two painted frames,
+       then remove temporary choreography classes. No geometry changes here. */
     root.classList.add('is-home-intro-complete');
+    await nextPaint();
+    root.classList.remove('is-home-intro-running','is-home-intro-meta','is-home-intro-logo');
     clearTimers();
   }
 
