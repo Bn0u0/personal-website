@@ -12,9 +12,10 @@ html.is-home-intro-pending .nav{
 }
 
 /* Slant invariant ---------------------------------------------------------
-   The permanent line wrapper owns the title angle. The intro never animates
-   skew/rotation on this node, and the glyph nodes inside it remain in the DOM
-   after the intro, so the final painted frame and resting layout share one tree. */
+   The permanent line wrapper is the ONE owner of the title angle. Individual
+   glyphs are neutral text; they never synthesize italic and never retain a
+   transform after their entrance. This keeps the final title on one stable
+   raster surface instead of dozens of skewed per-glyph compositor tiles. */
 html.is-home-intro-pending .hero__line>span,
 html.is-home-intro-running .hero__line>span,
 html.is-home-intro-complete .hero__line>span{
@@ -58,26 +59,27 @@ html.is-home-intro-running .hero__footer{
 }
 
 /* Shared editorial headline language -------------------------------------
-   This intentionally mirrors About / 002 and the same family used by 001:
-   a small lower-left offset, shallow blur and opacity resolve over EDITORIAL
-   timing with the 40ms character cadence. No scale/bounce is involved. */
+   The resting glyph is deliberately the BASE state. `backwards` fill applies
+   the hidden first keyframe only during each glyph's delay, then the browser
+   returns to this clean base immediately after that glyph finishes. This is
+   important: `both` previously kept completed glyphs inside animation/filter/
+   transform compositor surfaces until the entire intro choreography ended. */
 .home-intro-char{
   display:inline-block;
-  opacity:0;
-  filter:blur(3px);
-  transform:translate3d(-.025em,.18em,0) rotate(0);
+  opacity:1;
+  filter:none;
+  transform:none;
+  font-style:normal!important;
   transform-origin:50% 72%;
-  will-change:opacity,transform,filter;
 }
 .home-intro-char.is-space{
   width:.29em;
   opacity:1;
   filter:none;
   transform:none;
-  will-change:auto;
 }
 html.is-home-intro-running .home-intro-char:not(.is-space){
-  animation:homeIntroGlyph var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)) both;
+  animation:homeIntroGlyph var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)) backwards;
   animation-delay:var(--home-intro-delay,0ms);
 }
 
@@ -85,27 +87,26 @@ html.is-home-intro-running .home-intro-char:not(.is-space){
   from{
     opacity:0;
     filter:blur(3px);
-    transform:translate3d(-.025em,.18em,0) rotate(0);
+    transform:translate(-.025em,.18em);
   }
   to{
     opacity:1;
-    filter:blur(0);
-    transform:translate3d(0,0,0) rotate(0);
+    filter:none;
+    transform:none;
   }
 }
 
-/* Completion is exactly the animation's last frame. No DOM swap and no new
-   geometry means the title cannot jump after the entrance finishes. `none`
-   also releases each glyph from the filter compositing surface after the blur
-   resolves; blur(0) still kept those per-glyph surfaces alive and could leave
-   one-pixel raster seams beside large skewed CJK glyphs. */
+/* Completion is literally the base resting state: no zero-valued 3D transform,
+   no blur(0), no animation fill, no will-change hint. Geometry is unchanged,
+   but the browser is free to collapse all glyphs back into a stable text paint. */
 html.is-home-intro-complete .home-intro-char{
   opacity:1!important;
   filter:none!important;
-  transform:translate3d(0,0,0) rotate(0)!important;
+  transform:none!important;
   animation:none!important;
   transition:none!important;
   will-change:auto!important;
+  font-style:normal!important;
 }
 html.is-home-intro-complete .home-intro-char.is-space{
   width:.29em;
@@ -171,19 +172,18 @@ html.is-home-intro-running.is-home-intro-logo .brand-avatar{
     transform:skewX(-4.5deg)!important;
   }
 
-  /* Phones use the exact low-cost title profile already used by 001 / 002:
-     opacity + .12em vertical resolve, with no blur/raster work on Safari. */
+  /* Phone profile keeps the same settle rule but skips blur entirely. */
   .home-intro-char{
     filter:none!important;
-    transform:translate3d(0,.12em,0) rotate(0);
-    will-change:opacity,transform;
+    transform:none;
+    font-style:normal!important;
   }
   html.is-home-intro-running .home-intro-char:not(.is-space){
     animation-name:homeIntroGlyphPhone;
   }
   @keyframes homeIntroGlyphPhone{
-    from{opacity:0;transform:translate3d(0,.12em,0) rotate(0)}
-    to{opacity:1;transform:translate3d(0,0,0) rotate(0)}
+    from{opacity:0;transform:translateY(.12em)}
+    to{opacity:1;transform:none}
   }
 
   html.is-home-intro-running .nav,
