@@ -17,8 +17,11 @@
         overflow:visible!important;
         padding-bottom:.08em;
       }
-      .about-ai__title-char{
-        display:inline-block;
+      /* `about.css` has a broad `.about-ai__statement span{display:block}` rule
+         for the two line wrappers. Glyphs are spans now too, so they must
+         explicitly stay inline or every character becomes a separate block. */
+      .about-ai__statement .about-ai__title-char{
+        display:inline-block!important;
         opacity:0;
         filter:blur(3px);
         transform:translate(-.025em,.18em);
