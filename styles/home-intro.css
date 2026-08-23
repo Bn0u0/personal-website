@@ -1,6 +1,6 @@
 /* Home intro — visual handoff after the welcome gate.
-   This layer owns only the first hero entrance. Desktop/mobile layout rules stay
-   in their existing files; this file changes sequencing, not geometry. */
+   This layer owns only the first hero entrance. Desktop/mobile geometry stays in
+   its canonical stylesheets; this file controls hierarchy and sequencing. */
 
 html.is-home-intro-pending .hero__title,
 html.is-home-intro-pending .hero__eyebrow,
@@ -25,9 +25,8 @@ html.is-home-intro-running .nav{
   visibility:visible!important;
 }
 
-/* During the gate handoff, the title and staged chrome sit above the departing
-   two-panel surface. The seam can therefore open behind the typography instead
-   of physically slicing through a glyph. */
+/* The title sits above the departing entry surface so the centre seam opens
+   behind typography and never cuts a glyph. */
 html.is-home-intro-running .hero__title,
 html.is-home-intro-running .hero__eyebrow,
 html.is-home-intro-running .hero__footer{
@@ -43,47 +42,34 @@ html.is-home-intro-running .hero__footer{
   transform:none!important;
 }
 
-/* Quiet focal reveal: each glyph rises only a fraction of an em, starts out of
-   focus, gains opacity, then settles without a visible bounce. */
+/* Quiet focal reveal. No per-glyph blur: opacity + sub-em translation keeps the
+   typography crisp and avoids repeated text rasterization on mobile Safari. */
 .home-intro-char{
   display:inline-block;
   opacity:0;
-  filter:blur(9px);
-  transform:translate3d(0,.28em,0) scale(.985);
+  transform:translate3d(0,.18em,0) scale(.99);
   transform-origin:50% 72%;
-  will-change:transform,opacity,filter;
+  will-change:transform,opacity;
 }
 .home-intro-char.is-space{
   width:.29em;
   opacity:1;
-  filter:none;
   transform:none;
+  will-change:auto;
 }
 html.is-home-intro-running .home-intro-char:not(.is-space){
-  animation:homeIntroGlyph 520ms cubic-bezier(.16,1,.3,1) both;
+  animation:homeIntroGlyph var(--motion-content,560ms) cubic-bezier(.16,1,.3,1) both;
   animation-delay:var(--home-intro-delay,0ms);
 }
 
 @keyframes homeIntroGlyph{
-  0%{
-    opacity:0;
-    filter:blur(9px);
-    transform:translate3d(0,.28em,0) scale(.985);
-  }
-  48%{
-    opacity:.82;
-    filter:blur(2px);
-    transform:translate3d(0,.035em,0) scale(1.002);
-  }
-  100%{
-    opacity:1;
-    filter:blur(0);
-    transform:translate3d(0,0,0) scale(1);
-  }
+  0%{opacity:0;transform:translate3d(0,.18em,0) scale(.99)}
+  52%{opacity:.76;transform:translate3d(0,.028em,0) scale(1.001)}
+  100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 
-/* Supporting interface intentionally crosses the screen after the title resolves:
-   right-side information enters from the left, left-side information from right. */
+/* Supporting information crosses toward its final side only after the title has
+   resolved: right-side information enters from left, left-side from right. */
 html.is-home-intro-running .nav,
 html.is-home-intro-running .hero__eyebrow>span:last-child,
 html.is-home-intro-running .hero__footer .scroll-cue{
@@ -107,22 +93,29 @@ html.is-home-intro-running.is-home-intro-meta .hero__footer>p{
     transform var(--motion-ui,320ms) cubic-bezier(.22,1,.36,1)!important;
 }
 
-/* Brand/logo remains a separate punctuation beat from below. */
+/* Brand/logo is a final punctuation beat from below, deliberately separate from
+   the horizontal information movement. */
 html.is-home-intro-running .brand{
   opacity:0!important;
-  transform:translate3d(0,24px,0) scale(.94)!important;
+  transform:translate3d(0,20px,0) scale(.96)!important;
   transform-origin:left center;
 }
 html.is-home-intro-running.is-home-intro-logo .brand{
   animation:homeIntroBrand var(--motion-content,560ms) cubic-bezier(.16,1,.3,1) both!important;
 }
 @keyframes homeIntroBrand{
-  0%{opacity:0;transform:translate3d(0,24px,0) scale(.94)}
-  68%{opacity:1;transform:translate3d(0,-2px,0) scale(1.01)}
+  0%{opacity:0;transform:translate3d(0,20px,0) scale(.96)}
+  70%{opacity:1;transform:translate3d(0,-1.5px,0) scale(1.006)}
   100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
 }
 
 @media(max-width:700px){
+  .home-intro-char{transform:translate3d(0,.14em,0) scale(.993)}
+  @keyframes homeIntroGlyph{
+    0%{opacity:0;transform:translate3d(0,.14em,0) scale(.993)}
+    52%{opacity:.78;transform:translate3d(0,.022em,0) scale(1)}
+    100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+  }
   html.is-home-intro-running .nav,
   html.is-home-intro-running .hero__eyebrow>span:last-child,
   html.is-home-intro-running .hero__footer .scroll-cue{transform:translate3d(-28px,0,0)!important}
@@ -138,5 +131,5 @@ html.is-home-intro-running.is-home-intro-logo .brand{
   html.is-home-intro-pending .nav{
     visibility:visible!important;
   }
-  .home-intro-char{opacity:1!important;filter:none!important;transform:none!important;animation:none!important}
+  .home-intro-char{opacity:1!important;transform:none!important;animation:none!important}
 }
