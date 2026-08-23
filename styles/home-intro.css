@@ -17,6 +17,13 @@ html.is-home-intro-complete .hero__line>span{
   transform:none!important;
 }
 
+/* The main title keeps one permanent optical slant. The intro never animates
+   skew/rotation itself, so the title does not begin angled and then straighten. */
+.hero__title{
+  transform:skewX(-5.5deg);
+  transform-origin:left center;
+}
+
 html.is-home-intro-running .hero__title,
 html.is-home-intro-running .hero__eyebrow,
 html.is-home-intro-running .hero__footer,
@@ -93,23 +100,34 @@ html.is-home-intro-running.is-home-intro-meta .hero__footer>p{
     transform var(--motion-ui,320ms) cubic-bezier(.22,1,.36,1)!important;
 }
 
-/* Brand/logo is a final punctuation beat from below, deliberately separate from
-   the horizontal information movement. */
+/* Brand/logo remains the final punctuation beat, but its travel and overshoot are
+   now large enough to register clearly without turning into a cartoon bounce. */
 html.is-home-intro-running .brand{
   opacity:0!important;
-  transform:translate3d(0,20px,0) scale(.96)!important;
+  transform:translate3d(0,34px,0) scale(.86)!important;
   transform-origin:left center;
 }
 html.is-home-intro-running.is-home-intro-logo .brand{
   animation:homeIntroBrand var(--motion-content,560ms) cubic-bezier(.16,1,.3,1) both!important;
 }
+html.is-home-intro-running.is-home-intro-logo .brand-avatar{
+  animation:homeIntroMark var(--motion-content,560ms) cubic-bezier(.16,1,.3,1) both!important;
+}
 @keyframes homeIntroBrand{
-  0%{opacity:0;transform:translate3d(0,20px,0) scale(.96)}
-  70%{opacity:1;transform:translate3d(0,-1.5px,0) scale(1.006)}
+  0%{opacity:0;transform:translate3d(0,34px,0) scale(.86)}
+  56%{opacity:1;transform:translate3d(0,-5px,0) scale(1.035)}
+  76%{opacity:1;transform:translate3d(0,1.5px,0) scale(.992)}
   100%{opacity:1;transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes homeIntroMark{
+  0%{transform:scale(.72) rotate(-6deg)}
+  58%{transform:scale(1.10) rotate(1.4deg)}
+  78%{transform:scale(.98) rotate(-.4deg)}
+  100%{transform:scale(1) rotate(0)}
 }
 
 @media(max-width:700px){
+  .hero__title{transform:skewX(-4.5deg)}
   .home-intro-char{transform:translate3d(0,.14em,0) scale(.993)}
   @keyframes homeIntroGlyph{
     0%{opacity:0;transform:translate3d(0,.14em,0) scale(.993)}
@@ -132,4 +150,5 @@ html.is-home-intro-running.is-home-intro-logo .brand{
     visibility:visible!important;
   }
   .home-intro-char{opacity:1!important;transform:none!important;animation:none!important}
+  html.is-home-intro-running .brand-avatar{animation:none!important}
 }
