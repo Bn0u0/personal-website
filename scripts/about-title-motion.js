@@ -21,18 +21,18 @@
         display:inline-block;
         opacity:0;
         filter:blur(3px);
-        transform:translate3d(-.025em,.18em,0) rotate(0);
+        transform:translate(-.025em,.18em);
+        font-style:normal!important;
         transition:
           opacity var(--motion-editorial,760ms) ease,
           transform var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
           filter var(--motion-editorial,760ms) ease;
         transition-delay:calc(var(--char-index) * var(--motion-stagger-tight,40ms));
-        will-change:opacity,transform,filter;
       }
       .about-ai__statement.is-flowing .about-ai__title-char{
         opacity:1;
-        filter:blur(0);
-        transform:translate3d(0,0,0) rotate(0);
+        filter:none;
+        transform:none;
       }
       @media(prefers-reduced-motion:reduce){
         .about-ai__title-char{
@@ -61,7 +61,7 @@
       line.textContent='';
 
       [...text].forEach(char=>{
-        const letter=document.createElement('i');
+        const letter=document.createElement('span');
         letter.className='about-ai__title-char';
         letter.setAttribute('aria-hidden','true');
         letter.style.setProperty('--char-index',charIndex++);
