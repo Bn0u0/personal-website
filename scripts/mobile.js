@@ -1,6 +1,8 @@
 (()=>{
   const touchUI=matchMedia('(pointer:coarse)').matches||matchMedia('(hover:none)').matches;
   if(!touchUI)return;
+  if(window.__bn0u0MobileInitialized)return;
+  window.__bn0u0MobileInitialized=true;
 
   const root=document.documentElement;
   const shortestScreen=Math.min(screen.width||innerWidth,screen.height||innerHeight);
@@ -11,16 +13,13 @@
 
   root.classList.add('is-touch-ui');
   root.dataset.inputProfile='touch';
+  root.dataset.mobileController='ready';
   if(phoneSized){
     root.classList.add('is-mobile-layout');
     root.dataset.layoutProfile='phone';
   }
   document.querySelector('.cursor')?.remove();
 
-  /* iOS browser chrome makes 100vh/dvh move while the visitor scrolls. A section
-     that is supposed to be one screen should not grow/shrink under the finger,
-     so capture the actual visual viewport once and refresh it only when the
-     orientation genuinely changes or the page is restored. */
   let screenHeight=0;
   let lastOrientation=`${innerWidth}x${innerHeight}`;
   function captureScreen(){
@@ -82,11 +81,8 @@
     new MutationObserver(syncImpact).observe(archive,{attributes:true,attributeFilter:['class']});
   }
 
-  /* PHONE PROJECT DETAIL ---------------------------------------------------
-     Desktop keeps the organic inverse clip. On phones, capture the close action
-     before site.js reaches its SVG/64-point clip renderer and run one cheap
-     transform/opacity exit instead. This removes the path-rasterization spikes
-     that can produce a frozen or fractured Safari frame. */
+  /* Phone detail closes on a compositor-only path before the desktop SVG
+     inverse reveal can start. */
   if(phoneSized){
     const detail=document.querySelector('.project-detail');
     const detailClose=detail?.querySelector('.project-detail__close');
@@ -115,9 +111,6 @@
       detailClosing=true;
       haptic.impact('light');
       window.__lenis?.stop?.();
-
-      /* Inline !important defeats any in-flight non-important clip-path writes
-         from the desktop renderer immediately, so no stale polygon can flash. */
       detail.style.setProperty('clip-path','none','important');
       detail.style.setProperty('-webkit-clip-path','none','important');
       detail.classList.add('is-mobile-detail-closing');
@@ -134,8 +127,6 @@
       if(event.key==='Escape'&&detail?.classList.contains('is-open'))startDetailClose(event);
     },true);
 
-    /* If navigation/state cleanup closes the detail externally, clear the phone
-       exit marker rather than leaving a stale compositing state for the next open. */
     new MutationObserver(()=>{
       if(!document.body.classList.contains('is-detail-open')&&detail){
         clearTimeout(detailCloseTimer);
@@ -145,7 +136,6 @@
     }).observe(document.body,{attributes:true,attributeFilter:['class']});
   }
 
-  /* Tablets stop here: touch behaviour applies, compact phone composition does not. */
   if(!phoneSized)return;
 
   const footer=document.querySelector('.site-footer');
@@ -158,11 +148,14 @@
   ].filter(item=>item.section&&item.target);
   if(!flow.length)return;
 
-  const cue=document.createElement('button');
-  cue.type='button';
-  cue.className='mobile-flow-cue';
-  cue.innerHTML='<span class="mobile-flow-cue__label"></span><span class="mobile-flow-cue__arrow" aria-hidden="true">↓</span>';
-  document.body.appendChild(cue);
+  let cue=document.querySelector('.mobile-flow-cue');
+  if(!cue){
+    cue=document.createElement('button');
+    cue.type='button';
+    cue.className='mobile-flow-cue';
+    cue.innerHTML='<span class="mobile-flow-cue__label"></span><span class="mobile-flow-cue__arrow" aria-hidden="true">↓</span>';
+    document.body.appendChild(cue);
+  }
 
   let currentIndex=0;
   let raf=0;
@@ -224,8 +217,6 @@
     if(!item)return;
     const target=item.target;
 
-    /* Logical destination advances immediately so repeated taps remain fluid at
-       one fixed thumb position, matching the desktop interaction rhythm. */
     currentIndex=Math.min(currentIndex+1,flow.length-1);
     const nextSection=flow[currentIndex]?.section;
     cue.classList.toggle('is-on-dark',!!nextSection&&(nextSection.classList.contains('manifesto')||nextSection.classList.contains('about-ai')));
