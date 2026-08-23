@@ -112,8 +112,14 @@ html.is-mobile-layout .hero{
   grid-template-rows:auto minmax(0,1fr) auto!important;
   align-items:end!important;
 }
-html.is-mobile-layout .hero__eyebrow{align-self:start!important}
-html.is-mobile-layout .hero__eyebrow span:last-child,
+html.is-mobile-layout .hero__eyebrow{
+  align-self:start!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  font-size:9px!important;
+}
+html.is-mobile-layout .hero__eyebrow span:last-child{display:inline!important}
 html.is-mobile-layout .hero__footer p{display:none!important}
 html.is-mobile-layout .hero__title{
   align-self:center!important;
@@ -240,10 +246,10 @@ html.is-mobile-layout #work .project-row__year{
   width:100%!important;
   text-align:left!important;
   white-space:nowrap!important;
-  font-size:7px!important;
+  font-size:8px!important;
   line-height:1.15!important;
-  letter-spacing:.065em!important;
-  opacity:.44!important;
+  letter-spacing:.055em!important;
+  opacity:.46!important;
 }
 html.is-mobile-layout #work .project-row__meta,
 html.is-mobile-layout #work .project-row__action,
@@ -366,14 +372,14 @@ html.is-mobile-layout body .about-ai__row{
   gap:5px!important;
 }
 html.is-mobile-layout body .about-ai__row-index{font-size:8px!important}
-html.is-mobile-layout body .about-ai__row-title{font-size:8px!important}
+html.is-mobile-layout body .about-ai__row-title{font-size:9px!important}
 html.is-mobile-layout body .about-ai__explore{
   grid-column:1 / -1!important;
   justify-self:end!important;
   width:min(220px,72%)!important;
   min-height:38px!important;
   padding-top:9px!important;
-  font-size:8px!important;
+  font-size:9px!important;
 }
 
 /* Phone editorial title motion avoids blur/raster work; opacity + translation is
@@ -487,6 +493,23 @@ html.is-mobile-layout .project-archive .project-row__year{
 html.is-mobile-layout .project-archive .project-row__meta{display:none!important}
 html.is-mobile-layout .project-archive .project-row__title{font-size:clamp(22px,7vw,30px)!important;white-space:normal!important;text-wrap:balance}
 
+/* Keep the requested wall-impact language on phones, but halve the physical
+   displacement so the hit reads without asking Safari to move a full-screen
+   composited layer by multiple device pixels. */
+html.is-mobile-layout .project-archive.is-split-opening{
+  animation:archiveImpactShakePhone var(--motion-micro,180ms) linear var(--motion-content,560ms) both!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+}
+@keyframes archiveImpactShakePhone{
+  0%{transform:translate3d(0,0,0)}
+  20%{transform:translate3d(1.2px,.3px,0)}
+  42%{transform:translate3d(-.9px,-.22px,0)}
+  64%{transform:translate3d(.52px,.12px,0)}
+  82%{transform:translate3d(-.24px,-.06px,0)}
+  100%{transform:translate3d(0,0,0)}
+}
+
 /* Extended AI notes remain a self-contained screen. */
 html.is-mobile-layout body .ai-depth{
   height:var(--mobile-screen)!important;
@@ -530,7 +553,7 @@ html.is-touch-ui .project-detail__close::after{
   html.is-mobile-layout{--mobile-top:max(88px,calc(var(--safe-top) + 70px));--mobile-bottom:max(62px,calc(var(--safe-bottom) + 46px))}
   html.is-mobile-layout .hero__title{font-size:clamp(38px,10.8vw,46px)!important}
   html.is-mobile-layout #work .project-row__title{font-size:clamp(20px,6.6vw,28px)!important}
-  html.is-mobile-layout #work .project-row__year{font-size:6.5px!important}
+  html.is-mobile-layout #work .project-row__year{font-size:7px!important}
   html.is-mobile-layout .manifesto__statement{font-size:clamp(34px,9.6vw,42px)!important}
   html.is-mobile-layout .manifesto__grid{gap:12px!important}
   html.is-mobile-layout .manifesto__grid>p{font-size:12px!important;line-height:1.36!important}
