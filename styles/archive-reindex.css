@@ -1,5 +1,5 @@
 /* All Projects transition — one canonical scene sequence.
-   Open uses the shared entry tiers; close is the exact 0.5× visual inverse. */
+   Opening is a showcase; closing stays fast and responsive. */
 .project-archive{
   background:transparent!important;
 }
@@ -30,14 +30,14 @@
   transform:translate3d(0,0,0);
 }
 
-/* Stronger slow→fast wall motion: displacement now follows t^4 rather than t^2.
-   The first half barely moves, then velocity builds aggressively into the final
-   collision while preserving the shared CONTENT duration tier. */
+/* The t^4 displacement is intentionally dramatic: most acceleration happens in
+   the second half. At 560ms this collapsed into a flash; SHOWCASE timing gives
+   the slow build and final collision enough real screen time to be perceived. */
 .project-archive.is-split-opening::before{
-  animation:archiveWallLeftIn var(--motion-content,560ms) linear both;
+  animation:archiveWallLeftIn var(--motion-showcase,920ms) linear both;
 }
 .project-archive.is-split-opening::after{
-  animation:archiveWallRightIn var(--motion-content,560ms) linear both;
+  animation:archiveWallRightIn var(--motion-showcase,920ms) linear both;
 }
 
 @keyframes archiveWallLeftIn{
@@ -77,7 +77,7 @@
 .project-archive.is-split-opening{
   opacity:1!important;
   transition:none!important;
-  animation:archiveImpactShake var(--motion-micro,180ms) linear var(--motion-content,560ms) both;
+  animation:archiveImpactShake var(--motion-micro,180ms) linear var(--motion-showcase,920ms) both;
 }
 .project-archive.is-split-closing{
   visibility:visible!important;
@@ -98,7 +98,7 @@
 .project-archive.is-split-preparing .project-archive__heading,
 .project-archive.is-split-preparing .project-archive__footer{
   opacity:0!important;
-  transform:translate3d(0,6px,0);
+  transform:translate3d(0,8px,0);
 }
 .project-archive.is-split-preparing .project-archive__list{
   opacity:1!important;
@@ -108,41 +108,41 @@
   transform:translate3d(-56px,0,0)!important;
 }
 
-/* Chrome appears exactly as the two accelerating walls meet. */
+/* Interface chrome appears at collision, then settles on CONTENT timing. */
 .project-archive.is-split-opening .project-archive__top,
 .project-archive.is-split-opening .project-archive__heading{
   opacity:1!important;
   transform:translate3d(0,0,0);
-  transition:opacity var(--motion-ui,320ms) ease var(--motion-content,560ms),transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) var(--motion-content,560ms);
+  transition:
+    opacity var(--motion-content,560ms) ease var(--motion-showcase,920ms),
+    transform var(--motion-content,560ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)) var(--motion-showcase,920ms);
 }
 .project-archive.is-split-opening .project-archive__footer{
   opacity:1!important;
   transform:translate3d(0,0,0);
-  transition:opacity var(--motion-ui,320ms) ease calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms)),transform var(--motion-ui,320ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)) calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms));
+  transition:
+    opacity var(--motion-content,560ms) ease calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms)),
+    transform var(--motion-content,560ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)) calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms));
 }
-.project-archive.is-split-opening .project-archive__list{
-  opacity:1!important;
-}
+.project-archive.is-split-opening .project-archive__list{opacity:1!important}
 
-/* 01→06 are now another tier slower: CONTENT 560ms instead of UI 320ms.
-   The shared 40ms stagger remains, so the sequence is slower without losing
-   the directional 01→06 rhythm. */
+/* Rows are editorial content, not UI. They arrive after the collision and each
+   stays in motion long enough for the 01→06 direction to be visible. */
 .project-archive.is-split-opening .project-item{
   opacity:1;
   transform:translate3d(0,0,0);
   transition-property:opacity,transform;
-  transition-duration:var(--motion-content,560ms),var(--motion-content,560ms);
-  transition-timing-function:ease,var(--ease-soft,cubic-bezier(.22,1,.36,1));
+  transition-duration:var(--motion-editorial,760ms),var(--motion-editorial,760ms);
+  transition-timing-function:ease,var(--ease-editorial,cubic-bezier(.20,.65,.20,1));
   will-change:transform,opacity;
 }
-.project-archive.is-split-opening .project-item:nth-child(1){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-tight,40ms))}
-.project-archive.is-split-opening .project-item:nth-child(2){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms))}
-.project-archive.is-split-opening .project-item:nth-child(3){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
-.project-archive.is-split-opening .project-item:nth-child(4){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
-.project-archive.is-split-opening .project-item:nth-child(5){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
-.project-archive.is-split-opening .project-item:nth-child(6){transition-delay:calc(var(--motion-content,560ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
+.project-archive.is-split-opening .project-item:nth-child(1){transition-delay:calc(var(--motion-showcase,920ms) + var(--motion-stagger-tight,40ms))}
+.project-archive.is-split-opening .project-item:nth-child(2){transition-delay:calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms))}
+.project-archive.is-split-opening .project-item:nth-child(3){transition-delay:calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
+.project-archive.is-split-opening .project-item:nth-child(4){transition-delay:calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
+.project-archive.is-split-opening .project-item:nth-child(5){transition-delay:calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-tight,40ms))}
+.project-archive.is-split-opening .project-item:nth-child(6){transition-delay:calc(var(--motion-showcase,920ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms) + var(--motion-stagger-standard,80ms))}
 
-/* The impact exists only on entry and lands exactly when both walls meet. */
 @keyframes archiveImpactShake{
   0%{transform:translate3d(0,0,0)}
   18%{transform:translate3d(2.4px,.6px,0)}
@@ -152,8 +152,7 @@
   100%{transform:translate3d(0,0,0)}
 }
 
-/* Close: exact time-reversal of the wall acceleration at the 0.5× exit tier.
-   Rows now use the matching CONTENT exit tier (280ms). */
+/* Exit remains deliberately faster. */
 .project-archive.is-split-closing .project-item{
   opacity:0!important;
   transform:translate3d(-56px,0,0)!important;
@@ -176,7 +175,6 @@
   transform:translate3d(0,6px,0)!important;
   transition:opacity var(--motion-exit-ui,160ms) ease,transform var(--motion-exit-ui,160ms) var(--ease-exit,cubic-bezier(.64,0,.78,0))!important;
 }
-
 .project-archive.is-open.is-split-closing::before{
   animation:archiveWallLeftIn var(--motion-exit-content,280ms) linear calc(var(--motion-exit-ui,160ms) + var(--motion-exit-stagger-standard,40ms)) 1 reverse both;
 }
