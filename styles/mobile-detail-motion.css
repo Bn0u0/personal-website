@@ -10,16 +10,16 @@ html.is-mobile-layout .project-detail{
   clip-path:none!important;
   -webkit-clip-path:none!important;
   opacity:0!important;
-  transform:translate3d(0,8px,0) scale(.997)!important;
+  transform:translate3d(0,10px,0) scale(.996)!important;
   transform-origin:50% 46%!important;
   backface-visibility:hidden!important;
   -webkit-backface-visibility:hidden!important;
   isolation:isolate;
   will-change:opacity,transform!important;
   transition:
-    opacity var(--motion-ui,320ms) cubic-bezier(.2,.7,.2,1),
-    transform var(--motion-content,560ms) cubic-bezier(.16,1,.3,1),
-    visibility 0s linear var(--motion-content,560ms)!important;
+    opacity var(--motion-content,560ms) ease,
+    transform var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
+    visibility 0s linear var(--motion-editorial,760ms)!important;
 }
 
 html.is-mobile-layout .project-detail.is-open{
@@ -28,12 +28,12 @@ html.is-mobile-layout .project-detail.is-open{
   opacity:1!important;
   transform:translate3d(0,0,0) scale(1)!important;
   transition:
-    opacity var(--motion-ui,320ms) cubic-bezier(.2,.7,.2,1),
-    transform var(--motion-content,560ms) cubic-bezier(.16,1,.3,1),
+    opacity var(--motion-content,560ms) ease,
+    transform var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
     visibility 0s!important;
 }
 
-/* Press-to-close starts immediately and is exactly the CONTENT exit tier. */
+/* Close remains fast. Response should be immediate even when entrance is staged. */
 html.is-mobile-layout .project-detail.is-open.is-mobile-detail-closing{
   pointer-events:none!important;
   opacity:0!important;
