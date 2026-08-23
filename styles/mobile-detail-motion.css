@@ -4,6 +4,8 @@
    while browser chrome and the media surface are moving. */
 
 html.is-mobile-layout .project-detail{
+  --mobile-detail-open-opacity:1120ms;
+  --mobile-detail-open-transform:1520ms;
   width:100%!important;
   height:var(--mobile-screen,100svh)!important;
   max-height:var(--mobile-screen,100svh)!important;
@@ -17,9 +19,9 @@ html.is-mobile-layout .project-detail{
   isolation:isolate;
   will-change:opacity,transform!important;
   transition:
-    opacity var(--motion-content,560ms) ease,
-    transform var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
-    visibility 0s linear var(--motion-editorial,760ms)!important;
+    opacity var(--mobile-detail-open-opacity) ease,
+    transform var(--mobile-detail-open-transform) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
+    visibility 0s linear var(--mobile-detail-open-transform)!important;
 }
 
 html.is-mobile-layout .project-detail.is-open{
@@ -28,8 +30,8 @@ html.is-mobile-layout .project-detail.is-open{
   opacity:1!important;
   transform:translate3d(0,0,0) scale(1)!important;
   transition:
-    opacity var(--motion-content,560ms) ease,
-    transform var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
+    opacity var(--mobile-detail-open-opacity) ease,
+    transform var(--mobile-detail-open-transform) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
     visibility 0s!important;
 }
 
