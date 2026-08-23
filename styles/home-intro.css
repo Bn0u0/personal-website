@@ -95,10 +95,13 @@ html.is-home-intro-running .home-intro-char:not(.is-space){
 }
 
 /* Completion is exactly the animation's last frame. No DOM swap and no new
-   geometry means the title cannot jump after the entrance finishes. */
+   geometry means the title cannot jump after the entrance finishes. `none`
+   also releases each glyph from the filter compositing surface after the blur
+   resolves; blur(0) still kept those per-glyph surfaces alive and could leave
+   one-pixel raster seams beside large skewed CJK glyphs. */
 html.is-home-intro-complete .home-intro-char{
   opacity:1!important;
-  filter:blur(0)!important;
+  filter:none!important;
   transform:translate3d(0,0,0) rotate(0)!important;
   animation:none!important;
   transition:none!important;
