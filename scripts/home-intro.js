@@ -8,7 +8,20 @@
   }
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const MOTION=window.__motion||{ui:320,content:560,scene:1000,staggerTight:40,staggerStandard:80};
+  const BASE=window.__motion||{ui:320,content:560,scene:1000,staggerTight:40,staggerStandard:80};
+  const cssMs=(name,fallback)=>{
+    const raw=getComputedStyle(root).getPropertyValue(name).trim();
+    const value=parseFloat(raw);
+    if(!Number.isFinite(value))return fallback;
+    return raw.endsWith('s')&&!raw.endsWith('ms')?value*1000:value;
+  };
+  const MOTION={
+    ...BASE,
+    editorial:cssMs('--motion-editorial',760),
+    showcase:cssMs('--motion-showcase',920),
+    hold:cssMs('--motion-hold',180)
+  };
+
   let started=false;
   let timers=[];
 
@@ -52,10 +65,9 @@
       });
     });
 
-    /* Use only canonical motion values: CJK-length statements receive the 80ms
-       editorial stagger; longer Latin statements use the 40ms tight stagger.
-       Every glyph itself receives one CONTENT beat. */
-    const glyphDuration=MOTION.content||560;
+    /* The glyph itself now gets an EDITORIAL beat. Stagger stays restrained so
+       English never turns into a ten-second typewriter sequence. */
+    const glyphDuration=MOTION.editorial;
     const stagger=animated.length<=18?(MOTION.staggerStandard||80):(MOTION.staggerTight||40);
     animated.forEach((glyph,index)=>glyph.style.setProperty('--home-intro-delay',`${index*stagger}ms`));
 
@@ -82,13 +94,19 @@
       root.classList.add('is-home-intro-running');
     }));
 
-    await wait(Math.ceil(built.duration)+(MOTION.staggerTight||40));
+    /* Beat 1 — title. Give the resolved phrase one still frame before anything
+       else competes for attention. */
+    await wait(Math.ceil(built.duration)+MOTION.hold);
 
+    /* Beat 2 — supporting information. It is allowed to almost finish before
+       the logo arrives, so the cross-screen motion can actually be read. */
     root.classList.add('is-home-intro-meta');
-    await wait((MOTION.ui||320)+(MOTION.staggerTight||40));
-    root.classList.add('is-home-intro-logo');
+    await wait((MOTION.ui||320)+MOTION.hold);
 
-    await wait((MOTION.content||560)+(MOTION.staggerTight||40));
+    /* Beat 3 — logo punctuation. This gets SHOWCASE timing rather than ordinary
+       content timing because it is the final memorable accent of the entrance. */
+    root.classList.add('is-home-intro-logo');
+    await wait(MOTION.showcase+MOTION.hold);
 
     unwrap(built.lines);
     root.classList.remove('is-home-intro-running','is-home-intro-meta','is-home-intro-logo');
