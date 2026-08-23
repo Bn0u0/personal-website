@@ -10,17 +10,26 @@ html.is-home-intro-pending .nav{
   visibility:hidden!important;
 }
 
+/* Slant invariant ---------------------------------------------------------
+   The line wrapper is the one node that survives the whole intro unchanged:
+   buildGlyphs() only adds children inside it and unwrap() later restores text
+   into the same wrapper. Keep the permanent slant here, rather than on the H1
+   or on temporary glyphs. That means no class cleanup, glyph animation or DOM
+   unwrap can ever interpolate the title back to a straight transform. */
 html.is-home-intro-pending .hero__line>span,
 html.is-home-intro-running .hero__line>span,
 html.is-home-intro-complete .hero__line>span{
   animation:none!important;
-  transform:none!important;
+  transform:skewX(-5.5deg)!important;
+  transform-origin:left center!important;
+  transition:none!important;
 }
 
-/* The main title keeps one permanent optical slant. The intro never animates
-   skew/rotation itself, so the title does not begin angled and then straighten. */
+/* Do not let the H1 itself own a transform. A parent transform was visually
+   fragile because intro state cleanup and descendant compositing could make the
+   apparent angle change. The stable line wrappers above now own it entirely. */
 .hero__title{
-  transform:skewX(-5.5deg);
+  transform:none!important;
   transform-origin:left center;
 }
 
@@ -127,7 +136,11 @@ html.is-home-intro-running.is-home-intro-logo .brand-avatar{
 }
 
 @media(max-width:700px){
-  .hero__title{transform:skewX(-4.5deg)}
+  html.is-home-intro-pending .hero__line>span,
+  html.is-home-intro-running .hero__line>span,
+  html.is-home-intro-complete .hero__line>span{
+    transform:skewX(-4.5deg)!important;
+  }
   .home-intro-char{transform:translate3d(0,.14em,0) scale(.993)}
   @keyframes homeIntroGlyph{
     0%{opacity:0;transform:translate3d(0,.14em,0) scale(.993)}
