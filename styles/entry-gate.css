@@ -5,12 +5,12 @@ html.is-entry-gated body{
 }
 
 .entry-gate{
-  --entry-micro:180ms;
-  --entry-ui:320ms;
-  --entry-content:560ms;
-  --entry-scene:1000ms;
-  --entry-epic:2000ms;
-  --entry-stagger:80ms;
+  --entry-micro:var(--motion-micro,180ms);
+  --entry-ui:var(--motion-ui,320ms);
+  --entry-content:var(--motion-content,560ms);
+  --entry-scene:var(--motion-scene,1000ms);
+  --entry-epic:var(--motion-epic,2000ms);
+  --entry-stagger:var(--motion-stagger-standard,80ms);
   position:fixed;
   inset:0;
   z-index:1000;
@@ -25,8 +25,8 @@ html.is-entry-gated body{
   contain:paint;
 }
 
-/* The handoff is owned by two opaque halves. They meet with a tiny overlap so
-   there can never be a one-pixel seam at the centre on fractional DPR screens. */
+/* Two opaque halves own the final handoff. The tiny overlap prevents fractional
+   DPR seams at the centre. */
 .entry-gate::before,
 .entry-gate::after{
   content:"";
@@ -43,9 +43,7 @@ html.is-entry-gated body{
 .entry-gate::before{top:0}
 .entry-gate::after{bottom:0}
 
-/* Language selection uses an optical golden-section anchor rather than
-   mathematical 50% centering. 38.2% keeps the first decision inside the upper
-   visual field while preserving enough negative space below for the handoff. */
+/* Language selection uses an optical anchor above mathematical centre. */
 .entry-gate__choice{
   --entry-choice-y:38.2%;
   position:absolute;
@@ -86,9 +84,6 @@ html.is-entry-gated body{
     opacity var(--entry-micro) ease,
     transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1));
 }
-
-/* CJK glyphs occupy more of the em square than Latin capitals. The slightly
-   smaller CJK size makes the perceived cap-height of 中文 and EN match. */
 .entry-gate__option[data-entry-lang="zh"]{
   justify-self:center;
   font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
@@ -120,11 +115,13 @@ html.is-entry-gated body{
 
 .entry-gate.is-choosing .entry-gate__choice{
   opacity:0;
-  transform:translate3d(0,-50%,0) scale(.985);
-  filter:blur(4px);
+  transform:translate3d(0,-50%,0) scale(.988);
+  filter:blur(3px);
   pointer-events:none;
 }
 
+/* WELCOME / 歡迎 is one calm focal object. Blur is deliberately shallow here;
+   the hero that follows stays fully crisp, so the two phases do not compete. */
 .entry-gate__welcome{
   position:relative;
   z-index:4;
@@ -137,22 +134,22 @@ html.is-entry-gated body{
   font-weight:500;
   text-align:center;
   opacity:0;
-  filter:blur(8px);
-  transform:translate3d(0,0,0) scale(.975);
+  filter:blur(5px);
+  transform:translate3d(0,3px,0) scale(.985);
   transition:
     opacity var(--entry-content) ease,
     transform var(--entry-content) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
     filter var(--entry-content) ease,
     letter-spacing var(--entry-content) ease;
   pointer-events:none;
-  will-change:opacity,transform,filter;
+  will-change:opacity,transform;
 }
 .entry-gate[data-language="zh"] .entry-gate__welcome{
   font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
   letter-spacing:-.08em;
 }
 .entry-gate.is-welcoming .entry-gate__welcome{
-  opacity:.92;
+  opacity:.94;
   filter:blur(0);
   transform:translate3d(0,0,0) scale(1);
 }
@@ -170,13 +167,11 @@ html.is-entry-gated body{
   top:50%;
   width:14vmin;
   aspect-ratio:1;
-  border:1px solid rgba(18,18,18,.18);
+  border:1px solid rgba(18,18,18,.16);
   border-radius:50%;
   opacity:0;
   transform:translate(-50%,-50%) scale(.28);
-  box-shadow:
-    0 0 0 .5px rgba(255,255,255,.42) inset,
-    0 0 22px rgba(18,18,18,.025);
+  box-shadow:0 0 0 .5px rgba(255,255,255,.34) inset;
   will-change:transform,opacity;
 }
 .entry-gate.is-welcoming .entry-gate__ripple{
@@ -187,31 +182,29 @@ html.is-entry-gated body{
 
 @keyframes entryRipple{
   0%{opacity:0;transform:translate(-50%,-50%) scale(.28)}
-  12%{opacity:.28}
-  58%{opacity:.15}
+  12%{opacity:.24}
+  58%{opacity:.13}
   100%{opacity:0;transform:translate(-50%,-50%) scale(12)}
 }
 
-/* Phase 1: WELCOME / 歡迎 gets a full CONTENT beat to leave with intention.
-   It drifts upward a few pixels, opens its tracking and dissolves into a soft
-   blur. The background remains completely opaque for this entire phase. */
+/* Foreground leaves completely before the surface moves. It retains a full
+   CONTENT beat, but tracking/scale changes are small enough to read as restraint
+   rather than a second spectacle. */
 .entry-gate.is-dismissing .entry-gate__welcome{
   opacity:0;
-  filter:blur(7px);
-  transform:translate3d(0,-8px,0) scale(1.018);
-  letter-spacing:-.025em;
+  filter:blur(4px);
+  transform:translate3d(0,-6px,0) scale(1.008);
+  letter-spacing:-.045em;
   transition:
     opacity var(--entry-content) cubic-bezier(.4,0,.2,1),
     transform var(--entry-content) cubic-bezier(.4,0,.2,1),
     filter var(--entry-content) cubic-bezier(.4,0,.2,1),
     letter-spacing var(--entry-content) cubic-bezier(.4,0,.2,1);
 }
-.entry-gate[data-language="zh"].is-dismissing .entry-gate__welcome{
-  letter-spacing:-.035em;
-}
+.entry-gate[data-language="zh"].is-dismissing .entry-gate__welcome{letter-spacing:-.05em}
 .entry-gate.is-dismissing .entry-gate__ripples{
   opacity:0;
-  transform:scale(1.035);
+  transform:scale(1.02);
   transition:
     opacity var(--entry-content) cubic-bezier(.4,0,.2,1),
     transform var(--entry-content) cubic-bezier(.4,0,.2,1);
@@ -222,13 +215,10 @@ html.is-entry-gated body{
   visibility:hidden!important;
   transition:none!important;
 }
-.entry-gate.is-welcome-cleared .entry-gate__ripple{
-  animation:none!important;
-}
+.entry-gate.is-welcome-cleared .entry-gate__ripple{animation:none!important}
 
-/* Phase 2: after the foreground is physically gone, the surface opens from the
-   centre seam toward the top and bottom. Strong ease-out means it breaks open
-   quickly, then loses speed and settles gently at the edges. */
+/* Surface opens from the middle, initially fast and progressively slower. The
+   hero intro starts at this same boundary and renders above these panels. */
 .entry-gate.is-revealing::before{
   animation:entrySurfaceTopReveal var(--entry-epic) cubic-bezier(.16,1,.3,1) forwards;
 }
@@ -244,8 +234,6 @@ html.is-entry-gated body{
   to{transform:translate3d(0,100.5%,0)}
 }
 
-/* The overlay is removed only after BOTH surface halves report completion and
-   two painted frames have committed the fully revealed page. */
 .entry-gate.is-cleared{
   opacity:0!important;
   pointer-events:none!important;
@@ -262,15 +250,10 @@ html.is-entry-gated body{
   transition:none!important;
 }
 
-/* Medium viewports get a slight optical correction because the language pair
-   occupies more of the available width than it does on large desktop screens. */
 @media(min-width:701px) and (max-width:1100px){
   .entry-gate__choice{--entry-choice-y:39.2%}
 }
 
-/* Mobile keeps the same left / slash / right composition rather than stacking
-   it vertically. The anchor moves to 40%: still clearly above centre, but less
-   aggressive than desktop because the glyphs occupy much more viewport height. */
 @media(max-width:700px){
   .entry-gate__choice{
     --entry-choice-y:40%;
@@ -279,22 +262,12 @@ html.is-entry-gated body{
     padding-left:max(18px,env(safe-area-inset-left));
     padding-right:max(18px,env(safe-area-inset-right));
   }
-  .entry-gate__option[data-entry-lang="zh"]{
-    font-size:clamp(54px,16vw,84px);
-  }
-  .entry-gate__option[data-entry-lang="en"]{
-    font-size:clamp(60px,17.2vw,94px);
-  }
-  .entry-gate__divider{
-    font-size:clamp(20px,7vw,34px);
-  }
-  .entry-gate__welcome{
-    font-size:clamp(64px,20vw,124px);
-  }
+  .entry-gate__option[data-entry-lang="zh"]{font-size:clamp(54px,16vw,84px)}
+  .entry-gate__option[data-entry-lang="en"]{font-size:clamp(60px,17.2vw,94px)}
+  .entry-gate__divider{font-size:clamp(20px,7vw,34px)}
+  .entry-gate__welcome{font-size:clamp(64px,20vw,124px)}
 }
 
-/* Very short landscape screens need an ergonomic override. A literal golden
-   section would crowd the top edge once the large glyph height is included. */
 @media(max-height:520px) and (orientation:landscape){
   .entry-gate__choice{--entry-choice-y:45%}
   .entry-gate__option[data-entry-lang="zh"]{font-size:clamp(46px,12vh,72px)}
@@ -306,9 +279,7 @@ html.is-entry-gated body{
   .entry-gate__choice,
   .entry-gate__option,
   .entry-gate__welcome,
-  .entry-gate__ripples{
-    transition:none!important;
-  }
+  .entry-gate__ripples{transition:none!important}
   .entry-gate__ripple{display:none!important}
   .entry-gate.is-revealing::before,
   .entry-gate.is-revealing::after{animation:none!important}
