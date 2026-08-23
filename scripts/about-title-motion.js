@@ -21,11 +21,11 @@
         display:inline-block;
         opacity:0;
         filter:blur(3px);
-        transform:translate3d(-.025em,.16em,0) rotate(0);
+        transform:translate3d(-.025em,.18em,0) rotate(0);
         transition:
-          opacity var(--motion-content,560ms) ease,
-          transform var(--motion-content,560ms) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
-          filter var(--motion-content,560ms) ease;
+          opacity var(--motion-editorial,760ms) ease,
+          transform var(--motion-editorial,760ms) var(--ease-editorial,cubic-bezier(.20,.65,.20,1)),
+          filter var(--motion-editorial,760ms) ease;
         transition-delay:calc(var(--char-index) * var(--motion-stagger-tight,40ms));
         will-change:opacity,transform,filter;
       }
@@ -88,8 +88,6 @@
     observer.observe(statement);
   }
 
-  /* about.js updates the two direct line spans when language changes. Re-wrap
-     after that observer has run; using <i> for glyphs keeps its span selector safe. */
   new MutationObserver(()=>queueMicrotask(wrapTitle)).observe(document.documentElement,{
     attributes:true,
     attributeFilter:['lang']
