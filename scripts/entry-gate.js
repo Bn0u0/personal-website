@@ -138,9 +138,16 @@
     if(committed)return;
     committed=true;
 
+    const selectedCopy=next==='zh'?'歡迎':'WELCOME';
+
+    /* The click itself performs the language-to-welcome transformation. The
+       transformed word then participates in the existing wipe / centre / confirm
+       sequence instead of waiting until the final welcome phase to change copy. */
+    button.textContent=selectedCopy;
+    if(welcome)welcome.textContent=selectedCopy;
+
     prepareSelection(button);
     gate.dataset.language=next;
-    if(welcome)welcome.textContent=next==='zh'?'歡迎':'WELCOME';
 
     const languageReady=applyPreferredLanguage(next);
 
@@ -155,7 +162,7 @@
     gate.classList.add('is-selection-erasing');
     await delay(SELECT.wipe);
 
-    /* 2) The selected label travels to the exact viewport centre. */
+    /* 2) The selected welcome label travels to the exact viewport centre. */
     gate.classList.add('is-selection-centering');
     await delay(SELECT.center);
 
@@ -164,8 +171,8 @@
     await delay(SELECT.confirm);
     gate.classList.remove('is-selection-confirming');
 
-    /* 4) Dissolve the selected label in-place, then replace it with the welcome
-       word on the same optical Y anchor. */
+    /* 4) Dissolve the transformed label in-place, then hand off to the matching
+       welcome layer on the same optical Y anchor. */
     gate.classList.add('is-choosing');
     await delay(MOTION.ui);
     gate.classList.add('is-welcoming');
