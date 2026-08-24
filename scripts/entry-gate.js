@@ -8,7 +8,7 @@
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000};
-  const SELECT={wipe:500,center:560,confirm:420};
+  const SELECT={wipe:500,center:560};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
@@ -134,20 +134,46 @@
     });
   }
 
+  function morphSelectedToWelcome(button,selectedCopy){
+    const startStyle=getComputedStyle(button);
+    const startFontSize=parseFloat(startStyle.fontSize);
+    const startSpacing=startStyle.letterSpacing;
+
+    if(welcome){
+      welcome.textContent=selectedCopy;
+      welcome.style.opacity='0';
+    }
+
+    const targetStyle=welcome?getComputedStyle(welcome):startStyle;
+    const targetFontSize=parseFloat(targetStyle.fontSize)||startFontSize;
+    const targetSpacing=targetStyle.letterSpacing||startSpacing;
+
+    button.style.fontSize=`${startFontSize}px`;
+    button.style.letterSpacing=startSpacing;
+    button.textContent=selectedCopy;
+
+    const motion=button.animate([
+      {fontSize:`${startFontSize}px`,letterSpacing:startSpacing},
+      {fontSize:`${targetFontSize}px`,letterSpacing:targetSpacing}
+    ],{
+      duration:SELECT.center,
+      easing:'cubic-bezier(.22,.22,.72,.96)',
+      fill:'forwards'
+    });
+
+    button.style.fontSize=`${targetFontSize}px`;
+    button.style.letterSpacing=targetSpacing;
+    return motion.finished.catch(()=>{});
+  }
+
   async function choose(next,button){
     if(committed)return;
     committed=true;
 
     const selectedCopy=next==='zh'?'歡迎':'WELCOME';
-
-    /* The click itself performs the language-to-welcome transformation. The
-       transformed word then participates in the existing wipe / centre / confirm
-       sequence instead of waiting until the final welcome phase to change copy. */
-    button.textContent=selectedCopy;
-    if(welcome)welcome.textContent=selectedCopy;
-
     prepareSelection(button);
     gate.dataset.language=next;
+    if(welcome)welcome.textContent=selectedCopy;
 
     const languageReady=applyPreferredLanguage(next);
 
@@ -157,35 +183,28 @@
       return;
     }
 
-    /* 1) The unselected language and slash are wiped from right to left. */
+    /* 1) First erase the unselected language and slash. */
     await nextPaint();
     gate.classList.add('is-selection-erasing');
     await delay(SELECT.wipe);
 
-    /* 2) The selected welcome label travels to the exact viewport centre. */
-    gate.classList.add('is-selection-centering');
-    await delay(SELECT.center);
-
-    /* 3) Confirm the click with a press/rebound and a restrained ring pulse. */
-    gate.classList.add('is-selection-confirming');
-    await delay(SELECT.confirm);
-    gate.classList.remove('is-selection-confirming');
-
-    /* 4) Dissolve the transformed label in-place, then hand off to the matching
-       welcome layer on the same optical Y anchor. */
-    gate.classList.add('is-choosing');
-    await delay(MOTION.ui);
-    gate.classList.add('is-welcoming');
+    /* 2) The surviving label becomes the welcome copy, grows continuously to
+       the welcome size and moves to centre while the ripple begins immediately. */
+    const fontReady=morphSelectedToWelcome(button,selectedCopy);
+    gate.classList.add('is-selection-centering','is-welcoming');
 
     await Promise.all([
       languageReady,
-      delay(MOTION.content)
+      fontReady,
+      delay(MOTION.scene)
     ]);
 
-    /* Let the completed word exist for one MICRO beat before dismissal. */
-    await delay(MOTION.micro);
-
-    await dismissForeground();
+    /* 3) Fade the same visible word out. There is no second welcome layer and
+       no press/rebound confirmation phase between the wipe and ripple. */
+    gate.classList.add('is-choosing');
+    await delay(MOTION.ui);
+    gate.classList.add('is-welcome-cleared');
+    await nextPaint();
     startFinalReveal();
   }
 
