@@ -143,7 +143,7 @@ html.is-entry-gated body{
 .entry-gate.is-selection-erasing[data-language="en"] .entry-gate__divider{animation-delay:0ms}
 .entry-gate.is-selection-erasing[data-language="en"] .entry-gate__option.is-entry-unselected{animation-delay:80ms}
 @keyframes entryChoiceErase{
-  from{clip-path:inset(0 0 0 0);opacity:1}
+  from{clip-path:inset(0 0 0 0)}
   to{clip-path:inset(0 100% 0 0);opacity:0}
 }
 
