@@ -15,6 +15,7 @@ html.is-entry-gated body{
   --entry-select-wipe:420ms;
   --entry-select-center:560ms;
   --entry-select-confirm:420ms;
+  --entry-directional:cubic-bezier(.22,.22,.72,.96);
   position:fixed;
   inset:0;
   z-index:1000;
@@ -84,10 +85,37 @@ html.is-entry-gated body{
   text-align:center;
   transform-origin:center center;
   transition:
-    opacity var(--entry-micro) ease,
-    transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
-    filter var(--entry-ui) ease;
+    opacity var(--entry-micro) linear,
+    transform var(--entry-ui) var(--entry-directional),
+    filter var(--entry-ui) linear;
   will-change:transform,opacity,clip-path;
+}
+
+/* A one-pixel motion trail gives the selected word a directional axis while it
+   travels. It is deliberately thin and short-lived: motion cue, not decoration. */
+.entry-gate__option::before{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:clamp(30px,6vw,88px);
+  height:1px;
+  background:linear-gradient(90deg,rgba(18,18,18,0),rgba(18,18,18,.42));
+  opacity:0;
+  pointer-events:none;
+  will-change:transform,opacity;
+}
+.entry-gate[data-language="zh"] .entry-gate__option.is-entry-selected::before{
+  right:calc(100% + clamp(10px,1.5vw,22px));
+  left:auto;
+  transform:translateY(-50%) scaleX(.12);
+  transform-origin:right center;
+}
+.entry-gate[data-language="en"] .entry-gate__option.is-entry-selected::before{
+  left:calc(100% + clamp(10px,1.5vw,22px));
+  right:auto;
+  background:linear-gradient(90deg,rgba(18,18,18,.42),rgba(18,18,18,0));
+  transform:translateY(-50%) scaleX(.12);
+  transform-origin:left center;
 }
 .entry-gate__option::after{
   content:"";
@@ -132,11 +160,10 @@ html.is-entry-gated body{
   will-change:clip-path,opacity;
 }
 
-/* Stage 1 — erase the unselected side and slash from right to left. The tiny
-   stagger keeps the wipe travelling spatially across the pair. */
+/* Stage 1 — erase the unselected side and slash at a constant velocity. */
 .entry-gate.is-selection-erasing .entry-gate__option.is-entry-unselected,
 .entry-gate.is-selection-erasing .entry-gate__divider{
-  animation:entryChoiceErase var(--entry-select-wipe) cubic-bezier(.65,0,.35,1) both;
+  animation:entryChoiceErase var(--entry-select-wipe) linear both;
 }
 .entry-gate.is-selection-erasing[data-language="zh"] .entry-gate__option.is-entry-unselected{animation-delay:0ms}
 .entry-gate.is-selection-erasing[data-language="zh"] .entry-gate__divider{animation-delay:80ms}
@@ -147,31 +174,39 @@ html.is-entry-gated body{
   to{clip-path:inset(0 100% 0 0);opacity:0}
 }
 
-/* Stage 2 — selected language slides from its original grid cell to the exact
-   viewport centre. JS supplies the pixel delta so desktop/mobile stay exact. */
+/* Stage 2 — mostly linear travel with only a small deceleration on arrival. */
 .entry-gate.is-selection-centering .entry-gate__option.is-entry-selected{
   opacity:1;
   transform:translate3d(var(--entry-selected-x),0,0);
-  transition:transform var(--entry-select-center) cubic-bezier(.22,1,.36,1);
+  transition:transform var(--entry-select-center) var(--entry-directional);
+}
+.entry-gate.is-selection-centering .entry-gate__option.is-entry-selected::before{
+  animation:entrySelectedTrail var(--entry-select-center) linear both;
+}
+@keyframes entrySelectedTrail{
+  0%{opacity:0;transform:translateY(-50%) scaleX(.12)}
+  16%{opacity:.42;transform:translateY(-50%) scaleX(.92)}
+  72%{opacity:.28;transform:translateY(-50%) scaleX(.72)}
+  100%{opacity:0;transform:translateY(-50%) scaleX(.18)}
 }
 
-/* Stage 3 — a restrained press/rebound and expanding confirmation ring. */
+/* Stage 3 — short confirmation with less bounce and a linear ring expansion. */
 .entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected{
-  animation:entrySelectedConfirm var(--entry-select-confirm) cubic-bezier(.22,1,.36,1);
+  animation:entrySelectedConfirm var(--entry-select-confirm) cubic-bezier(.24,.7,.32,1);
 }
 .entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected::after{
-  animation:entrySelectedRing var(--entry-select-confirm) cubic-bezier(.22,1,.36,1);
+  animation:entrySelectedRing var(--entry-select-confirm) linear;
 }
 @keyframes entrySelectedConfirm{
   0%{transform:translate3d(var(--entry-selected-x),0,0) scale(1)}
-  30%{transform:translate3d(var(--entry-selected-x),0,0) scale(.94)}
-  68%{transform:translate3d(var(--entry-selected-x),0,0) scale(1.055)}
+  34%{transform:translate3d(var(--entry-selected-x),0,0) scale(.965)}
+  70%{transform:translate3d(var(--entry-selected-x),0,0) scale(1.025)}
   100%{transform:translate3d(var(--entry-selected-x),0,0) scale(1)}
 }
 @keyframes entrySelectedRing{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.62)}
-  24%{opacity:.36}
-  100%{opacity:0;transform:translate(-50%,-50%) scale(1.18)}
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}
+  18%{opacity:.32}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.16)}
 }
 
 /* After confirmation the selected word dissolves in place; the welcome word
@@ -182,9 +217,9 @@ html.is-entry-gated body{
   filter:blur(3px);
   transform:translate3d(var(--entry-selected-x),0,0) scale(.988);
   transition:
-    opacity var(--entry-ui) ease,
-    transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
-    filter var(--entry-ui) ease;
+    opacity var(--entry-ui) linear,
+    transform var(--entry-ui) var(--entry-directional),
+    filter var(--entry-ui) linear;
 }
 
 /* WELCOME / 歡迎 now shares the exact same optical anchor as the language row. */
@@ -350,6 +385,7 @@ html.is-entry-gated body{
   .entry-gate__ripple{display:none!important}
   .entry-gate.is-selection-erasing .entry-gate__option.is-entry-unselected,
   .entry-gate.is-selection-erasing .entry-gate__divider,
+  .entry-gate.is-selection-centering .entry-gate__option.is-entry-selected::before,
   .entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected,
   .entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected::after,
   .entry-gate.is-revealing::before,
