@@ -8,7 +8,7 @@
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000};
-  const SELECT={wipe:500,center:560};
+  const SELECT={wipe:500,center:560,morph:480};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
@@ -156,7 +156,7 @@
       {fontSize:`${startFontSize}px`,letterSpacing:startSpacing},
       {fontSize:`${targetFontSize}px`,letterSpacing:targetSpacing}
     ],{
-      duration:SELECT.center,
+      duration:SELECT.morph,
       easing:'cubic-bezier(.22,.22,.72,.96)',
       fill:'forwards'
     });
@@ -183,15 +183,19 @@
       return;
     }
 
-    /* 1) First erase the unselected language and slash. */
+    /* 1) Erase the unselected language and slash while the selected label stays unchanged. */
     await nextPaint();
     gate.classList.add('is-selection-erasing');
     await delay(SELECT.wipe);
 
-    /* 2) The surviving label becomes the welcome copy, grows continuously to
-       the welcome size and moves to centre while the ripple begins immediately. */
+    /* 2) Move the original 中文 / EN label all the way to centre first. */
+    gate.classList.add('is-selection-centering');
+    await delay(SELECT.center);
+
+    /* 3) Only after it reaches centre, morph the same label into 歡迎 / WELCOME.
+       Font size and tracking change continuously, and the ripple starts here. */
     const fontReady=morphSelectedToWelcome(button,selectedCopy);
-    gate.classList.add('is-selection-centering','is-welcoming');
+    gate.classList.add('is-welcoming');
 
     await Promise.all([
       languageReady,
@@ -199,8 +203,7 @@
       delay(MOTION.scene)
     ]);
 
-    /* 3) Fade the same visible word out. There is no second welcome layer and
-       no press/rebound confirmation phase between the wipe and ripple. */
+    /* 4) Fade the same visible word out, then hand off to the final surface reveal. */
     gate.classList.add('is-choosing');
     await delay(MOTION.ui);
     gate.classList.add('is-welcome-cleared');
