@@ -11,6 +11,10 @@ html.is-entry-gated body{
   --entry-scene:var(--motion-scene,1000ms);
   --entry-epic:var(--motion-epic,2000ms);
   --entry-stagger:var(--motion-stagger-standard,80ms);
+  --entry-focus-y:38.2%;
+  --entry-select-wipe:420ms;
+  --entry-select-center:560ms;
+  --entry-select-confirm:420ms;
   position:fixed;
   inset:0;
   z-index:1000;
@@ -43,13 +47,12 @@ html.is-entry-gated body{
 .entry-gate::before{top:0}
 .entry-gate::after{bottom:0}
 
-/* Language selection uses an optical anchor above mathematical centre. */
+/* Language selection and WELCOME / 歡迎 share one optical Y anchor. */
 .entry-gate__choice{
-  --entry-choice-y:38.2%;
   position:absolute;
   left:0;
   right:0;
-  top:var(--entry-choice-y);
+  top:var(--entry-focus-y);
   z-index:3;
   display:grid;
   grid-template-columns:minmax(0,1fr) clamp(28px,3.8vw,64px) minmax(0,1fr);
@@ -58,14 +61,13 @@ html.is-entry-gated body{
   gap:clamp(14px,2.7vw,44px);
   padding:0 clamp(24px,7vw,120px);
   transform:translate3d(0,-50%,0);
-  transition:
-    opacity var(--entry-ui) ease,
-    transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
-    filter var(--entry-ui) ease;
+  pointer-events:auto;
 }
 
 .entry-gate__option{
+  --entry-selected-x:0px;
   appearance:none;
+  position:relative;
   width:100%;
   max-width:6ch;
   border:0;
@@ -80,9 +82,25 @@ html.is-entry-gated body{
   cursor:pointer;
   white-space:nowrap;
   text-align:center;
+  transform-origin:center center;
   transition:
     opacity var(--entry-micro) ease,
-    transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1));
+    transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
+    filter var(--entry-ui) ease;
+  will-change:transform,opacity,clip-path;
+}
+.entry-gate__option::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:118%;
+  height:1.08em;
+  border:1px solid rgba(18,18,18,.28);
+  border-radius:999px;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.62);
+  pointer-events:none;
 }
 .entry-gate__option[data-entry-lang="zh"]{
   justify-self:center;
@@ -111,31 +129,83 @@ html.is-entry-gated body{
   letter-spacing:0;
   transform:translateY(.04em);
   user-select:none;
+  will-change:clip-path,opacity;
 }
 
-.entry-gate.is-choosing .entry-gate__choice{
+/* Stage 1 — erase the unselected side and slash from right to left. The tiny
+   stagger keeps the wipe travelling spatially across the pair. */
+.entry-gate.is-selection-erasing .entry-gate__option.is-entry-unselected,
+.entry-gate.is-selection-erasing .entry-gate__divider{
+  animation:entryChoiceErase var(--entry-select-wipe) cubic-bezier(.65,0,.35,1) both;
+}
+.entry-gate.is-selection-erasing[data-language="zh"] .entry-gate__option.is-entry-unselected{animation-delay:0ms}
+.entry-gate.is-selection-erasing[data-language="zh"] .entry-gate__divider{animation-delay:80ms}
+.entry-gate.is-selection-erasing[data-language="en"] .entry-gate__divider{animation-delay:0ms}
+.entry-gate.is-selection-erasing[data-language="en"] .entry-gate__option.is-entry-unselected{animation-delay:80ms}
+@keyframes entryChoiceErase{
+  from{clip-path:inset(0 0 0 0)}
+  to{clip-path:inset(0 100% 0 0);opacity:0}
+}
+
+/* Stage 2 — selected language slides from its original grid cell to the exact
+   viewport centre. JS supplies the pixel delta so desktop/mobile stay exact. */
+.entry-gate.is-selection-centering .entry-gate__option.is-entry-selected{
+  opacity:1;
+  transform:translate3d(var(--entry-selected-x),0,0);
+  transition:transform var(--entry-select-center) cubic-bezier(.22,1,.36,1);
+}
+
+/* Stage 3 — a restrained press/rebound and expanding confirmation ring. */
+.entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected{
+  animation:entrySelectedConfirm var(--entry-select-confirm) cubic-bezier(.22,1,.36,1);
+}
+.entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected::after{
+  animation:entrySelectedRing var(--entry-select-confirm) cubic-bezier(.22,1,.36,1);
+}
+@keyframes entrySelectedConfirm{
+  0%{transform:translate3d(var(--entry-selected-x),0,0) scale(1)}
+  30%{transform:translate3d(var(--entry-selected-x),0,0) scale(.94)}
+  68%{transform:translate3d(var(--entry-selected-x),0,0) scale(1.055)}
+  100%{transform:translate3d(var(--entry-selected-x),0,0) scale(1)}
+}
+@keyframes entrySelectedRing{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.62)}
+  24%{opacity:.36}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.18)}
+}
+
+/* After confirmation the selected word dissolves in place; the welcome word
+   appears on exactly the same vertical optical anchor. */
+.entry-gate.is-choosing .entry-gate__choice{pointer-events:none}
+.entry-gate.is-choosing .entry-gate__option.is-entry-selected{
   opacity:0;
-  transform:translate3d(0,-50%,0) scale(.988);
   filter:blur(3px);
-  pointer-events:none;
+  transform:translate3d(var(--entry-selected-x),0,0) scale(.988);
+  transition:
+    opacity var(--entry-ui) ease,
+    transform var(--entry-ui) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
+    filter var(--entry-ui) ease;
 }
 
-/* WELCOME / 歡迎 is one calm focal object. Blur is deliberately shallow here;
-   the hero that follows stays fully crisp, so the two phases do not compete. */
+/* WELCOME / 歡迎 now shares the exact same optical anchor as the language row. */
 .entry-gate__welcome{
-  position:relative;
+  position:absolute;
+  left:0;
+  right:0;
+  top:var(--entry-focus-y);
   z-index:4;
-  margin:0;
+  margin:0 auto;
   max-width:92vw;
   color:rgba(18,18,18,.90);
   font-size:clamp(68px,12vw,196px);
-  line-height:.82;
+  line-height:.86;
   letter-spacing:-.075em;
   font-weight:500;
   text-align:center;
   opacity:0;
   filter:blur(5px);
-  transform:translate3d(0,3px,0) scale(.985);
+  transform:translate3d(0,calc(-50% + 3px),0) scale(.985);
+  transform-origin:center center;
   transition:
     opacity var(--entry-content) ease,
     transform var(--entry-content) var(--ease-soft,cubic-bezier(.22,1,.36,1)),
@@ -151,7 +221,7 @@ html.is-entry-gated body{
 .entry-gate.is-welcoming .entry-gate__welcome{
   opacity:.94;
   filter:blur(0);
-  transform:translate3d(0,0,0) scale(1);
+  transform:translate3d(0,-50%,0) scale(1);
 }
 
 .entry-gate__ripples{
@@ -164,7 +234,7 @@ html.is-entry-gated body{
 .entry-gate__ripple{
   position:absolute;
   left:50%;
-  top:50%;
+  top:var(--entry-focus-y);
   width:14vmin;
   aspect-ratio:1;
   border:1px solid rgba(18,18,18,.16);
@@ -187,13 +257,11 @@ html.is-entry-gated body{
   100%{opacity:0;transform:translate(-50%,-50%) scale(12)}
 }
 
-/* Foreground leaves completely before the surface moves. It retains a full
-   CONTENT beat, but tracking/scale changes are small enough to read as restraint
-   rather than a second spectacle. */
+/* Foreground leaves completely before the surface moves. */
 .entry-gate.is-dismissing .entry-gate__welcome{
   opacity:0;
   filter:blur(4px);
-  transform:translate3d(0,-6px,0) scale(1.008);
+  transform:translate3d(0,calc(-50% - 6px),0) scale(1.008);
   letter-spacing:-.045em;
   transition:
     opacity var(--entry-content) cubic-bezier(.4,0,.2,1),
@@ -217,8 +285,7 @@ html.is-entry-gated body{
 }
 .entry-gate.is-welcome-cleared .entry-gate__ripple{animation:none!important}
 
-/* Surface opens from the middle, initially fast and progressively slower. The
-   hero intro starts at this same boundary and renders above these panels. */
+/* Surface opens from the middle, initially fast and progressively slower. */
 .entry-gate.is-revealing::before{
   animation:entrySurfaceTopReveal var(--entry-epic) cubic-bezier(.16,1,.3,1) forwards;
 }
@@ -251,12 +318,12 @@ html.is-entry-gated body{
 }
 
 @media(min-width:701px) and (max-width:1100px){
-  .entry-gate__choice{--entry-choice-y:39.2%}
+  .entry-gate{--entry-focus-y:39.2%}
 }
 
 @media(max-width:700px){
+  .entry-gate{--entry-focus-y:40%}
   .entry-gate__choice{
-    --entry-choice-y:40%;
     grid-template-columns:minmax(0,1fr) clamp(20px,7vw,34px) minmax(0,1fr);
     gap:clamp(7px,2.6vw,14px);
     padding-left:max(18px,env(safe-area-inset-left));
@@ -269,7 +336,7 @@ html.is-entry-gated body{
 }
 
 @media(max-height:520px) and (orientation:landscape){
-  .entry-gate__choice{--entry-choice-y:45%}
+  .entry-gate{--entry-focus-y:45%}
   .entry-gate__option[data-entry-lang="zh"]{font-size:clamp(46px,12vh,72px)}
   .entry-gate__option[data-entry-lang="en"]{font-size:clamp(52px,13vh,78px)}
   .entry-gate__welcome{font-size:clamp(54px,18vh,94px)}
@@ -279,8 +346,12 @@ html.is-entry-gated body{
   .entry-gate__choice,
   .entry-gate__option,
   .entry-gate__welcome,
-  .entry-gate__ripples{transition:none!important}
+  .entry-gate__ripples{transition:none!important;animation:none!important}
   .entry-gate__ripple{display:none!important}
+  .entry-gate.is-selection-erasing .entry-gate__option.is-entry-unselected,
+  .entry-gate.is-selection-erasing .entry-gate__divider,
+  .entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected,
+  .entry-gate.is-selection-confirming .entry-gate__option.is-entry-selected::after,
   .entry-gate.is-revealing::before,
   .entry-gate.is-revealing::after{animation:none!important}
 }

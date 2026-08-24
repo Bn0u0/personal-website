@@ -8,6 +8,7 @@
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000};
+  const SELECT={wipe:500,center:560,confirm:420};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
@@ -119,18 +120,27 @@
     revealFallback=setTimeout(settle,MOTION.epic+260);
   }
 
+  function prepareSelection(button){
+    const rect=button.getBoundingClientRect();
+    const shiftX=innerWidth/2-(rect.left+rect.width/2);
+    button.style.setProperty('--entry-selected-x',`${shiftX.toFixed(2)}px`);
+
+    buttons.forEach(item=>{
+      const selected=item===button;
+      item.setAttribute('aria-pressed',String(selected));
+      item.disabled=true;
+      item.classList.toggle('is-entry-selected',selected);
+      item.classList.toggle('is-entry-unselected',!selected);
+    });
+  }
+
   async function choose(next,button){
     if(committed)return;
     committed=true;
 
-    buttons.forEach(item=>{
-      item.setAttribute('aria-pressed',String(item===button));
-      item.disabled=true;
-    });
-
+    prepareSelection(button);
     gate.dataset.language=next;
     if(welcome)welcome.textContent=next==='zh'?'歡迎':'WELCOME';
-    gate.classList.add('is-choosing');
 
     const languageReady=applyPreferredLanguage(next);
 
@@ -140,6 +150,23 @@
       return;
     }
 
+    /* 1) The unselected language and slash are wiped from right to left. */
+    await nextPaint();
+    gate.classList.add('is-selection-erasing');
+    await delay(SELECT.wipe);
+
+    /* 2) The selected label travels to the exact viewport centre. */
+    gate.classList.add('is-selection-centering');
+    await delay(SELECT.center);
+
+    /* 3) Confirm the click with a press/rebound and a restrained ring pulse. */
+    gate.classList.add('is-selection-confirming');
+    await delay(SELECT.confirm);
+    gate.classList.remove('is-selection-confirming');
+
+    /* 4) Dissolve the selected label in-place, then replace it with the welcome
+       word on the same optical Y anchor. */
+    gate.classList.add('is-choosing');
     await delay(MOTION.ui);
     gate.classList.add('is-welcoming');
 
@@ -148,9 +175,7 @@
       delay(MOTION.content)
     ]);
 
-    /* Let the completed word exist for one MICRO beat. This is long enough to
-       register as intentional, but the pause occurs before dismissal; once the
-       word is gone, the hero/background handoff remains immediate. */
+    /* Let the completed word exist for one MICRO beat before dismissal. */
     await delay(MOTION.micro);
 
     await dismissForeground();
