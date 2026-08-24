@@ -134,10 +134,18 @@
     });
   }
 
+  function renderedTextCenterX(element){
+    const range=document.createRange();
+    range.selectNodeContents(element);
+    const rect=range.getBoundingClientRect();
+    return rect.left+rect.width/2;
+  }
+
   function morphSelectedToWelcome(button,selectedCopy){
     const startStyle=getComputedStyle(button);
     const startFontSize=parseFloat(startStyle.fontSize);
     const startSpacing=startStyle.letterSpacing;
+    const startShift=parseFloat(button.style.getPropertyValue('--entry-selected-x'))||0;
 
     if(welcome){
       welcome.textContent=selectedCopy;
@@ -148,22 +156,46 @@
     const targetFontSize=parseFloat(targetStyle.fontSize)||startFontSize;
     const targetSpacing=targetStyle.letterSpacing||startSpacing;
 
+    /* Swap only after EN / 中文 has reached the centre. Measure the rendered
+       welcome text at its final typography, then compensate the transform so
+       the glyph run itself — not the old EN / 中文 button box — stays on 50vw. */
+    button.textContent=selectedCopy;
+    button.style.fontSize=`${targetFontSize}px`;
+    button.style.letterSpacing=targetSpacing;
+    const finalShift=startShift+(innerWidth/2-renderedTextCenterX(button));
+
+    /* Restore the starting typography before the browser paints, then animate
+       size, tracking and the small centre correction as one continuous morph. */
     button.style.fontSize=`${startFontSize}px`;
     button.style.letterSpacing=startSpacing;
-    button.textContent=selectedCopy;
 
     const motion=button.animate([
-      {fontSize:`${startFontSize}px`,letterSpacing:startSpacing},
-      {fontSize:`${targetFontSize}px`,letterSpacing:targetSpacing}
+      {
+        fontSize:`${startFontSize}px`,
+        letterSpacing:startSpacing,
+        transform:`translate3d(${startShift.toFixed(2)}px,0,0)`
+      },
+      {
+        fontSize:`${targetFontSize}px`,
+        letterSpacing:targetSpacing,
+        transform:`translate3d(${finalShift.toFixed(2)}px,0,0)`
+      }
     ],{
       duration:SELECT.morph,
       easing:'cubic-bezier(.22,.22,.72,.96)',
       fill:'forwards'
     });
 
-    button.style.fontSize=`${targetFontSize}px`;
-    button.style.letterSpacing=targetSpacing;
-    return motion.finished.catch(()=>{});
+    return motion.finished.catch(()=>{}).then(()=>{
+      const previousTransition=button.style.transition;
+      button.style.transition='none';
+      button.style.setProperty('--entry-selected-x',`${finalShift.toFixed(2)}px`);
+      button.style.fontSize=`${targetFontSize}px`;
+      button.style.letterSpacing=targetSpacing;
+      motion.cancel();
+      void button.offsetWidth;
+      button.style.transition=previousTransition;
+    });
   }
 
   async function choose(next,button){
