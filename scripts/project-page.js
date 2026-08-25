@@ -2,6 +2,7 @@
   const key=document.body.dataset.projectPage;
   const p=window.__portfolioProjects?.[key];
   if(!p)return;
+  const caseStudy=window.__portfolioCaseStudies?.[key]||null;
   const root=document.documentElement;
   const preferred=(()=>{try{return localStorage.getItem('bn0u0-language')}catch(e){return null}})();
   const initial=preferred==='zh'?'zh':'en';
@@ -25,9 +26,24 @@
     });
   }
 
+  const renderJourney=(story,zh)=>{
+    const section=document.querySelector('.case-journey');
+    if(!section)return;
+    if(!story?.journey?.length){section.hidden=true;return}
+    section.hidden=false;
+    set('.journey-title',story.journeyTitle);
+    set('.journey-intro',story.journeyIntro);
+    set('.journey-reflection__title',story.reflectionTitle);
+    set('.journey-reflection__copy',story.reflection);
+    const list=document.querySelector('.journey-list');
+    if(list)list.innerHTML=story.journey.map((step,i)=>`<article class="journey-step"><div class="journey-step__index"><span>${String(i+1).padStart(2,'0')}</span><small>${esc(step[0])}</small></div><div class="journey-step__copy"><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p></div></article>`).join('');
+    set('.journey-label',zh?'歷程 / TURNING POINTS':'JOURNEY / TURNING POINTS');
+  };
+
   const render=()=>{
     const zh=root.lang.toLowerCase().startsWith('zh');
     const c=zh?p.zh:p.en;
+    const story=caseStudy?.[zh?'zh':'en']||null;
     set('.case-kicker__type',c.meta);
     set('.case-title',p.title);
     set('.case-period',p.period);
@@ -41,14 +57,25 @@
     set('.case-back',zh?'← 回到作品':'← Back to work');
     set('.lang-toggle',zh?'EN':'中文');
     set('.case-system__label','SYSTEM / VERIFIED');
+
     const nodes=document.querySelector('.case-system__nodes');
-    if(nodes)nodes.innerHTML=(c.evidence||[]).map((e,i)=>`<article class="system-node"><span>0${i+1} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
+    if(nodes)nodes.innerHTML=(c.evidence||[]).slice(0,4).map((e,i)=>`<article class="system-node"><span>0${i+1} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
+
+    const evidenceItems=[...(c.evidence||[]),...(story?.evidence||[])];
     const evidence=document.querySelector('.evidence-grid');
-    if(evidence)evidence.innerHTML=(c.evidence||[]).map((e,i)=>`<article class="evidence-card"><span>E${String(i+1).padStart(2,'0')} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
+    if(evidence)evidence.innerHTML=evidenceItems.map((e,i)=>`<article class="evidence-card"><span>E${String(i+1).padStart(2,'0')} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
+    if(story){
+      set('.evidence-title',story.evidenceTitle);
+      set('.evidence-intro',story.evidenceIntro);
+    }
+
     const decisions=document.querySelector('.decision-list');
     if(decisions)decisions.innerHTML=(c.decisions||[]).map((d,i)=>`<li><span>${String(i+1).padStart(2,'0')}</span><p>${esc(d)}</p></li>`).join('');
     const actions=document.querySelector('.case-actions');
     if(actions){actions.innerHTML=[p.liveUrl?`<a href="${esc(p.liveUrl)}" target="_blank" rel="noopener noreferrer">LIVE BUILD ↗</a>`:'',p.sourceUrl?`<a href="${esc(p.sourceUrl)}" target="_blank" rel="noopener noreferrer">SOURCE ↗</a>`:''].filter(Boolean).join('')}
+
+    renderJourney(story,zh);
+
     document.querySelectorAll('[data-section-label]').forEach(el=>{
       const k=el.dataset.sectionLabel;
       const labels={overview:zh?'專案 / OVERVIEW':'PROJECT / OVERVIEW',evidence:zh?'證據 / EVIDENCE':'PROOF / EVIDENCE',decision:zh?'演變 / DECISION TRACE':'EVOLUTION / DECISION TRACE',status:zh?'目前 / STATUS':'NOW / STATUS'};
