@@ -44,6 +44,7 @@
     const zh=root.lang.toLowerCase().startsWith('zh');
     const c=zh?p.zh:p.en;
     const story=caseStudy?.[zh?'zh':'en']||null;
+    const systemEvidence=story?.systemEvidence||c.evidence||[];
     set('.case-kicker__type',c.meta);
     set('.case-title',p.title);
     set('.case-period',p.period);
@@ -59,9 +60,9 @@
     set('.case-system__label','SYSTEM / VERIFIED');
 
     const nodes=document.querySelector('.case-system__nodes');
-    if(nodes)nodes.innerHTML=(c.evidence||[]).slice(0,4).map((e,i)=>`<article class="system-node"><span>0${i+1} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
+    if(nodes)nodes.innerHTML=systemEvidence.slice(0,4).map((e,i)=>`<article class="system-node"><span>0${i+1} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
 
-    const evidenceItems=[...(c.evidence||[]),...(story?.evidence||[])];
+    const evidenceItems=story?.evidence?.length?[...systemEvidence,...story.evidence]:(c.evidence||[]);
     const evidence=document.querySelector('.evidence-grid');
     if(evidence)evidence.innerHTML=evidenceItems.map((e,i)=>`<article class="evidence-card"><span>E${String(i+1).padStart(2,'0')} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
     if(story){
