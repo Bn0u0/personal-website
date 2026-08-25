@@ -8,7 +8,7 @@
 
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const MOTION={micro:180,ui:320,content:560,scene:1000,epic:2000};
-  const SELECT={wipe:500,center:560,morph:480};
+  const SELECT={wipe:500};
   const buttons=[...gate.querySelectorAll('[data-entry-lang]')];
   const welcome=gate.querySelector('.entry-gate__welcome');
   let committed=false;
@@ -113,17 +113,15 @@
 
     gate.addEventListener('animationend',onAnimationEnd);
     gate.classList.add('is-revealing');
-
-    /* The hero becomes the visual centre while the surface opens behind it. */
     requestAnimationFrame(announceHomeIntro);
-
     revealFallback=setTimeout(settle,MOTION.epic+260);
   }
 
   function prepareSelection(button){
-    const rect=button.getBoundingClientRect();
-    const shiftX=innerWidth/2-(rect.left+rect.width/2);
-    button.style.setProperty('--entry-selected-x',`${shiftX.toFixed(2)}px`);
+    /* The selected label no longer travels to the viewport centre. Keep its
+       transform anchor at zero and let the centred welcome layer take over
+       only after the click feedback + erase phase has finished. */
+    button.style.setProperty('--entry-selected-x','0px');
 
     buttons.forEach(item=>{
       const selected=item===button;
@@ -134,68 +132,21 @@
     });
   }
 
-  function renderedTextCenterX(element){
-    const range=document.createRange();
-    range.selectNodeContents(element);
-    const rect=range.getBoundingClientRect();
-    return rect.left+rect.width/2;
-  }
-
-  function morphSelectedToWelcome(button,selectedCopy){
-    const startStyle=getComputedStyle(button);
-    const startFontSize=parseFloat(startStyle.fontSize);
-    const startSpacing=startStyle.letterSpacing;
-    const startShift=parseFloat(button.style.getPropertyValue('--entry-selected-x'))||0;
-
-    if(welcome){
-      welcome.textContent=selectedCopy;
-      welcome.style.opacity='0';
-    }
-
-    const targetStyle=welcome?getComputedStyle(welcome):startStyle;
-    const targetFontSize=parseFloat(targetStyle.fontSize)||startFontSize;
-    const targetSpacing=targetStyle.letterSpacing||startSpacing;
-
-    /* Swap only after EN / 中文 has reached the centre. Measure the rendered
-       welcome text at its final typography, then compensate the transform so
-       the glyph run itself — not the old EN / 中文 button box — stays on 50vw. */
-    button.textContent=selectedCopy;
-    button.style.fontSize=`${targetFontSize}px`;
-    button.style.letterSpacing=targetSpacing;
-    const finalShift=startShift+(innerWidth/2-renderedTextCenterX(button));
-
-    /* Restore the starting typography before the browser paints, then animate
-       size, tracking and the small centre correction as one continuous morph. */
-    button.style.fontSize=`${startFontSize}px`;
-    button.style.letterSpacing=startSpacing;
-
+  function playSelectedFeedback(button){
+    /* One restrained press/release gesture. Its 500 ms duration deliberately
+       matches the full wipe timeline (420 ms erase + 80 ms stagger), so the
+       feedback resolves on the exact frame the last erased element finishes. */
     const motion=button.animate([
-      {
-        fontSize:`${startFontSize}px`,
-        letterSpacing:startSpacing,
-        transform:`translate3d(${startShift.toFixed(2)}px,0,0)`
-      },
-      {
-        fontSize:`${targetFontSize}px`,
-        letterSpacing:targetSpacing,
-        transform:`translate3d(${finalShift.toFixed(2)}px,0,0)`
-      }
+      {transform:'translate3d(0,0,0) scale(1)',offset:0},
+      {transform:'translate3d(0,1px,0) scale(.976)',offset:.24},
+      {transform:'translate3d(0,0,0) scale(1.012)',offset:.58},
+      {transform:'translate3d(0,0,0) scale(1)',offset:1}
     ],{
-      duration:SELECT.morph,
-      easing:'cubic-bezier(.22,.22,.72,.96)',
-      fill:'forwards'
+      duration:SELECT.wipe,
+      easing:'cubic-bezier(.2,.72,.28,1)',
+      fill:'none'
     });
-
-    return motion.finished.catch(()=>{}).then(()=>{
-      const previousTransition=button.style.transition;
-      button.style.transition='none';
-      button.style.setProperty('--entry-selected-x',`${finalShift.toFixed(2)}px`);
-      button.style.fontSize=`${targetFontSize}px`;
-      button.style.letterSpacing=targetSpacing;
-      motion.cancel();
-      void button.offsetWidth;
-      button.style.transition=previousTransition;
-    });
+    return motion.finished.catch(()=>{});
   }
 
   async function choose(next,button){
@@ -215,31 +166,25 @@
       return;
     }
 
-    /* 1) Erase the unselected language and slash while the selected label stays unchanged. */
+    /* 1) Click feedback and erase begin together and finish together. */
     await nextPaint();
     gate.classList.add('is-selection-erasing');
-    await delay(SELECT.wipe);
+    await Promise.all([
+      playSelectedFeedback(button),
+      delay(SELECT.wipe)
+    ]);
 
-    /* 2) Move the original 中文 / EN label all the way to centre first. */
-    gate.classList.add('is-selection-centering');
-    await delay(SELECT.center);
-
-    /* 3) Only after it reaches centre, morph the same label into 歡迎 / WELCOME.
-       Font size and tracking change continuously, and the ripple starts here. */
-    const fontReady=morphSelectedToWelcome(button,selectedCopy);
-    gate.classList.add('is-welcoming');
+    /* 2) No centring travel. The original 中文 / EN dissolves in place while
+       the single centred welcome layer and ripple begin immediately. */
+    gate.classList.add('is-choosing','is-welcoming');
 
     await Promise.all([
       languageReady,
-      fontReady,
       delay(MOTION.scene)
     ]);
 
-    /* 4) Fade the same visible word out, then hand off to the final surface reveal. */
-    gate.classList.add('is-choosing');
-    await delay(MOTION.ui);
-    gate.classList.add('is-welcome-cleared');
-    await nextPaint();
+    /* 3) Fade the welcome cleanly, then hand off to the surface reveal. */
+    await dismissForeground();
     startFinalReveal();
   }
 
