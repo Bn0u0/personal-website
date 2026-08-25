@@ -11,6 +11,11 @@
         ['05 / BRAKE','We deliberately stopped adding things.','The v0.5 release plan made a difficult choice explicit: major gameplay expansion was blocked until security and save integrity were hardened. P1 went further and defined a reliability phase with no gameplay-content work, focusing instead on recovery, lifecycle ownership and the situations most likely to destroy trust in a persistent world.'],
         ['06 / PRODUCT','After “can it exist?” came “can people understand it?”','P2 reframed completeness around the player: a new player should know what to do, be able to operate the world, recover from interruption, play with friends and have a reason to return. That shifted the definition of progress from feature count toward clarity, continuity and confidence.']
       ],
+      systemEvidence:[
+        ['SAVE','Revisioned persistence + recovery','Conflicting writes, recovery and reconnect are treated as first-class behavior.'],
+        ['NETWORK','Private Realtime + lifecycle ownership','Room access, reconnect and critical writes have explicit ownership boundaries.'],
+        ['AGENTS','FSM + scored candidates','Peeps select viable intents using needs, traits, distance and world state.']
+      ],
       evidenceTitle:'The architecture records the change in priorities.',
       evidenceIntro:'These are not decorative technical details. Each one exists because the product eventually exposed a class of failure that had to become explicit.',
       evidence:[
@@ -34,6 +39,11 @@
         ['04 / 持久世界','世界一旦被共享，錯誤就開始有代價。','當島嶼必須跨 Session 保存，又要被多位玩家共同操作時，「我這台電腦看起來正常」已經不夠。斷線、重連、Host 切換、衝突寫入、多分頁／多裝置，以及誰有權改變什麼，都開始變成遊戲本身的一部分。'],
         ['05 / 煞車','我們曾經刻意停止繼續加東西。','v0.5 的 Release Plan 把一個不太直覺的決定寫成硬規則：P0 的安全與存檔完整性沒有完成以前，不再擴張大型玩法。到了 P1 更直接定義成「不做 gameplay content」的可靠性階段，先處理復原、Lifecycle ownership，以及最可能讓玩家失去對持久世界信任的情況。'],
         ['06 / 產品','在「它能不能存在」之後，問題變成「玩家能不能理解它」。','P2 重新定義了完整度：第一次進來的人要知道自己能做什麼、操作得了核心循環、被中斷後回得來、真的能和朋友一起玩，而且有理由再次回到這個世界。從這裡開始，「進度」不再等同於功能數量，而是清楚、連續與可信任。']
+      ],
+      systemEvidence:[
+        ['存檔','Revision 持久化 + 復原','衝突寫入、復原與重連都被視為一級系統行為。'],
+        ['多人','Private Realtime + Lifecycle Ownership','房間權限、重連與關鍵寫入都有明確 ownership 邊界。'],
+        ['Agent','FSM + 候選評分','Peep 依需求、個性、距離與世界狀態選擇可行意圖。']
       ],
       evidenceTitle:'架構本身，記錄了我們優先順序的改變。',
       evidenceIntro:'這些技術項目不是為了讓介紹看起來厲害。它們幾乎都來自某一類實際會破壞體驗的失敗，最後才被迫變成明確的系統邊界。',
