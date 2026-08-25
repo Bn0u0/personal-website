@@ -1,0 +1,29 @@
+.case-journey{background:rgba(180,194,190,.10)}
+.case-journey__head{margin-bottom:clamp(52px,7vw,100px)}
+.journey-list{border-top:1px solid var(--line)}
+.journey-step{display:grid;grid-template-columns:minmax(128px,.24fr) 1fr;gap:clamp(26px,5vw,80px);padding:clamp(30px,4.2vw,62px) 0;border-bottom:1px solid var(--line)}
+.journey-step__index{display:flex;align-items:flex-start;gap:16px;padding-top:5px;color:var(--muted)}
+.journey-step__index span{font-size:clamp(24px,3vw,46px);line-height:.9;letter-spacing:-.05em;color:var(--ink)}
+.journey-step__index small{max-width:120px;font-size:8px;line-height:1.35;letter-spacing:.11em;text-transform:uppercase}
+.journey-step__copy{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(260px,1fr);gap:clamp(28px,5vw,78px);align-items:start}
+.journey-step__copy h3{margin:0;max-width:16ch;font-size:clamp(26px,3.6vw,56px);line-height:1.02;letter-spacing:-.045em;font-weight:500}
+.journey-step__copy p{margin:0;max-width:760px;font-size:14px;line-height:1.78;color:rgba(18,18,18,.68)}
+.journey-reflection{margin-top:clamp(70px,9vw,140px);padding-top:22px;border-top:1px solid rgba(18,18,18,.32);display:grid;grid-template-columns:minmax(128px,.24fr) 1fr;gap:clamp(26px,5vw,80px)}
+.journey-reflection>span{font-size:8px;line-height:1.35;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.journey-reflection>div{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(260px,1fr);gap:clamp(28px,5vw,78px)}
+.journey-reflection h3{margin:0;max-width:16ch;font-size:clamp(28px,4vw,62px);line-height:1;letter-spacing:-.05em;font-weight:500}
+.journey-reflection p{margin:0;max-width:760px;font-size:15px;line-height:1.8;color:rgba(18,18,18,.72)}
+.case-journey[hidden]{display:none!important}
+
+@media(max-width:900px){
+  .journey-step,.journey-reflection{grid-template-columns:1fr}
+  .journey-step__index{justify-content:space-between}
+  .journey-step__copy,.journey-reflection>div{grid-template-columns:1fr}
+  .journey-step__copy h3,.journey-reflection h3{max-width:20ch}
+}
+
+@media(max-width:520px){
+  .journey-step{padding:34px 0}
+  .journey-step__index span{font-size:26px}
+  .journey-step__copy p,.journey-reflection p{font-size:13px;line-height:1.72}
+}
