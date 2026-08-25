@@ -41,13 +41,14 @@
     const lines=lineNodes.map(node=>({node,text:node.textContent||''}));
     const animated=[];
 
+    /* The heading owns one accessible label. The per-glyph DOM is purely visual,
+       so screen readers get the sentence once instead of ARIA labels on generic spans. */
+    title.setAttribute('aria-label',lines.map(({text})=>text).join(' '));
+
     lines.forEach(({node,text})=>{
       node.textContent='';
-      node.setAttribute('aria-label',text);
+      node.setAttribute('aria-hidden','true');
       [...text].forEach(char=>{
-        /* A neutral span is deliberate. The previous <i> brought the UA's
-           italic style into every glyph, so large CJK text was being synthetic-
-           obliqued per character and then skewed again by the line wrapper. */
         const glyph=document.createElement('span');
         glyph.className='home-intro-char';
         glyph.setAttribute('aria-hidden','true');
@@ -62,9 +63,6 @@
       });
     });
 
-    /* About / 001 and About / 002 both use the 40ms editorial character rhythm.
-       The hero now uses the same cadence instead of switching between 80/40ms
-       based on language length, so all three headline systems feel related. */
     const glyphDuration=MOTION.editorial;
     const stagger=MOTION.staggerTight||40;
     animated.forEach((glyph,index)=>glyph.style.setProperty('--home-intro-delay',`${index*stagger}ms`));
@@ -91,20 +89,12 @@
       root.classList.add('is-home-intro-running');
     }));
 
-    /* Beat 1 — title. Give the resolved phrase one still frame before anything
-       else competes for attention. */
     await wait(Math.ceil(built.duration)+MOTION.hold);
-
-    /* Beat 2 — supporting information. */
     root.classList.add('is-home-intro-meta');
     await wait((MOTION.ui||320)+MOTION.hold);
-
-    /* Beat 3 — logo punctuation. */
     root.classList.add('is-home-intro-logo');
     await wait(MOTION.showcase+MOTION.hold);
 
-    /* The animated glyph DOM is the resting DOM. Commit the final state first,
-       paint it twice, then remove choreography classes so no geometry can snap. */
     root.classList.add('is-home-intro-complete');
     await nextPaint();
     root.classList.remove('is-home-intro-running','is-home-intro-meta','is-home-intro-logo');

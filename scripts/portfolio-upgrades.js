@@ -111,7 +111,7 @@
   },true);
 
   function historyClose(){
-    if(!history.state?.project)return;
+    if(uiClosing||!history.state?.project)return;
     uiClosing=true;
     history.back();
     setTimeout(()=>{uiClosing=false},750);
