@@ -47,14 +47,22 @@
   const brand=document.querySelector('.brand'),profileTrigger=document.querySelector('.brand-avatar'),profileCard=document.querySelector('.profile-card');
   if(fine&&brand&&profileTrigger&&profileCard){let profileTimer;const openProfile=()=>{clearTimeout(profileTimer);brand.classList.add('is-profile-open');profileCard.classList.add('is-visible');profileCard.setAttribute('aria-hidden','false')};const closeProfile=()=>{clearTimeout(profileTimer);profileTimer=setTimeout(()=>{brand.classList.remove('is-profile-open');profileCard.classList.remove('is-visible');profileCard.setAttribute('aria-hidden','true')},MOTION.exitMicro)};profileTrigger.addEventListener('mouseenter',openProfile);profileTrigger.addEventListener('mouseleave',closeProfile);profileCard.addEventListener('mouseenter',openProfile);profileCard.addEventListener('mouseleave',closeProfile);brand.addEventListener('focus',openProfile);brand.addEventListener('blur',closeProfile)}
 
-  const projects={
-    picnest:{number:'01',year:'2026',title:'PicNest 2.0',mediaTitle:'PICNEST 2.0',headline:'A small world designed to feel alive.',description:'Virtual world experiments around exploration, collection, multiplayer presence and Peep personality.',tags:['World','Social','R3F','Systems'],below:'A living-world project focused on discovery, collection and the relationship between players and their Peep.'},
-    quant:{number:'02',year:'2026',title:'Quant Research System',mediaTitle:'QUANT RESEARCH SYSTEM',headline:'Research first. Deployment last.',description:'An auditable strategy research pipeline built around mechanism testing, robustness checks and strict separation between research and live execution.',tags:['Python','MT5','Research','Validation'],below:'The emphasis is not on showing a profitable chart. It is on showing how hypotheses survive or fail a repeatable research pipeline.'},
-    grass:{number:'03',year:'2026',title:'Grass Cutting 3min',mediaTitle:'GRASS CUTTING 3MIN',headline:'A tiny game loop built for immediate play.',description:'A compact mobile-oriented prototype exploring fast sessions, systems design and cross-platform implementation.',tags:['Game','Mobile','Phaser','Prototype'],below:'A short-session game experiment where the constraint is part of the design: interaction should become legible almost immediately.'},
-    doodle:{number:'04',year:'2026',title:'Doodle Tyrant',mediaTitle:'DOODLE TYRANT',headline:'Bad drawings turned into a combat language.',description:'A rogue-lite concept built around merge logic, synergy systems and intentionally rough crayon-like art direction.',tags:['Rogue-lite','Game Design','Systems','Art Direction'],below:'The visual roughness is intentional. The project explores whether an imperfect drawing language can become the identity of the combat system.'},
-    learning:{number:'05',year:'2026',title:'Learning Games',mediaTitle:'LEARNING GAMES',headline:'Learning redesigned as collection.',description:'A language-learning game concept using listening, gacha and collection loops to transform repetition into progression.',tags:['Learning','Gacha','Collection','Product'],below:'Instead of presenting study as a task list, the project asks whether collection and progression can make repetition feel naturally motivated.'},
-    pixel:{number:'06',year:'2026',title:'Pixel Lab',mediaTitle:'PIXEL LAB',headline:'A technical sandbox for pixels and motion.',description:'Canvas and physics experiments focused on interaction, sprite processing and small technical prototypes.',tags:['Canvas','Physics','Pixel','Experiment'],below:'A lab rather than a single product: a place for small rendering, interaction and sprite-processing experiments.'}
-  };
+  /* Canonical project content now lives in data/projects.js. This adapter only
+     shapes that shared data for the existing organic-detail animation runtime. */
+  const canonical=window.__portfolioProjects||{};
+  const projects=Object.fromEntries(Object.entries(canonical).map(([key,p])=>{
+    const c=p.en||{};
+    return [key,{
+      number:p.number,
+      year:p.period,
+      title:p.title,
+      mediaTitle:p.mediaTitle,
+      headline:c.headline||p.title,
+      description:c.description||'',
+      tags:(p.stack||[]).slice(0,4),
+      below:c.below||c.overview||''
+    }];
+  }));
 
   const detail=document.querySelector('.project-detail'),detailClose=document.querySelector('.project-detail__close'),detailMedia=document.querySelector('.project-detail__media');
   const dn=document.querySelector('.detail-number'),dy=document.querySelector('.detail-year'),dt=document.querySelector('.project-detail__title'),dh=document.querySelector('.project-detail__headline'),dd=document.querySelector('.project-detail__description'),dTags=document.querySelector('.project-detail__tags'),dmn=document.querySelector('.detail-media-number'),dmt=document.querySelector('.detail-media-title'),db=document.querySelector('.detail-below-copy');
