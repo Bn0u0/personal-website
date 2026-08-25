@@ -21,5 +21,17 @@
 .lab-lens__panel dl>div{display:grid;grid-template-columns:82px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid rgba(18,18,18,.09)}
 .lab-lens__panel dt{opacity:.42}.lab-lens__panel dd{margin:0;font:500 9px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
 .lab-lens__panel p{margin:12px 0 0;opacity:.45}.lab-lens__panel kbd{font:inherit;border:1px solid rgba(18,18,18,.25);padding:1px 4px}
+
+/* Accessibility polish: hierarchy is expressed through ink, not parent opacity.
+   Parent opacity blended otherwise-compliant small text back below WCAG AA. */
+.work-more{opacity:1!important}
+.work-more__label,.work-more__meta{color:#696762!important}
+.work-more:hover .work-more__label,.work-more:focus-visible .work-more__label,
+.work-more:hover .work-more__meta,.work-more:focus-visible .work-more__meta{color:#121212!important}
+.section-scroll-cue{opacity:1!important;color:#696762!important}
+.manifesto .section-scroll-cue,.about-ai .section-scroll-cue{opacity:1!important;color:#85827b!important}
+.manifesto .section-scroll-cue:hover,.manifesto .section-scroll-cue:focus-visible,
+.about-ai .section-scroll-cue:hover,.about-ai .section-scroll-cue:focus-visible{color:#f2f0eb!important}
+
 @media(max-width:700px){.lab-lens-toggle{left:10px;bottom:10px}.lab-lens__panel{right:10px;bottom:52px;width:calc(100vw - 20px)}.lab-lens__grid{background-size:25vw 100%,100% 10vh}}
 @media(prefers-reduced-motion:reduce){.lab-lens{transition:none}}
