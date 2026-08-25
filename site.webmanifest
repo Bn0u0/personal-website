@@ -1,0 +1,11 @@
+{
+  "name":"BN0U0 — Personal Digital Laboratory",
+  "short_name":"BN0U0",
+  "description":"A living index of games, systems, experiments and research.",
+  "start_url":"/",
+  "scope":"/",
+  "display":"browser",
+  "background_color":"#f2f0eb",
+  "theme_color":"#f2f0eb",
+  "icons":[{"src":"/assets/favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

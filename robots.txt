@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://personal-website-eta-navy-67.vercel.app/sitemap.xml

@@ -4,9 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2f0eb" />
-  <meta name="description" content="Bn0u0 — projects, systems, games and experiments." />
+  <meta name="description" content="Bn0u0 — a personal digital laboratory for games, systems, experiments and research." />
   <title>Bn0u0 — Personal Digital Laboratory</title>
+  <link rel="canonical" href="https://personal-website-eta-navy-67.vercel.app/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bn0u0 — Personal Digital Laboratory" />
+  <meta property="og:description" content="Games, systems, experiments and research — including the ideas that failed, changed direction or became something else." />
+  <meta property="og:url" content="https://personal-website-eta-navy-67.vercel.app/" />
+  <meta name="twitter:card" content="summary" />
   <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+  <link rel="manifest" href="/site.webmanifest" />
   <link rel="stylesheet" href="./styles/site.css" />
   <link rel="stylesheet" href="./styles/entry-gate.css" />
   <link rel="stylesheet" href="./styles/home-intro.css" />
@@ -19,6 +26,13 @@
   <link rel="stylesheet" href="./styles/cursor-contrast.css" />
   <link rel="stylesheet" href="./styles/mobile.css" />
   <link rel="stylesheet" href="./styles/mobile-detail-motion.css" />
+  <link rel="stylesheet" href="./styles/surface-integration.css" data-surface-integration />
+  <link rel="stylesheet" href="./styles/section-cues.css" data-section-cues />
+  <link rel="stylesheet" href="./styles/elastic-grid.css" data-elastic-grid />
+  <link rel="stylesheet" href="./styles/ai-depth.css" data-ai-depth />
+  <link rel="stylesheet" href="./styles/lab-upgrades.css" />
+  <link rel="stylesheet" href="./styles/lab-lens.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","name":"BN0U0 — Personal Digital Laboratory","url":"https://personal-website-eta-navy-67.vercel.app/","description":"A living index of games, systems, experiments and research."},{"@type":"Person","name":"BN0U0","url":"https://personal-website-eta-navy-67.vercel.app/","description":"Independent maker building games, systems, experiments and research."}]}</script>
 </head>
 <body>
   <section class="entry-gate" aria-label="Choose language">
@@ -28,11 +42,7 @@
       <button class="entry-gate__option" type="button" data-entry-lang="en">EN</button>
     </div>
     <p class="entry-gate__welcome" aria-live="polite"></p>
-    <div class="entry-gate__ripples" aria-hidden="true">
-      <span class="entry-gate__ripple"></span>
-      <span class="entry-gate__ripple"></span>
-      <span class="entry-gate__ripple"></span>
-    </div>
+    <div class="entry-gate__ripples" aria-hidden="true"><span class="entry-gate__ripple"></span><span class="entry-gate__ripple"></span><span class="entry-gate__ripple"></span></div>
   </section>
 
   <div class="noise" aria-hidden="true"></div>
@@ -42,22 +52,10 @@
     <a class="brand magnetic" href="#top" aria-label="BN0U0 home"><span class="brand-avatar"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14" fill="#121212"/><text x="32" y="30" text-anchor="middle" fill="#F2F0EB" font-family="Arial,Helvetica,sans-serif" font-size="20" font-weight="800">BN</text><text x="32" y="49" text-anchor="middle" fill="#F2F0EB" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="800">0U0</text></svg></span><span class="brand-label">BN0U0</span></a>
     <nav class="nav">
       <a class="magnetic" href="#work">Work</a>
-      <div class="nav-about">
-        <a class="magnetic nav-about__trigger" href="#about" aria-haspopup="true" aria-expanded="false">About</a>
-        <div class="nav-about__menu" aria-label="About sections">
-          <a class="nav-about__option about-menu-001" href="#about"><span class="nav-about__index">001</span><span class="nav-about__label">About me</span></a>
-          <a class="nav-about__option about-menu-002" href="#about-002"><span class="nav-about__index">002</span><span class="nav-about__label">AI + me</span></a>
-        </div>
-      </div>
+      <div class="nav-about"><a class="magnetic nav-about__trigger" href="#about" aria-haspopup="true" aria-expanded="false">About</a><div class="nav-about__menu" aria-label="About sections"><a class="nav-about__option about-menu-001" href="#about"><span class="nav-about__index">001</span><span class="nav-about__label">About me</span></a><a class="nav-about__option about-menu-002" href="#about-002"><span class="nav-about__index">002</span><span class="nav-about__label">AI + me</span></a></div></div>
     </nav>
   </header>
-  <aside class="profile-card" aria-label="BN0U0 profile preview" aria-hidden="true">
-    <div class="profile-card__top"><span class="profile-card__name">BN0U0</span><span class="profile-card__index">Profile / 001</span></div>
-    <p class="profile-card__role">Independent maker</p>
-    <p class="profile-card__location">Taiwan</p>
-    <div class="profile-card__areas"><span>Games</span><span>Systems</span><span>Experiments</span><span>Research</span></div>
-    <div class="profile-card__status">Building ideas into things that can exist.</div>
-  </aside>
+  <aside class="profile-card" aria-label="BN0U0 profile preview" aria-hidden="true"><div class="profile-card__top"><span class="profile-card__name">BN0U0</span><span class="profile-card__index">Profile / 001</span></div><p class="profile-card__role">Independent maker</p><p class="profile-card__location">Taiwan</p><div class="profile-card__areas"><span>Games</span><span>Systems</span><span>Experiments</span><span>Research</span></div><div class="profile-card__status">Building ideas into things that can exist.</div></aside>
 
   <main id="top">
     <section class="hero">
@@ -68,81 +66,47 @@
 
     <section class="work" id="work">
       <div class="section-heading reveal"><p>Selected work</p><p>05 selected</p></div>
-      <div class="work__stage">
-        <div class="project-list">
-          <article class="project-item reveal" data-project="picnest"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open PicNest 2.0 project"><span class="project-row__number">01</span><span class="project-row__title-wrap"><span class="project-row__title">PicNest 2.0</span><span class="project-hover-info"><span class="project-hover-info__text">Autonomous Peeps, persistent worlds and hardened multiplayer.</span><span class="project-hover-info__tags"><span>R3F</span><span>Supabase</span></span></span></span><span class="project-row__meta">3D social world / Life simulation</span><span class="project-row__year">11 MAY 2026 — 14 AUG 2026</span><span class="project-row__action">Click to open ↗</span></button></article>
-          <article class="project-item reveal" data-project="quant"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Quant Research System project"><span class="project-row__number">02</span><span class="project-row__title-wrap"><span class="project-row__title">Quant Research System</span><span class="project-hover-info"><span class="project-hover-info__text">V8 replay governance, mechanism registry, cost and shock diagnostics.</span><span class="project-hover-info__tags"><span>Python</span><span>MT5</span></span></span></span><span class="project-row__meta">Quant research / Validation system</span><span class="project-row__year">15 JAN 2026 — 21 AUG 2026</span><span class="project-row__action">Click to open ↗</span></button></article>
-          <article class="project-item reveal" data-project="grass"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Grass Cutting 3min project"><span class="project-row__number">03</span><span class="project-row__title-wrap"><span class="project-row__title">Grass Cutting 3min</span><span class="project-hover-info"><span class="project-hover-info__text">Three-minute runs with classes, affixes, equipment and mobile deployment.</span><span class="project-hover-info__tags"><span>Phaser</span><span>Capacitor</span></span></span></span><span class="project-row__meta">Mobile action / Extraction prototype</span><span class="project-row__year">16 DEC 2025 — 21 AUG 2026</span><span class="project-row__action">Click to open ↗</span></button></article>
-          <article class="project-item reveal" data-project="doodle"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Doodle Tyrant project"><span class="project-row__number">04</span><span class="project-row__title-wrap"><span class="project-row__title">Doodle Tyrant</span><span class="project-hover-info"><span class="project-hover-info__text">Trigger × modifier × element builds feed short wave combat.</span><span class="project-hover-info__tags"><span>React</span><span>Rogue-lite</span></span></span></span><span class="project-row__meta">Merge rogue-lite / Systems game</span><span class="project-row__year">23 APR 2026</span><span class="project-row__action">Click to open ↗</span></button></article>
-          <article class="project-item reveal" data-project="learning"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Learning Games project"><span class="project-row__number">05</span><span class="project-row__title-wrap"><span class="project-row__title">Learning Games</span><span class="project-hover-info"><span class="project-hover-info__text">Audio quizzes feed a token → gacha → sticker collection loop.</span><span class="project-hover-info__tags"><span>Hakka</span><span>Gacha</span></span></span></span><span class="project-row__meta">Hakka learning / Collection game</span><span class="project-row__year">04 JAN 2026</span><span class="project-row__action">Click to open ↗</span></button></article>
-        </div>
-        <button class="work-more" type="button" aria-haspopup="dialog" aria-controls="project-archive"><span class="work-more__label">View all projects</span><span class="work-more__meta"><span class="work-more__meta-text">06 total</span><span class="work-more__arrow">↗</span></span></button>
-      </div>
+      <div class="work__stage"><div class="project-list">
+        <article class="project-item reveal" data-project="picnest"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open PicNest 2.0 project"><span class="project-row__number">01</span><span class="project-row__title-wrap"><span class="project-row__title">PicNest 2.0</span><span class="project-hover-info"><span class="project-hover-info__text">Autonomous Peeps, persistent worlds and hardened multiplayer.</span><span class="project-hover-info__tags"><span>R3F</span><span>Supabase</span></span></span></span><span class="project-row__meta">3D social world / Life simulation</span><span class="project-row__year">2026.05.11 — 2026.08.14</span><span class="project-row__action">Click to open ↗</span></button></article>
+        <article class="project-item reveal" data-project="quant"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Quant Research System project"><span class="project-row__number">02</span><span class="project-row__title-wrap"><span class="project-row__title">Quant Research System</span><span class="project-hover-info"><span class="project-hover-info__text">V8 replay governance, mechanism registry, cost and shock diagnostics.</span><span class="project-hover-info__tags"><span>Python</span><span>MT5</span></span></span></span><span class="project-row__meta">Quant research / Validation system</span><span class="project-row__year">2026.01.15 — 2026.08.21</span><span class="project-row__action">Click to open ↗</span></button></article>
+        <article class="project-item reveal" data-project="grass"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Grass Cutting 3min project"><span class="project-row__number">03</span><span class="project-row__title-wrap"><span class="project-row__title">Grass Cutting 3min</span><span class="project-hover-info"><span class="project-hover-info__text">Three-minute runs with classes, affixes, equipment and mobile deployment.</span><span class="project-hover-info__tags"><span>Phaser</span><span>Capacitor</span></span></span></span><span class="project-row__meta">Mobile action / Extraction prototype</span><span class="project-row__year">2025.12.16 — 2026.08.21</span><span class="project-row__action">Click to open ↗</span></button></article>
+        <article class="project-item reveal" data-project="doodle"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Doodle Tyrant project"><span class="project-row__number">04</span><span class="project-row__title-wrap"><span class="project-row__title">Doodle Tyrant</span><span class="project-hover-info"><span class="project-hover-info__text">Trigger × modifier × element builds feed short wave combat.</span><span class="project-hover-info__tags"><span>React</span><span>Rogue-lite</span></span></span></span><span class="project-row__meta">Merge rogue-lite / Systems game</span><span class="project-row__year">2026.04.23</span><span class="project-row__action">Click to open ↗</span></button></article>
+        <article class="project-item reveal" data-project="learning"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Learning Games project"><span class="project-row__number">05</span><span class="project-row__title-wrap"><span class="project-row__title">Learning Games</span><span class="project-hover-info"><span class="project-hover-info__text">Audio quizzes feed a token → gacha → sticker collection loop.</span><span class="project-hover-info__tags"><span>Hakka</span><span>Gacha</span></span></span></span><span class="project-row__meta">Hakka learning / Collection game</span><span class="project-row__year">2026.01.04</span><span class="project-row__action">Click to open ↗</span></button></article>
+      </div><button class="work-more" type="button" aria-haspopup="dialog" aria-controls="project-archive"><span class="work-more__label">View all projects</span><span class="work-more__meta"><span class="work-more__meta-text">06 total</span><span class="work-more__arrow">↗</span></span></button></div>
       <a class="work-scroll-cue scroll-cue magnetic reveal" href="#about"><span class="work-scroll-cue__label">Scroll to explore</span><span>↓</span></a>
     </section>
 
-    <section class="manifesto" id="about">
-      <p class="section-kicker reveal">About / 001</p>
-      <h2 class="manifesto__statement"><span class="reveal">I use projects to test ideas,</span><span class="reveal">not to fill a portfolio.</span></h2>
-      <div class="manifesto__grid"><p class="reveal">This is a living index of worlds, systems and experiments — including the ones that failed, changed direction, or became something else.</p><div class="manifesto__tags reveal"><span>Games</span><span>Systems</span><span>AI</span><span>Quant</span><span>Interaction</span><span>Experiments</span></div></div>
-    </section>
+    <section class="manifesto" id="about"><p class="section-kicker reveal">About / 001</p><h2 class="manifesto__statement"><span class="reveal">I use projects to test ideas,</span><span class="reveal">not to fill a portfolio.</span></h2><div class="manifesto__grid"><p class="reveal">This is a living index of worlds, systems and experiments — including the ones that failed, changed direction, or became something else.</p><div class="manifesto__tags reveal"><span>Games</span><span>Systems</span><span>AI</span><span>Quant</span><span>Interaction</span><span>Experiments</span></div></div></section>
 
-    <section class="about-ai" id="about-002">
-      <p class="about-ai__kicker reveal">About / 002</p>
-      <h2 class="about-ai__statement reveal"><span>I do not use AI as the answer</span><span>I use it as a second thinking system</span></h2>
-      <div class="about-ai__grid">
-        <p class="about-ai__intro reveal">What started as a way to turn ideas into working prototypes gradually became a repeatable collaboration loop: I decide what matters, define the direction and challenge the result; AI searches, decomposes, implements, verifies and keeps the reasoning traceable. The useful part is not that it answers quickly. It is that the same idea can be pushed through many forms until it becomes something testable.</p>
-        <div class="about-ai__history reveal">
-          <article class="about-ai__row"><span class="about-ai__row-index">01</span><span class="about-ai__row-title">Prototype together</span><p class="about-ai__row-copy">Early on, the collaboration was very direct: describe an idea, turn it into UI or code, run it, find what feels wrong, then rebuild it. Games and interface experiments were where this rhythm became natural.</p></article>
-          <article class="about-ai__row"><span class="about-ai__row-index">02</span><span class="about-ai__row-title">Argue, do not obey</span><p class="about-ai__row-copy">The relationship became more useful when agreement stopped being the goal. I explicitly ask AI to attack weak logic, separate facts from assumptions and make me explain decisions that do not survive scrutiny.</p></article>
-          <article class="about-ai__row"><span class="about-ai__row-index">03</span><span class="about-ai__row-title">Turn intuition into evidence</span><p class="about-ai__row-copy">In quantitative research, informal market judgment is translated into canonical definitions, repeatable backtests, no-lookahead rules, data roles and gates. A persuasive explanation is not enough; the result has to leave evidence that can be audited later.</p></article>
-          <article class="about-ai__row"><span class="about-ai__row-index">04</span><span class="about-ai__row-title">Keep the history</span><p class="about-ai__row-copy">Across PicNest, quant research and this website, versions, commits, rollback points, failed directions and design changes are part of the work rather than noise to erase. The collaboration has gradually moved from “help me build this” toward “help me build a system that remembers why it became this.”</p></article>
-          <div class="about-ai__tags"><span>Human direction</span><span>AI leverage</span><span>Adversarial review</span><span>Evidence</span><span>Iteration</span><span>Version history</span></div>
-        </div>
-      </div>
-    </section>
+    <section class="about-ai" id="about-002"><p class="about-ai__kicker reveal">About / 002</p><h2 class="about-ai__statement reveal"><span>I do not use AI as the answer</span><span>I use it as a second thinking system</span></h2><div class="about-ai__grid"><p class="about-ai__intro reveal">What started as a way to turn ideas into working prototypes gradually became a repeatable collaboration loop: I decide what matters, define the direction and challenge the result; AI searches, decomposes, implements, verifies and keeps the reasoning traceable. The useful part is not that it answers quickly. It is that the same idea can be pushed through many forms until it becomes something testable.</p><div class="about-ai__history reveal"><article class="about-ai__row"><span class="about-ai__row-index">01</span><span class="about-ai__row-title">Prototype together</span><p class="about-ai__row-copy">Early on, the collaboration was very direct: describe an idea, turn it into UI or code, run it, find what feels wrong, then rebuild it.</p></article><article class="about-ai__row"><span class="about-ai__row-index">02</span><span class="about-ai__row-title">Argue, do not obey</span><p class="about-ai__row-copy">The relationship became more useful when agreement stopped being the goal. I explicitly ask AI to attack weak logic and separate facts from assumptions.</p></article><article class="about-ai__row"><span class="about-ai__row-index">03</span><span class="about-ai__row-title">Turn intuition into evidence</span><p class="about-ai__row-copy">In quantitative research, informal market judgment is translated into canonical definitions, repeatable backtests, no-lookahead rules, data roles and gates.</p></article><article class="about-ai__row"><span class="about-ai__row-index">04</span><span class="about-ai__row-title">Keep the history</span><p class="about-ai__row-copy">Across PicNest, quant research and this website, versions, commits, rollback points, failed directions and design changes are part of the work rather than noise to erase.</p></article><div class="about-ai__tags"><span>Human direction</span><span>AI leverage</span><span>Adversarial review</span><span>Evidence</span><span>Iteration</span><span>Version history</span></div></div></div></section>
   </main>
 
   <footer class="site-footer"><p>BN0U0 / PERSONAL DIGITAL LABORATORY</p><p>Minimal surface. Deep interaction.</p><a class="magnetic" href="#top">Back to top ↑</a></footer>
 
-  <section class="project-archive" id="project-archive" aria-hidden="true" aria-modal="true" role="dialog" aria-label="All projects" tabindex="-1">
-    <div class="project-archive__top">
-      <div class="project-archive__identity"><span class="project-archive__kicker">Work / Project index</span><span class="project-archive__count">06 total</span></div>
-      <button class="project-archive__close" type="button"><span class="project-archive__close-label">Close</span><span class="project-archive__close-mark" aria-hidden="true"></span></button>
-    </div>
-    <div class="project-archive__content">
-      <div class="project-archive__heading"><h2>All projects</h2><p>The full index — the same projects, shown at a quieter scale so the page can work as an archive instead of another hero section.</p></div>
-      <div class="project-archive__list">
-        <article class="project-item" data-project="picnest"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open PicNest 2.0 project"><span class="project-row__number">01</span><span class="project-row__title-wrap"><span class="project-row__title">PicNest 2.0</span></span><span class="project-row__meta">3D social world / Life simulation</span><span class="project-row__year">11 MAY 2026 — 14 AUG 2026</span></button></article>
-        <article class="project-item" data-project="quant"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Quant Research System project"><span class="project-row__number">02</span><span class="project-row__title-wrap"><span class="project-row__title">Quant Research System</span></span><span class="project-row__meta">Quant research / Validation system</span><span class="project-row__year">15 JAN 2026 — 21 AUG 2026</span></button></article>
-        <article class="project-item" data-project="grass"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Grass Cutting 3min project"><span class="project-row__number">03</span><span class="project-row__title-wrap"><span class="project-row__title">Grass Cutting 3min</span></span><span class="project-row__meta">Mobile action / Extraction prototype</span><span class="project-row__year">16 DEC 2025 — 21 AUG 2026</span></button></article>
-        <article class="project-item" data-project="doodle"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Doodle Tyrant project"><span class="project-row__number">04</span><span class="project-row__title-wrap"><span class="project-row__title">Doodle Tyrant</span></span><span class="project-row__meta">Merge rogue-lite / Systems game</span><span class="project-row__year">23 APR 2026</span></button></article>
-        <article class="project-item" data-project="learning"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Learning Games project"><span class="project-row__number">05</span><span class="project-row__title-wrap"><span class="project-row__title">Learning Games</span></span><span class="project-row__meta">Hakka learning / Collection game</span><span class="project-row__year">04 JAN 2026</span></button></article>
-        <article class="project-item" data-project="pixel"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Pixel Lab project"><span class="project-row__number">06</span><span class="project-row__title-wrap"><span class="project-row__title">Pixel Lab</span></span><span class="project-row__meta">Canvas engine / Physics lab</span><span class="project-row__year">08 JAN 2026 — 10 JAN 2026</span></button></article>
-      </div>
-      <div class="project-archive__footer"><span class="project-archive__footer-start">End of index</span><span class="project-archive__footer-count">06 projects</span></div>
-    </div>
-  </section>
+  <section class="project-archive" id="project-archive" aria-hidden="true" aria-modal="true" role="dialog" aria-label="All projects" tabindex="-1"><div class="project-archive__top"><div class="project-archive__identity"><span class="project-archive__kicker">Work / Project index</span><span class="project-archive__count">06 total</span></div><button class="project-archive__close" type="button"><span class="project-archive__close-label">Close</span><span class="project-archive__close-mark" aria-hidden="true"></span></button></div><div class="project-archive__content"><div class="project-archive__heading"><h2>All projects</h2><p>The full index — the same projects, shown at a quieter scale so the page can work as an archive instead of another hero section.</p></div><div class="project-archive__list">
+    <article class="project-item" data-project="picnest"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open PicNest 2.0 project"><span class="project-row__number">01</span><span class="project-row__title-wrap"><span class="project-row__title">PicNest 2.0</span></span><span class="project-row__meta">3D social world / Life simulation</span><span class="project-row__year">2026.05.11 — 2026.08.14</span></button></article>
+    <article class="project-item" data-project="quant"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Quant Research System project"><span class="project-row__number">02</span><span class="project-row__title-wrap"><span class="project-row__title">Quant Research System</span></span><span class="project-row__meta">Quant research / Validation system</span><span class="project-row__year">2026.01.15 — 2026.08.21</span></button></article>
+    <article class="project-item" data-project="grass"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Grass Cutting 3min project"><span class="project-row__number">03</span><span class="project-row__title-wrap"><span class="project-row__title">Grass Cutting 3min</span></span><span class="project-row__meta">Mobile action / Extraction prototype</span><span class="project-row__year">2025.12.16 — 2026.08.21</span></button></article>
+    <article class="project-item" data-project="doodle"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Doodle Tyrant project"><span class="project-row__number">04</span><span class="project-row__title-wrap"><span class="project-row__title">Doodle Tyrant</span></span><span class="project-row__meta">Merge rogue-lite / Systems game</span><span class="project-row__year">2026.04.23</span></button></article>
+    <article class="project-item" data-project="learning"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Learning Games project"><span class="project-row__number">05</span><span class="project-row__title-wrap"><span class="project-row__title">Learning Games</span></span><span class="project-row__meta">Hakka learning / Collection game</span><span class="project-row__year">2026.01.04</span></button></article>
+    <article class="project-item" data-project="pixel"><button class="project-row" type="button" data-cursor="OPEN" aria-label="Open Pixel Lab project"><span class="project-row__number">06</span><span class="project-row__title-wrap"><span class="project-row__title">Pixel Lab</span></span><span class="project-row__meta">Canvas engine / Physics lab</span><span class="project-row__year">2026.01.08 — 2026.01.10</span></button></article>
+  </div><div class="project-archive__footer"><span class="project-archive__footer-start">End of index</span><span class="project-archive__footer-count">06 projects</span></div></div></section>
 
-  <section class="project-detail" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Project detail">
-    <div class="project-detail__top"><span class="project-detail__top-label">Selected work / Project detail</span><button class="project-detail__close" type="button" data-cursor="CLOSE"><span>Close</span><span class="project-detail__close-mark" aria-hidden="true"></span></button></div>
-    <div class="project-detail__hero">
-      <div class="project-detail__copy"><div class="project-detail__number"><span class="detail-number">01</span><span class="detail-year">11 MAY 2026 — 14 AUG 2026</span></div><h2 class="project-detail__title">PicNest 2.0</h2><p class="project-detail__headline">A social world where the residents have lives of their own.</p><p class="project-detail__description">PicNest 2.0 is a browser-based 3D social and life-simulation experiment built around exploration, collection, building and living with autonomous Peeps.</p><div class="project-detail__tags"></div></div>
-      <div class="project-detail__media" data-project="picnest"><span class="detail-image-slot">Media / image slot</span><div class="detail-orb a"></div><div class="detail-orb b"></div><div class="detail-grid"></div><div class="detail-media-label"><span class="detail-media-number">01</span><span class="detail-media-title">PICNEST 2.0</span></div></div>
-    </div>
-    <div class="project-detail__below"><span class="project-detail__below-label">Case study / 01</span><p class="detail-below-copy">Loading project context…</p></div>
-  </section>
+  <section class="project-detail" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Project detail"><div class="project-detail__top"><span class="project-detail__top-label">Selected work / Project detail</span><button class="project-detail__close" type="button" data-cursor="CLOSE"><span>Close</span><span class="project-detail__close-mark" aria-hidden="true"></span></button></div><div class="project-detail__hero"><div class="project-detail__copy"><div class="project-detail__number"><span class="detail-number">01</span><span class="detail-year">2026.05.11 — 2026.08.14</span></div><h2 class="project-detail__title">PicNest 2.0</h2><p class="project-detail__headline">A social world where the residents have lives of their own.</p><p class="project-detail__description">PicNest 2.0 is a browser-based 3D social and life-simulation experiment built around exploration, collection, building and living with autonomous Peeps.</p><div class="project-detail__tags"></div></div><div class="project-detail__media" data-project="picnest"><span class="detail-image-slot">Evidence / verified system</span><div class="detail-orb a"></div><div class="detail-orb b"></div><div class="detail-grid"></div><div class="detail-media-label"><span class="detail-media-number">01</span><span class="detail-media-title">PICNEST 2.0</span></div></div></div><div class="project-detail__below"><span class="project-detail__below-label">Case study / 01</span><div class="detail-below-copy">Loading project context…</div></div></section>
 
-  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.3.25/dist/lenis.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="./data/projects.js"></script>
   <script src="./scripts/entry-gate.js"></script>
   <script src="./scripts/site.js"></script>
   <script src="./scripts/mobile.js"></script>
   <script src="./scripts/home-intro.js"></script>
-  <script src="./scripts/project-details.js"></script>
-  <script src="./scripts/quant-story.js"></script>
   <script src="./scripts/about.js"></script>
   <script src="./scripts/about-title-motion.js"></script>
   <script src="./scripts/archive.js"></script>
-  <script src="./scripts/timeline.js"></script>
+  <script src="./scripts/section-cues.js" data-section-cues></script>
+  <script src="./scripts/elastic-grid.js" data-elastic-grid></script>
+  <script src="./scripts/ai-depth.js" data-ai-depth></script>
+  <script src="./scripts/portfolio-upgrades.js"></script>
+  <script src="./scripts/lab-lens.js"></script>
 </body>
 </html>

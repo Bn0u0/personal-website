@@ -1,0 +1,25 @@
+.lab-lens-toggle{
+  position:fixed;left:14px;bottom:14px;z-index:2147483000;
+  display:flex;gap:8px;align-items:center;
+  border:1px solid rgba(18,18,18,.22);background:rgba(242,240,235,.88);color:#121212;
+  padding:8px 10px;font:600 9px/1 Arial,sans-serif;letter-spacing:.1em;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);cursor:pointer;
+}
+.lab-lens-toggle__state{opacity:.45}
+.is-lab-lens .lab-lens-toggle__state{opacity:1}
+.lab-lens{position:fixed;inset:0;z-index:2147482000;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 180ms linear,visibility 0s linear 180ms;color:#121212}
+.is-lab-lens .lab-lens{opacity:1;visibility:visible;transition:opacity 180ms linear,visibility 0s}
+.lab-lens__grid{position:absolute;inset:0;background-image:linear-gradient(to right,rgba(18,18,18,.085) 1px,transparent 1px),linear-gradient(to bottom,rgba(18,18,18,.055) 1px,transparent 1px);background-size:calc(100vw/12) 100%,100% 8vh;mix-blend-mode:multiply}
+.lab-lens__cross{position:absolute;background:rgba(18,18,18,.28)}
+.lab-lens__cross.x{left:0;right:0;top:50%;height:1px}
+.lab-lens__cross.y{top:0;bottom:0;left:50%;width:1px}
+.lab-lens__panel{position:absolute;right:14px;bottom:14px;width:min(360px,calc(100vw - 28px));padding:16px;background:rgba(242,240,235,.94);border:1px solid rgba(18,18,18,.2);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.lab-lens__panel>div:first-child{display:flex;justify-content:space-between;gap:18px;padding-bottom:12px;border-bottom:1px solid rgba(18,18,18,.16)}
+.lab-lens__panel span,.lab-lens__panel dt,.lab-lens__panel p{font:500 8px/1.35 Arial,sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.lab-lens__panel strong{font:600 9px/1.2 Arial,sans-serif;letter-spacing:.06em}
+.lab-lens__panel dl{margin:12px 0 0;display:grid;gap:0}
+.lab-lens__panel dl>div{display:grid;grid-template-columns:82px 1fr;gap:12px;padding:8px 0;border-bottom:1px solid rgba(18,18,18,.09)}
+.lab-lens__panel dt{opacity:.42}.lab-lens__panel dd{margin:0;font:500 9px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+.lab-lens__panel p{margin:12px 0 0;opacity:.45}.lab-lens__panel kbd{font:inherit;border:1px solid rgba(18,18,18,.25);padding:1px 4px}
+@media(max-width:700px){.lab-lens-toggle{left:10px;bottom:10px}.lab-lens__panel{right:10px;bottom:52px;width:calc(100vw - 20px)}.lab-lens__grid{background-size:25vw 100%,100% 10vh}}
+@media(prefers-reduced-motion:reduce){.lab-lens{transition:none}}

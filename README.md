@@ -4,84 +4,97 @@ Bn0u0's personal digital laboratory — a living index of projects, systems, gam
 
 ## Direction
 
-**Minimal surface. Deep interaction.**
+**Minimal surface. Deep interaction. Evidence before polish.**
 
-The interface stays visually quiet while motion, project transitions and interaction carry the identity.
+The homepage stays visually quiet while motion carries identity. Project work is now backed by a canonical data layer, shareable case-study routes, evidence cards and decision traces so the site can show not only what was built, but why it became that way.
 
-Current design language:
+## Project routes
 
-- warm off-white / black editorial layout
-- oversized typography and large negative space
-- BN0U0 identity with Pale Sage `#B4C2BE`
-- hidden native scrollbar + 1px top scroll progress
-- fast inertial custom cursor with contextual states
-- magnetic navigation micro-interactions
-- smooth Lenis scrolling with native-scroll fallback
-- progressive in-view reveals
-- responsive mobile layout
-- `prefers-reduced-motion` support
+- `/work/picnest`
+- `/work/quant`
+- `/work/grass-cutting`
+- `/work/doodle-tyrant`
+- `/work/learning-games`
+- `/work/pixel-lab`
 
-## Selected projects
+Every project route has its own title, description, canonical URL and Open Graph metadata. The homepage keeps the organic fullscreen detail reveal; opening a project also updates browser history to the same canonical project route.
 
-1. PicNest 2.0
-2. Quant Research System
-3. Grass Cutting 3min
-4. Doodle Tyrant
-5. Learning Games
-6. Pixel Lab
+## Canonical project data
+
+`data/projects.js` is the single source of truth for project identity, timeline, status, stack, bilingual case-study copy, evidence and decision history. Homepage rows, fullscreen details, standalone case studies and Lab Lens read from the same project records.
+
+## Lab Lens
+
+Press `L` or use the small `LAB / OFF` control to reveal the site as a system. The lens exposes the current surface/project, viewport and DPR, input profile, motion preference, approximate frame rate and active project stack without changing the normal visual experience.
 
 ## Architecture
-
-The site is a build-free static project. Files are grouped by responsibility so the repository root stays readable:
 
 ```text
 /
 ├─ index.html
-├─ README.md
-├─ vercel.json
-├─ assets/
-│  └─ favicon.svg
+├─ data/
+│  └─ projects.js
+├─ work/
+│  ├─ picnest.html
+│  ├─ quant.html
+│  ├─ grass-cutting.html
+│  ├─ doodle-tyrant.html
+│  ├─ learning-games.html
+│  └─ pixel-lab.html
 ├─ styles/
 │  ├─ site.css
-│  ├─ about.css
-│  ├─ ai-depth.css
-│  ├─ archive.css
-│  ├─ archive-reindex.css
-│  ├─ project-details.css
-│  ├─ cursor-contrast.css
-│  ├─ elastic-grid.css
-│  ├─ surface-integration.css
-│  ├─ section-cues.css
-│  └─ timeline.css
-└─ scripts/
-   ├─ site.js
-   ├─ about.js
-   ├─ ai-depth.js
-   ├─ archive.js
-   ├─ project-details.js
-   ├─ quant-story.js
-   ├─ lang.js
-   ├─ lang-polish.js
-   ├─ elastic-grid.js
-   ├─ section-cues.js
-   └─ timeline.js
+│  ├─ motion-system.css
+│  ├─ lab-upgrades.css
+│  ├─ lab-lens.css
+│  ├─ project-page.css
+│  └─ ...
+├─ scripts/
+│  ├─ site.js
+│  ├─ portfolio-upgrades.js
+│  ├─ project-page.js
+│  ├─ lab-lens.js
+│  ├─ mobile.js
+│  └─ ...
+├─ tests/
+│  └─ portfolio.spec.js
+├─ .github/workflows/quality.yml
+├─ playwright.config.js
+├─ lighthouserc.json
+├─ robots.txt
+├─ sitemap.xml
+├─ site.webmanifest
+└─ vercel.json
 ```
 
-`index.html` is the only page entry point. Shared visual rules live in `styles/`, behavior lives in `scripts/`, and standalone media assets live in `assets/`.
+## Quality gate
+
+Pull requests run a browser quality workflow with:
+
+- Playwright desktop + mobile interaction paths
+- reduced-motion path
+- project URL/history open and close behavior
+- standalone case-study route checks
+- axe serious/critical accessibility checks
+- Lighthouse performance, accessibility, best-practices and SEO budgets
+
+## Accessibility and runtime
+
+- `prefers-reduced-motion` remains a site-wide contract.
+- Custom fullscreen overlays make the background inert while open.
+- Project detail can receive programmatic focus and returns focus to its trigger when closed.
+- Desktop and phone Project Detail close behavior now share the same `site.js` state machine; mobile changes input/cost behavior without owning a parallel close controller.
+
+## SEO and delivery
+
+The site ships canonical URLs, Open Graph metadata, WebSite/Person structured data, sitemap, robots and a small web manifest. Vercel adds security headers including CSP and `frame-ancestors 'none'`; non-fingerprinted static assets use a conservative short cache with stale-while-revalidate rather than immutable caching.
 
 ## Run locally
-
-No build step is required.
 
 ```bash
 python -m http.server 8000
 ```
 
 Then open `http://localhost:8000`.
-
-## Deployment
-
-This repository is designed to be imported directly into Vercel as a static project. No framework preset, install command or build command is required. Once Git integration is connected, pushes to `main` should produce production deployments automatically.
 
 ## Motion principle
 

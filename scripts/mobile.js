@@ -88,61 +88,9 @@
     new MutationObserver(syncImpact).observe(archive,{attributes:true,attributeFilter:['class']});
   }
 
-  /* Phone detail closes on a compositor-only path before the desktop SVG
-     inverse reveal can start. */
-  if(phoneSized){
-    const detail=document.querySelector('.project-detail');
-    const detailClose=detail?.querySelector('.project-detail__close');
-    let detailClosing=false;
-    let detailCloseTimer=0;
-
-    const finishDetailClose=()=>{
-      if(!detail)return;
-      clearTimeout(detailCloseTimer);
-      detail.classList.remove('is-open','is-mobile-detail-closing');
-      detail.setAttribute('aria-hidden','true');
-      document.body.classList.remove('is-detail-open');
-      detail.style.removeProperty('clip-path');
-      detail.style.removeProperty('-webkit-clip-path');
-      detailClosing=false;
-      window.__lenis?.start?.();
-    };
-
-    const startDetailClose=event=>{
-      if(!detail?.classList.contains('is-open'))return false;
-      event?.preventDefault?.();
-      event?.stopPropagation?.();
-      event?.stopImmediatePropagation?.();
-      if(detailClosing)return true;
-
-      detailClosing=true;
-      haptic.impact('light');
-      window.__lenis?.stop?.();
-      detail.style.setProperty('clip-path','none','important');
-      detail.style.setProperty('-webkit-clip-path','none','important');
-      detail.classList.add('is-mobile-detail-closing');
-
-      detailCloseTimer=setTimeout(finishDetailClose,reduced?0:(MOTION.exitContent||280));
-      return true;
-    };
-
-    detailClose?.addEventListener('pointerdown',startDetailClose,{capture:true});
-    detailClose?.addEventListener('click',event=>{
-      if(detail?.classList.contains('is-open'))startDetailClose(event);
-    },{capture:true});
-    addEventListener('keydown',event=>{
-      if(event.key==='Escape'&&detail?.classList.contains('is-open'))startDetailClose(event);
-    },true);
-
-    new MutationObserver(()=>{
-      if(!document.body.classList.contains('is-detail-open')&&detail){
-        clearTimeout(detailCloseTimer);
-        detail.classList.remove('is-mobile-detail-closing');
-        detailClosing=false;
-      }
-    }).observe(document.body,{attributes:true,attributeFilter:['class']});
-  }
-
+  /* Project detail open/close is intentionally owned by site.js on every input
+     profile. Mobile changes rendering cost and navigation affordances only; it
+     no longer runs a second close state machine that can drift from desktop. */
   if(!phoneSized)return;
 
   const footer=document.querySelector('.site-footer');
