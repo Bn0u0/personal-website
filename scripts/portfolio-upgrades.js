@@ -13,6 +13,29 @@
 
   if(detail)detail.setAttribute('tabindex','-1');
 
+  if(!document.querySelector('link[data-picnest-case-style]')){
+    const style=document.createElement('link');
+    style.rel='stylesheet';
+    style.href='/styles/picnest-case.css';
+    style.dataset.picnestCaseStyle='true';
+    document.head.appendChild(style);
+  }
+
+  const caseDataReady=window.__portfolioCaseStudies?.picnest?Promise.resolve():new Promise(resolve=>{
+    const existing=document.querySelector('script[data-picnest-case-data]');
+    if(existing){
+      existing.addEventListener('load',resolve,{once:true});
+      existing.addEventListener('error',resolve,{once:true});
+      return;
+    }
+    const script=document.createElement('script');
+    script.src='/data/picnest-case.js';
+    script.dataset.picnestCaseData='true';
+    script.addEventListener('load',resolve,{once:true});
+    script.addEventListener('error',resolve,{once:true});
+    document.head.appendChild(script);
+  });
+
   window.__portfolioRuntime=Object.freeze({
     pointer:matchMedia('(pointer:fine)').matches?'fine':'coarse',
     reducedMotion:matchMedia('(prefers-reduced-motion:reduce)').matches,
@@ -22,6 +45,7 @@
   const esc=s=>String(s??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
 
   function projectCopy(p){return p?.[lang()]||p?.en||{}}
+  function projectStory(key){return window.__portfolioCaseStudies?.[key]?.[lang()]||null}
 
   function ensureCaseLink(){
     if(!detailTop)return null;
@@ -41,6 +65,9 @@
     if(!p||!detail)return;
     currentKey=key;
     const c=projectCopy(p);
+    const story=projectStory(key);
+    const systemEvidence=story?.systemEvidence||c.evidence||[];
+    const evidenceItems=story?.evidence?.length?[...systemEvidence,...story.evidence]:(c.evidence||[]);
     detail.dataset.project=key;
     detail.querySelector('.detail-number')?.replaceChildren(document.createTextNode(p.number));
     detail.querySelector('.detail-year')?.replaceChildren(document.createTextNode(p.period));
@@ -61,12 +88,13 @@
       if(slot)slot.textContent=lang()==='zh'?'證據 / VERIFIED SYSTEM':'Evidence / verified system';
       let rail=detailMedia.querySelector('.detail-evidence-rail');
       if(!rail){rail=document.createElement('div');rail.className='detail-evidence-rail';detailMedia.appendChild(rail)}
-      rail.innerHTML=(c.evidence||[]).map((e,i)=>`<div class="detail-evidence-chip"><span>${String(i+1).padStart(2,'0')} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong></div>`).join('');
+      rail.innerHTML=systemEvidence.map((e,i)=>`<div class="detail-evidence-chip"><span>${String(i+1).padStart(2,'0')} / ${esc(e[0])}</span><strong>${esc(e[1])}</strong></div>`).join('');
     }
 
     if(below){
-      const evidence=(c.evidence||[]).map((e,i)=>`<article class="evidence-card"><span class="evidence-card__index">E${String(i+1).padStart(2,'0')}</span><span class="evidence-card__label">${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
+      const evidence=evidenceItems.map((e,i)=>`<article class="evidence-card"><span class="evidence-card__index">E${String(i+1).padStart(2,'0')}</span><span class="evidence-card__label">${esc(e[0])}</span><strong>${esc(e[1])}</strong><p>${esc(e[2])}</p></article>`).join('');
       const decisions=(c.decisions||[]).map((d,i)=>`<li><span>${String(i+1).padStart(2,'0')}</span><p>${esc(d)}</p></li>`).join('');
+      const journey=story?.journey?.length?`<section class="detail-journey"><div class="detail-section-head"><span>${lang()==='zh'?'歷程 / TURNING POINTS':'JOURNEY / TURNING POINTS'}</span><span>06 / EVOLUTION</span></div><div class="detail-journey__intro"><h3>${esc(story.journeyTitle)}</h3><p>${esc(story.journeyIntro)}</p></div><div class="detail-journey__list">${story.journey.map((step,i)=>`<article class="detail-journey-step"><div><span>${String(i+1).padStart(2,'0')}</span><small>${esc(step[0])}</small></div><div><strong>${esc(step[1])}</strong><p>${esc(step[2])}</p></div></article>`).join('')}</div><div class="detail-journey__reflection"><span>REFLECTION / 001</span><div><strong>${esc(story.reflectionTitle)}</strong><p>${esc(story.reflection)}</p></div></div></section>`:'';
       const actions=[
         p.liveUrl?`<a href="${esc(p.liveUrl)}" target="_blank" rel="noopener noreferrer">LIVE BUILD ↗</a>`:'',
         p.sourceUrl?`<a href="${esc(p.sourceUrl)}" target="_blank" rel="noopener noreferrer">SOURCE ↗</a>`:'',
@@ -75,7 +103,8 @@
       below.innerHTML=`
         <section class="detail-story-block"><span class="detail-story-kicker">OVERVIEW</span><p class="detail-overview">${esc(c.overview||'')}</p></section>
         <section class="detail-story-grid"><article><span>CORE SYSTEM</span><p>${esc(c.core||'')}</p></article><article><span>ENGINEERING</span><p>${esc(c.engineering||'')}</p></article><article><span>CURRENT STATUS</span><p>${esc(c.below||'')}</p></article></section>
-        <section class="detail-evidence-section"><div class="detail-section-head"><span>EVIDENCE</span><span>${(c.evidence||[]).length.toString().padStart(2,'0')} VERIFIED POINTS</span></div><div class="detail-evidence-grid">${evidence}</div></section>
+        ${journey}
+        <section class="detail-evidence-section"><div class="detail-section-head"><span>${story?esc(story.evidenceTitle):'EVIDENCE'}</span><span>${evidenceItems.length.toString().padStart(2,'0')} VERIFIED POINTS</span></div>${story?.evidenceIntro?`<p class="detail-evidence-intro">${esc(story.evidenceIntro)}</p>`:''}<div class="detail-evidence-grid">${evidence}</div></section>
         <section class="detail-decision-section"><div class="detail-section-head"><span>DECISION TRACE</span><span>WHY IT BECAME THIS</span></div><ol class="decision-trace">${decisions}</ol></section>
         <div class="detail-actions">${actions}</div>`;
     }
@@ -108,6 +137,7 @@
     pushProjectRoute(key);
     queueMicrotask(()=>renderEvidence(key));
     requestAnimationFrame(()=>renderEvidence(key));
+    if(key==='picnest')caseDataReady.then(()=>renderEvidence(key));
   },true);
 
   function historyClose(){
@@ -152,5 +182,6 @@
   syncRows();
   syncInert();
 
+  caseDataReady.then(()=>{if(detail?.classList.contains('is-open')&&currentKey==='picnest')renderEvidence(currentKey)});
   window.__portfolioOpenProject=key=>{if(P[key])renderEvidence(key)};
 })();

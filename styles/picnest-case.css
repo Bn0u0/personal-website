@@ -1,0 +1,153 @@
+.case-journey{background:rgba(180,194,190,.10)}
+.case-journey__head{margin-bottom:clamp(52px,7vw,100px)}
+.journey-list{border-top:1px solid var(--line)}
+.journey-step{display:grid;grid-template-columns:minmax(128px,.24fr) 1fr;gap:clamp(26px,5vw,80px);padding:clamp(30px,4.2vw,62px) 0;border-bottom:1px solid var(--line)}
+.journey-step__index{display:flex;align-items:flex-start;gap:16px;padding-top:5px;color:var(--muted)}
+.journey-step__index span{font-size:clamp(24px,3vw,46px);line-height:.9;letter-spacing:-.05em;color:var(--ink)}
+.journey-step__index small{max-width:120px;font-size:8px;line-height:1.35;letter-spacing:.11em;text-transform:uppercase}
+.journey-step__copy{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(260px,1fr);gap:clamp(28px,5vw,78px);align-items:start}
+.journey-step__copy h3{margin:0;max-width:16ch;font-size:clamp(26px,3.6vw,56px);line-height:1.02;letter-spacing:-.045em;font-weight:500}
+.journey-step__copy p{margin:0;max-width:760px;font-size:14px;line-height:1.78;color:rgba(18,18,18,.68)}
+.journey-reflection{margin-top:clamp(70px,9vw,140px);padding-top:22px;border-top:1px solid rgba(18,18,18,.32);display:grid;grid-template-columns:minmax(128px,.24fr) 1fr;gap:clamp(26px,5vw,80px)}
+.journey-reflection>span{font-size:8px;line-height:1.35;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.journey-reflection>div{display:grid;grid-template-columns:minmax(220px,.72fr) minmax(260px,1fr);gap:clamp(28px,5vw,78px)}
+.journey-reflection h3{margin:0;max-width:16ch;font-size:clamp(28px,4vw,62px);line-height:1;letter-spacing:-.05em;font-weight:500}
+.journey-reflection p{margin:0;max-width:760px;font-size:15px;line-height:1.8;color:rgba(18,18,18,.72)}
+.case-journey[hidden]{display:none!important}
+
+/* Homepage project overlay: same narrative, compressed into the existing dark case-study surface. */
+.project-detail[data-project="picnest"] .detail-journey{
+  margin-top:clamp(18px,2vw,30px);
+  padding-top:clamp(28px,3.6vw,52px);
+  border-top:1px solid rgba(242,240,235,.18);
+}
+.project-detail[data-project="picnest"] .detail-journey__intro{
+  display:grid;
+  grid-template-columns:minmax(220px,.72fr) minmax(280px,1fr);
+  gap:clamp(26px,5vw,72px);
+  margin:clamp(26px,3.4vw,48px) 0 clamp(34px,4.8vw,70px);
+}
+.project-detail[data-project="picnest"] .detail-journey__intro h3{
+  margin:0;
+  max-width:16ch;
+  color:rgba(242,240,235,.96);
+  font-size:clamp(28px,3.8vw,58px);
+  line-height:1.02;
+  letter-spacing:-.045em;
+  font-weight:500;
+}
+.project-detail[data-project="picnest"] .detail-journey__intro p{
+  margin:0;
+  max-width:720px;
+  color:rgba(242,240,235,.66);
+  font-size:14px;
+  line-height:1.78;
+}
+.project-detail[data-project="picnest"] .detail-journey__list{
+  border-top:1px solid rgba(242,240,235,.15);
+}
+.project-detail[data-project="picnest"] .detail-journey-step{
+  display:grid;
+  grid-template-columns:minmax(120px,.22fr) 1fr;
+  gap:clamp(24px,4vw,60px);
+  padding:clamp(28px,3.4vw,48px) 0;
+  border-bottom:1px solid rgba(242,240,235,.12);
+}
+.project-detail[data-project="picnest"] .detail-journey-step>div:first-child{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  color:rgba(242,240,235,.34);
+}
+.project-detail[data-project="picnest"] .detail-journey-step>div:first-child>span{
+  color:rgba(242,240,235,.88);
+  font-size:clamp(20px,2.4vw,34px);
+  line-height:.95;
+  letter-spacing:-.04em;
+}
+.project-detail[data-project="picnest"] .detail-journey-step small{
+  max-width:112px;
+  font-size:8px;
+  line-height:1.4;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.project-detail[data-project="picnest"] .detail-journey-step>div:last-child{
+  display:grid;
+  grid-template-columns:minmax(200px,.72fr) minmax(260px,1fr);
+  gap:clamp(24px,4vw,60px);
+}
+.project-detail[data-project="picnest"] .detail-journey-step strong{
+  max-width:18ch;
+  color:rgba(242,240,235,.9);
+  font-size:clamp(20px,2.1vw,32px);
+  line-height:1.08;
+  letter-spacing:-.035em;
+  font-weight:500;
+}
+.project-detail[data-project="picnest"] .detail-journey-step p{
+  margin:0;
+  color:rgba(242,240,235,.6);
+  font-size:12px;
+  line-height:1.75;
+}
+.project-detail[data-project="picnest"] .detail-journey__reflection{
+  display:grid;
+  grid-template-columns:minmax(120px,.22fr) 1fr;
+  gap:clamp(24px,4vw,60px);
+  margin-top:clamp(44px,5vw,74px);
+  padding-top:20px;
+  border-top:1px solid rgba(242,240,235,.28);
+}
+.project-detail[data-project="picnest"] .detail-journey__reflection>span{
+  color:rgba(242,240,235,.34);
+  font-size:8px;
+  line-height:1.4;
+  letter-spacing:.1em;
+}
+.project-detail[data-project="picnest"] .detail-journey__reflection>div{
+  display:grid;
+  grid-template-columns:minmax(200px,.72fr) minmax(260px,1fr);
+  gap:clamp(24px,4vw,60px);
+}
+.project-detail[data-project="picnest"] .detail-journey__reflection strong{
+  max-width:18ch;
+  color:rgba(242,240,235,.94);
+  font-size:clamp(22px,2.5vw,38px);
+  line-height:1.06;
+  letter-spacing:-.04em;
+  font-weight:500;
+}
+.project-detail[data-project="picnest"] .detail-journey__reflection p,
+.project-detail[data-project="picnest"] .detail-evidence-intro{
+  margin:0;
+  max-width:740px;
+  color:rgba(242,240,235,.64);
+  font-size:12px;
+  line-height:1.78;
+}
+.project-detail[data-project="picnest"] .detail-evidence-intro{
+  margin:24px 0 8px;
+}
+
+@media(max-width:900px){
+  .journey-step,.journey-reflection{grid-template-columns:1fr}
+  .journey-step__index{justify-content:space-between}
+  .journey-step__copy,.journey-reflection>div{grid-template-columns:1fr}
+  .journey-step__copy h3,.journey-reflection h3{max-width:20ch}
+  .project-detail[data-project="picnest"] .detail-journey__intro,
+  .project-detail[data-project="picnest"] .detail-journey-step,
+  .project-detail[data-project="picnest"] .detail-journey__reflection{grid-template-columns:1fr}
+  .project-detail[data-project="picnest"] .detail-journey-step>div:last-child,
+  .project-detail[data-project="picnest"] .detail-journey__reflection>div{grid-template-columns:1fr}
+}
+
+@media(max-width:520px){
+  .journey-step{padding:34px 0}
+  .journey-step__index span{font-size:26px}
+  .journey-step__copy p,.journey-reflection p{font-size:13px;line-height:1.72}
+  .project-detail[data-project="picnest"] .detail-journey__intro{margin-bottom:38px}
+  .project-detail[data-project="picnest"] .detail-journey-step{padding:30px 0}
+  .project-detail[data-project="picnest"] .detail-journey-step p,
+  .project-detail[data-project="picnest"] .detail-journey__reflection p{font-size:12px;line-height:1.7}
+}

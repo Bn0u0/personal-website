@@ -10,13 +10,16 @@ async function enter(page){
   }
 }
 
-test('home → project evidence → back stays coherent',async({page})=>{
+test('home → PicNest journey → back stays coherent',async({page})=>{
   await enter(page);
   await expect(page.locator('.hero__title')).toContainText('things in my head');
   await page.locator('.project-item[data-project="picnest"] .project-row').first().click();
   await expect(page).toHaveURL(/\/work\/picnest$/);
   await expect(page.locator('.project-detail')).toHaveClass(/is-open/);
+  await expect(page.locator('.detail-journey')).toBeVisible();
+  await expect(page.locator('.detail-journey-step')).toHaveCount(6);
   await expect(page.locator('.detail-evidence-section')).toBeVisible();
+  await expect(page.locator('.detail-evidence-grid .evidence-card')).toHaveCount(9);
   await expect(page.locator('.decision-trace li')).toHaveCount(4);
   await page.locator('.project-detail__close').click();
   await expect(page).toHaveURL(/\/$/);
@@ -39,11 +42,13 @@ test('home has no serious or critical axe violations',async({page})=>{
   expect(blocking,blocking.map(v=>`${v.id}: ${v.help}`).join('\n')).toEqual([]);
 });
 
-test('standalone case study renders canonical evidence',async({page})=>{
+test('standalone PicNest case renders journey and grounded evidence',async({page})=>{
   await page.goto('/work/picnest.html');
   await expect(page).toHaveTitle(/PicNest 2\.0/);
   await expect(page.locator('h1')).toHaveText('PicNest 2.0');
-  await expect(page.locator('.evidence-grid .evidence-card')).toHaveCount(3);
+  await expect(page.locator('.journey-step')).toHaveCount(6);
+  await expect(page.locator('.journey-reflection__copy')).toContainText('reliability');
+  await expect(page.locator('.evidence-grid .evidence-card')).toHaveCount(9);
   await expect(page.locator('.decision-list li')).toHaveCount(4);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',/\/work\/picnest$/);
 });
