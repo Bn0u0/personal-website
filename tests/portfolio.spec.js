@@ -26,6 +26,23 @@ test('home → PicNest journey → back stays coherent',async({page})=>{
   await expect(page.locator('.project-detail')).not.toHaveClass(/is-open/);
 });
 
+test('Battle Beyblade is selected work and opens verified project detail',async({page})=>{
+  await enter(page);
+  await expect(page.locator('.work .project-list .project-item')).toHaveCount(6);
+  await expect(page.locator('.work-more__meta-text')).toHaveText('07 total');
+  const battle=page.locator('.work .project-item[data-project="battle"] .project-row');
+  await expect(battle).toContainText('Battle Beyblade');
+  await battle.click();
+  await expect(page).toHaveURL(/\/work\/battle-beyblade$/);
+  await expect(page.locator('.project-detail')).toHaveClass(/is-open/);
+  await expect(page.locator('.project-detail__title')).toHaveText('Battle Beyblade');
+  await expect(page.locator('.detail-evidence-grid .evidence-card')).toHaveCount(4);
+  await expect(page.locator('.decision-trace li')).toHaveCount(4);
+  await expect(page.locator('.detail-overview')).toContainText('Collect');
+  await page.locator('.project-detail__close').click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
 test('lab lens exposes system view without blocking content',async({page})=>{
   await enter(page);
   await page.keyboard.press('l');
@@ -51,4 +68,15 @@ test('standalone PicNest case renders journey and grounded evidence',async({page
   await expect(page.locator('.evidence-grid .evidence-card')).toHaveCount(9);
   await expect(page.locator('.decision-list li')).toHaveCount(4);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',/\/work\/picnest$/);
+});
+
+test('standalone Battle Beyblade case renders physics evidence',async({page})=>{
+  await page.goto('/work/battle-beyblade.html');
+  await expect(page).toHaveTitle(/Battle Beyblade/);
+  await expect(page.locator('h1')).toHaveText('Battle Beyblade');
+  await expect(page.locator('.case-system__nodes .system-node')).toHaveCount(4);
+  await expect(page.locator('.evidence-grid .evidence-card')).toHaveCount(4);
+  await expect(page.locator('.decision-list li')).toHaveCount(4);
+  await expect(page.locator('.engineering-copy')).toContainText('Rapier');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',/\/work\/battle-beyblade$/);
 });

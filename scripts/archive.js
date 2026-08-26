@@ -15,26 +15,20 @@
 
   const COPY={
     en:{
-      selected:'05 selected',
       view:'View all projects',
-      total:'06 total',
       archiveTop:'Work / Project index',
       close:'Close',
       title:'All projects',
       intro:'The full index — the same projects, shown at a quieter scale so the page can work as an archive instead of another hero section.',
-      end:'End of index',
-      count:'06 projects'
+      end:'End of index'
     },
     zh:{
-      selected:'精選 05 個',
       view:'查看全部專案',
-      total:'共 06 個',
       archiveTop:'作品 / 專案索引',
       close:'關閉',
       title:'全部專案',
       intro:'完整索引——保留所有目前整理完成的專案，但用比首頁更安靜、更小一階的尺度呈現，讓這裡真正像作品檔案而不是另一個首頁。',
-      end:'索引結束',
-      count:'共 06 個專案'
+      end:'索引結束'
     }
   };
 
@@ -55,27 +49,47 @@
     showcase:cssMs('--motion-showcase',920)
   };
 
-  /* Sixth row begins after SHOWCASE + three standard staggers, then receives a
-     full EDITORIAL beat. Keep the opening state alive until that final row has
-     actually settled so CSS never snaps back mid-performance. */
-  const OPEN_SEQUENCE_DURATION=MOTION.showcase+(MOTION.staggerStandard*3)+MOTION.editorial;
+  const archiveRows=()=>[...archive.querySelectorAll('.project-archive__list .project-item')];
+  const selectedRows=()=>[...document.querySelectorAll('#work .project-list .project-item')];
+  const totalProjects=()=>{
+    const canonicalCount=Object.keys(window.__portfolioProjects||{}).length;
+    return canonicalCount||archiveRows().length;
+  };
+  const count2=n=>String(n).padStart(2,'0');
+
+  /* Keep the opening state alive until the final archive row settles. The row
+     count is derived from the DOM so future projects do not require timing edits. */
+  const openSequenceDuration=()=>MOTION.showcase+(MOTION.staggerTight*Math.max(1,archiveRows().length))+MOTION.editorial;
   const lang=()=>document.documentElement.lang.toLowerCase().startsWith('zh')?'zh':'en';
   const set=(selector,value)=>{const el=document.querySelector(selector);if(el&&el.textContent!==value)el.textContent=value};
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function applyCopy(){
-    const c=COPY[lang()];
+    const currentLang=lang();
+    const c=COPY[currentLang];
+    const selected=count2(selectedRows().length);
+    const total=count2(totalProjects());
     const headingCount=document.querySelector('#work .section-heading p:last-child');
-    if(headingCount&&headingCount.textContent!==c.selected)headingCount.textContent=c.selected;
+    const selectedCopy=currentLang==='zh'?`精選 ${selected} 個`:`${selected} selected`;
+    const totalCopy=currentLang==='zh'?`共 ${total} 個`:`${total} total`;
+    const footerCount=currentLang==='zh'?`共 ${total} 個專案`:`${total} projects`;
+    if(headingCount&&headingCount.textContent!==selectedCopy)headingCount.textContent=selectedCopy;
     set('.work-more__label',c.view);
-    set('.work-more__meta-text',c.total);
+    set('.work-more__meta-text',totalCopy);
     set('.project-archive__kicker',c.archiveTop);
-    set('.project-archive__count',c.total);
+    set('.project-archive__count',totalCopy);
     set('.project-archive__close-label',c.close);
     set('.project-archive__heading h2',c.title);
     set('.project-archive__heading p',c.intro);
     set('.project-archive__footer-start',c.end);
-    set('.project-archive__footer-count',c.count);
+    set('.project-archive__footer-count',footerCount);
+  }
+
+  function syncRowMotionIndex(){
+    archiveRows().forEach((row,index)=>{
+      row.style.setProperty('--archive-row-index',String(index+1));
+      row.style.setProperty('--archive-row-reverse-index',String(Math.max(0,archiveRows().length-index-1)));
+    });
   }
 
   let lastFocus=null;
@@ -107,6 +121,7 @@
     if(reduced){openArchiveImmediate();return}
 
     clearPhaseTimer();
+    syncRowMotionIndex();
     lastFocus=document.activeElement;
     archive.style.display='';
     archive.scrollTop=0;
@@ -127,7 +142,7 @@
         phaseTimer=0;
         archive.classList.remove('is-split-opening');
         archive.focus?.({preventScroll:true});
-      },OPEN_SEQUENCE_DURATION);
+      },openSequenceDuration());
     });
   }
 
@@ -203,6 +218,7 @@
     }),MOTION.content+MOTION.ui);
   },true);
 
+  syncRowMotionIndex();
   applyCopy();
   setTimeout(applyCopy,120);
   setTimeout(applyCopy,700);
