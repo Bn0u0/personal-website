@@ -22,7 +22,7 @@
       description:p.en?.description||'',
       creator:{'@type':'Person',name:'BN0U0'},
       url:`https://personal-website-eta-navy-67.vercel.app${p.route}`,
-      dateModified:'2026-08-25'
+      dateModified:p.modified||'2026-08-25'
     });
   }
 

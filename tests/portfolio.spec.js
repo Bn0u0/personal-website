@@ -17,7 +17,7 @@ test('home → PicNest journey → back stays coherent',async({page})=>{
   await expect(page).toHaveURL(/\/work\/picnest$/);
   await expect(page.locator('.project-detail')).toHaveClass(/is-open/);
   await expect(page.locator('.detail-journey')).toBeVisible();
-  await expect(page.locator('.detail-journey-step')).toHaveCount(6);
+  await expect(page.locator('.detail-journey-step')).toHaveCount(7);
   await expect(page.locator('.detail-evidence-section')).toBeVisible();
   await expect(page.locator('.detail-evidence-grid .evidence-card')).toHaveCount(9);
   await expect(page.locator('.decision-trace li')).toHaveCount(4);
@@ -29,7 +29,7 @@ test('home → PicNest journey → back stays coherent',async({page})=>{
 test('Battle Beyblade is selected work and opens verified project detail',async({page})=>{
   await enter(page);
   await expect(page.locator('.work .project-list .project-item')).toHaveCount(6);
-  await expect(page.locator('.work-more__meta-text')).toHaveText('07 total');
+  await expect(page.locator('.work-more__meta-text')).toHaveText('08 total');
   const battle=page.locator('.work .project-item[data-project="battle"] .project-row');
   await expect(battle).toContainText('Battle Beyblade');
   await battle.click();
@@ -79,4 +79,17 @@ test('standalone Battle Beyblade case renders physics evidence',async({page})=>{
   await expect(page.locator('.decision-list li')).toHaveCount(4);
   await expect(page.locator('.engineering-copy')).toContainText('Rapier');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',/\/work\/battle-beyblade$/);
+});
+
+
+test('standalone Wasteland Rush case renders design lineage and territory evidence',async({page})=>{
+  await page.goto('/work/wasteland-rush.html');
+  await expect(page).toHaveTitle(/Wasteland Rush/);
+  await expect(page.locator('h1')).toHaveText('Wasteland Rush');
+  await expect(page.locator('.journey-step')).toHaveCount(8);
+  await expect(page.locator('.case-system__nodes .system-node')).toHaveCount(4);
+  await expect(page.locator('.evidence-grid .evidence-card')).toHaveCount(9);
+  await expect(page.locator('.decision-list li')).toHaveCount(5);
+  await expect(page.locator('.core-copy')).toContainText('territory');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',/\/work\/wasteland-rush$/);
 });
