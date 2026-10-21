@@ -16,6 +16,7 @@ The homepage stays visually quiet while motion carries identity. Project work is
 - `/work/doodle-tyrant`
 - `/work/learning-games`
 - `/work/pixel-lab`
+- `/work/finance-planning` — financial independence planning case study with a link to the public, blank live planner (source repository stays private)
 
 Every project route has its own title, description, canonical URL and Open Graph metadata. The homepage keeps the organic fullscreen detail reveal; opening a project also updates browser history to the same canonical project route.
 
