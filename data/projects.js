@@ -41,6 +41,30 @@
       id:'pixel',number:'08',slug:'pixel-lab',route:'/work/pixel-lab',title:'Pixel Lab',mediaTitle:'PIXEL LAB',period:'2026.01.08 — 2026.01.10',year:'2026',status:'Public lab / experiment archive',stack:['Canvas','Physics','Pixel','Sprites','Interaction'],liveUrl:null,sourceUrl:'https://github.com/Bn0u0/Pixel-Lab',
       en:{meta:'Canvas engine / Physics lab',headline:'A technical sandbox for pixels, physics and motion.',description:'A small public laboratory for rendering, sprite processing, interaction and physics experiments.',overview:'Pixel Lab is intentionally not one finished product. It keeps tiny rendering and interaction ideas isolated enough to be tested without forcing every experiment into a larger game.',core:'The value is accumulated technique: pixel rendering, movement, collision and small visual-processing experiments can be reused elsewhere when an idea proves useful.',engineering:'The repository stays deliberately small and public, making the experiment itself inspectable instead of presenting only a polished outcome.',below:'This is the clearest example of the “laboratory” part of the site: small tests are allowed to remain small.',decisions:['Separate experiments from product code','Keep each test legible','Retain useful rendering and physics techniques','Publish the lab rather than over-package it'],evidence:[['SCOPE','Small isolated tests','Experiments stay cheap to create and discard.'],['DOMAIN','Canvas + physics','Rendering and motion can be explored without framework overhead.'],['SOURCE','Public repository','The implementation can be inspected directly.']]},
       zh:{meta:'Canvas 引擎 / 物理實驗室',headline:'給像素、物理與動態使用的技術沙盒。',description:'公開的小型 Rendering、Sprite Processing、互動與物理實驗場。',overview:'Pixel Lab 刻意不是一個完成產品。小型 rendering 與 interaction 想法可以獨立被測試，不必硬塞進更大的遊戲。',core:'價值在累積技術：像素渲染、移動、碰撞與小型視覺處理只要證明有用，就能被其他專案重新使用。',engineering:'Repo 刻意保持小而公開，讓實驗本身可以被檢查，而不是只展示包裝好的結果。',below:'這是網站裡最純粹的「Laboratory」：小測試被允許就保持小。',decisions:['把實驗和產品程式拆開','每個測試保持可讀','留下可重用的 Rendering / Physics 技術','直接公開 Lab 而不是過度包裝'],evidence:[['範圍','小型獨立測試','實驗可以便宜地建立，也可以便宜地丟掉。'],['領域','Canvas + Physics','不依賴大型框架也能探索 Rendering 與 Motion。'],['原始碼','公開 Repository','實作本身可以直接被檢查。']]}
+    },
+    finance:{
+      id:'finance',number:'09',slug:'finance-planning',route:'/work/finance-planning',title:'Financial Independence Planner',mediaTitle:'FINANCIAL PLANNING',period:'2026.10 — NOW',year:'2026',modified:'2026-10-21',
+      status:'Live / interactive financial model',stack:['JavaScript','Vite','Cash Flow','Scenario Analysis','Monthly Projection','Shareable Plans'],liveUrl:'https://money-planning-theta.vercel.app',sourceUrl:null,
+      en:{
+        meta:'Personal finance / Interactive planning',headline:'A financial independence plan you can interrogate, not just read.',
+        description:'An interactive planning tool for estimating retirement capital, monthly contributions, withdrawal modes and the time needed to reach financial independence.',
+        overview:'The planner links age, income, expenses, inflation, expected returns and retirement spending in one recalculating model. It compares projected assets with the capital required at different retirement ages, then shows what would need to change to close the gap.',
+        core:'Users can compare preserving principal, drawing down from retirement, and preserving first before spending down. Month-based projections use the birthday month to estimate attainment age and calendar month; annual views remain available.',
+        engineering:'A Vite-based browser app runs cash-flow simulations with optional military-service savings, monthly investing, reserve assumptions and contribution compounding. It includes scenario comparisons, input checks and shareable plans.',
+        below:'The public link opens a blank planning template rather than exposing private financial records. Figures depend on user inputs and fixed-return assumptions; the model is not investment advice or a prediction of market performance.',
+        decisions:['Make assumptions editable and linked','Separate target age from projected attainment','Explain shortfalls with actionable alternatives','Keep private plans separate from the public template'],
+        evidence:[['MODES','Three withdrawal plans','Compare preserved principal, immediate drawdown and delayed drawdown.'],['TIMING','Birthday-aligned projection','Attainment age and calendar month can be calculated from monthly cash flows.'],['SCENARIOS','Three ways to close the gap','Calculate added monthly investing, required annual return or reduced retirement spending.'],['SHARING','Isolated public template','Public visitors begin from a blank plan; shared editing links are separate.']]
+      },
+      zh:{
+        meta:'個人財務 / 互動規劃',headline:'不只顯示退休目標，也能反推怎麼達成。',
+        description:'可互動的財務獨立規劃工具，連動退休本金、每月投入、提款方式，以及預估何時達標。',
+        overview:'把年齡、收入、工作支出、通膨、預期報酬與退休花銷放進同一套連動模型。比較不同退休年齡的累積資產與所需本金，並反推達標缺口。',
+        core:'支援終身保值、從退休起耗用及先保值後耗用三種模式。輸入生日月份後，可逐月推算達標的歲數與西元年月，同時保留年度計算方式。',
+        engineering:'網站以 Vite 與 JavaScript 建置，涵蓋每月投入、複利、可選兵役儲蓄、一次性預備金、財務情境比較、輸入檢查與獨立分享規劃。',
+        below:'公開網址只開啟空白規劃，不會公開個人財務資料。試算依使用者設定與固定報酬假設計算，並非市場預測或投資建議。',
+        decisions:['讓所有財務假設可以連動修改','區分希望退休年齡與實際預估達標時間','把本金缺口轉化成可調整的方案','讓公開模板與個人規劃分離'],
+        evidence:[['提款模式','三種退休資產策略','比較保留本金、立即耗用與晚年才開始耗用。'],['時間精度','生日月份對齊','依逐月現金流推算達標歲數及西元年月。'],['缺口試算','三種改善方向','反推增加月投入、必要年化報酬或降低退休花銷。'],['資料分享','公開空白模板','公開頁面不帶出私人資料，共同編輯需專屬連結。']]
+      }
     }
   };
   window.__portfolioProjects=Object.freeze(P);

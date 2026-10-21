@@ -28,8 +28,8 @@ test('home → PicNest journey → back stays coherent',async({page})=>{
 
 test('Battle Beyblade is selected work and opens verified project detail',async({page})=>{
   await enter(page);
-  await expect(page.locator('.work .project-list .project-item')).toHaveCount(6);
-  await expect(page.locator('.work-more__meta-text')).toHaveText('08 total');
+  await expect(page.locator('.work .project-list .project-item')).toHaveCount(7);
+  await expect(page.locator('.work-more__meta-text')).toHaveText('09 total');
   const battle=page.locator('.work .project-item[data-project="battle"] .project-row');
   await expect(battle).toContainText('Battle Beyblade');
   await battle.click();
@@ -92,4 +92,34 @@ test('standalone Wasteland Rush case renders design lineage and territory eviden
   await expect(page.locator('.decision-list li')).toHaveCount(5);
   await expect(page.locator('.core-copy')).toContainText('territory');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href',/\/work\/wasteland-rush$/);
+});
+
+
+test('Financial Independence Planner appears in archive with a working public demo link',async({page})=>{
+ await enter(page);
+ await page.locator('.work-more').click();
+ const archive=page.locator('.project-archive');
+ await expect(archive).toHaveClass(/is-open/);
+ const finance=archive.locator('.project-item[data-project="finance"] .project-row');
+ await expect(finance).toContainText('Financial Independence Planner');
+ await finance.click();
+ await expect(page).toHaveURL(/\/work\/finance-planning$/);
+ const detail=page.locator('.project-detail');
+ await expect(detail).toHaveClass(/is-open/);
+ await expect(detail.locator('.project-detail__title')).toHaveText('Financial Independence Planner');
+ await expect(detail.locator('.detail-evidence-grid .evidence-card')).toHaveCount(4);
+ const live=detail.locator('.detail-actions a[href="https://money-planning-theta.vercel.app"]');
+ await expect(live).toHaveAttribute('target','_blank');
+ await expect(live).toHaveAttribute('rel',/noopener noreferrer/);
+ await expect(detail.locator('.detail-actions a[href*="github.com"]')).toHaveCount(0);
+});
+
+test('finance case-study route opens directly and remains bilingual',async({page})=>{
+ await page.goto('/work/finance-planning.html');
+ await expect(page).toHaveTitle(/Financial Independence Planner/);
+ await expect(page.locator('h1')).toHaveText('Financial Independence Planner');
+ await expect(page.locator('.case-actions a[href="https://money-planning-theta.vercel.app"]')).toBeVisible();
+ await expect(page.locator('.evidence-grid .evidence-card')).toHaveCount(4);
+ await page.locator('.lang-toggle').click();
+ await expect(page.locator('.case-description')).toContainText('財務');
 });
